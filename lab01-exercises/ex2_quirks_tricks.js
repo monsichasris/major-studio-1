@@ -29,8 +29,8 @@ console.log(test3)
 // Task
 // Change this code so test4 is false and test5 is true. Use console.log() to confirm your cod works.
 
-var test4 = 0 === "0";
-var test5 = 1 == "1";
+var test4 = 0 === "0"; // === exacly equal
+var test5 = 1 == "1"; // == equal
 
 console.log("test4 is", test4, "and test 5 is", test5);
 
@@ -43,7 +43,7 @@ var z = 0.5;
 
 var p = w + x; 
 console.log(p)
-// 0.30000000000000004
+// 0.30000000000000004 -- floating number
 
 var q = z - x;
 console.log(q)
