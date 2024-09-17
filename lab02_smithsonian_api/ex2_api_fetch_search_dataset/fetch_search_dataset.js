@@ -6,14 +6,16 @@
 const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 
 // search base URL
+// const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // constructing the initial search query
-// const search =  'mask AND unit_code:"FSG"';
-const search = `dog AND unit_code:"CHNDM" AND online_visual_material:true`;
+// const search = 'mask AND unit_code:"FSG"';
+const search = `topic:"Dogs" AND online_media_type:"Images"`
+// const search = `topic:"Cats" AND online_media_type:"Images"`;
 
 
-// array that we will write into
+// array ole.log(data)that we will write into
 let myArray = [];
 
 // string that will hold the stringified JSON data
@@ -27,8 +29,8 @@ function fetchSearchData(searchTerm) {
     .fetch(url)
     .then(res => res.json())
     .then(data => {
-      console.log(data)
 
+      console.log(data);
       // constructing search queries to get all the rows of data
       // you can change the page size
       let pageSize = 1000;
@@ -84,7 +86,8 @@ function addObject(objectData) {
     id: objectData.id,
     title: objectData.title,
     link: objectData.content.descriptiveNonRepeating.record_link,
-    place: currentPlace
+    type: objectData.content.indexedStructured.object_type,
+    topic: objectData.content.indexedStructured.topic
   })
 }
 

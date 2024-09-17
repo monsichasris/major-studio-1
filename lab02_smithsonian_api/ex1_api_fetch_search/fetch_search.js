@@ -5,15 +5,21 @@
 const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 
 // search base URL
-const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
+// const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
+// const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
 
 // Constructing the search query
-const search = `dog AND unit_code:"CHNDM" AND online_visual_material:true`;
+// const search = `topic:"Cats" AND online_media_type:"Images"`;
 
+// const searchBaseURL =
+//   "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
+// const search = `topic:"Dogs" AND online_media_type:"Images"`;
 
-// https://collections.si.edu/search/results.htm?q=Flowers&view=grid&fq=data_source%3A%22Cooper+Hewitt%2C+Smithsonian+Design+Museum%22&fq=online_media_type%3A%22Images%22&media.CC0=true&fq=object_type:%22Embroidery+%28visual+works%29%22
+const searchBaseURL =
+  "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
+const search = `topic:"Cats" AND online_media_type:"Images"`;
 
-//https://api.si.edu/openaccess/api/v1.0/search?q=online_visual_material:true+AND+unit_code:CHNDM+”dog” &api_key=OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK
+//https://collections.si.edu/search/results.htm?view=grid&fq=online_media_type%3A%22Images%22&q=dog&media.CC0=true&gfq=CSILP_4
 
 
 // search: fetches an array of terms based on term category
