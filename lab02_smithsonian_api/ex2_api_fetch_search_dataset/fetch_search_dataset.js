@@ -33,7 +33,7 @@ function fetchSearchData(searchTerm) {
       console.log(data);
       // constructing search queries to get all the rows of data
       // you can change the page size
-      let pageSize = 1000;
+      let pageSize = 2000;
       let numberOfQueries = Math.ceil(data.response.rowCount / pageSize);
       console.log(numberOfQueries)
       for (let i = 0; i < numberOfQueries; i++) {
