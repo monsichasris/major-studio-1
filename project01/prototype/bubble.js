@@ -4,16 +4,23 @@ let allTypes = [];
 
 // Load both JSON files
 Promise.all([
-  d3.json('data/cats_art.json'),
-  d3.json('data/dogs_art.json')
+  d3.json('data-unit/cat_CHNDM.json'),
+  d3.json('data-unit/cat_FSG.json'),
+  d3.json('data-unit/cat_HMSG.json'),
+  d3.json('data-unit/cat_NPG.json'),
+  d3.json('data-unit/cat_SAAM.json'),
+  d3.json('data-unit/dog_CHNDM.json'),
+  d3.json('data-unit/dog_FSG.json'),
+  d3.json('data-unit/dog_HMSG.json'),
+  d3.json('data-unit/dog_NPG.json'),
+  d3.json('data-unit/dog_SAAM.json')
 ])
   .then(data => {
-    // Combine both arrays
-    pets = [...data[0], ...data[1]];
+    // Combine arrays
+    pets = [...data[0], ...data[1], ...data[2], ...data[3], ...data[4], ...data[5], ...data[6], ...data[7], ...data[8], ...data[9]];
     console.log(pets); // Check combined data
     analyzeData(pets); // Call analyzeData function
-    displayData(pets); // Pass combined data to your display function
-
+    displayData(pets); // Call your bubble chart function
   });
 
 // analyze the data
@@ -52,7 +59,7 @@ function analyzeData(pets) {
 function displayData(pets) { // Accept pets as a parameter
 
   // Define dimensions for the graphic
-  const width = 1400;
+  const width = 2000;
   const height = 700;
 
   const colors = {
@@ -79,7 +86,7 @@ function displayData(pets) { // Accept pets as a parameter
     svg.append('circle')
       .attr('cx', 200 + i * (allTypes[i].count + 100))
       .attr('cy', height / 2)
-      .attr('r', allTypes[i].count * 5)
+      .attr('r', allTypes[i].count)
       .attr('fill', colors[d.name])
     // .attr('stroke', 'black')
   });

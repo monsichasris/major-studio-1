@@ -11,7 +11,7 @@ const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // constructing the initial search query
 // const search = `topic:"Dogs" AND online_media_type:"Images"`;
-const search = `topic:"Cats" AND online_media_type:"Images"`;
+const search = `dog AND unit_code:"NPG" AND online_visual_material:true`;
 
 
 // array ole.log(data)that we will write into
