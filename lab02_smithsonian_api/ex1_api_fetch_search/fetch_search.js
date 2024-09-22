@@ -5,18 +5,12 @@
 const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 
 // search base URL
-// const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
-// const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
+const searchBaseURL =
+  // "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
+  "https://api.si.edu/openaccess/api/v1.0/search";
 
 // Constructing the search query
-// const search = `topic:"Cats" AND online_media_type:"Images"`;
-
-// const searchBaseURL =
-//   "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
 // const search = `topic:"Dogs" AND online_media_type:"Images"`;
-
-const searchBaseURL =
-  "https://api.si.edu/openaccess/api/v1.0/category/art_design/search";
 const search = `topic:"Cats" AND online_media_type:"Images"`;
 
 //https://collections.si.edu/search/results.htm?view=grid&fq=online_media_type%3A%22Images%22&q=dog&media.CC0=true&gfq=CSILP_4

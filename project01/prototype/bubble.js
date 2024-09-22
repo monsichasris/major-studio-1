@@ -1,20 +1,26 @@
-let pets;
+let pets; // Outer pets variable
 let allTypes = [];
 
-// load the data
-d3.json('data/cats_art.json' || 'data/dogs_art.json')
+
+// Load both JSON files
+Promise.all([
+  d3.json('data/cats_art.json'),
+  d3.json('data/dogs_art.json')
+])
   .then(data => {
-    pets = data;
-    analyzeData();
-    displayData();
+    // Combine both arrays
+    pets = [...data[0], ...data[1]];
+    console.log(pets); // Check combined data
+    analyzeData(pets); // Call analyzeData function
+    displayData(pets); // Pass combined data to your display function
+
   });
 
-
 // analyze the data
-function analyzeData() {
+function analyzeData(pets) {
   let type;
 
-  // go through the list of textiles
+  // go through the list
   pets.forEach(n => {
     type = n.type[0];
     let match = false;
@@ -26,7 +32,8 @@ function analyzeData() {
         match = true;
       }
     });
-    // if not create a new entry for that place name
+
+    // if not create a new entry for that type
     if (!match) {
       allTypes.push({
         name: type,
@@ -34,81 +41,80 @@ function analyzeData() {
       });
     }
   });
+  console.log(allTypes);
 
   // sort by amount of items in the list
   allTypes.sort((a, b) => (a.count < b.count) ? 1 : -1);
-  console.log(allTypes);
+  console.log(allTypes)
+}
 
-  // display the data in bubble chart
-  //reference: https://observablehq.com/@mbostock/clustered-bubbles
-  var bubbleChart = function () {
-    const width = 800;
-    const height = 600;
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+// Display the data in a chart
+function displayData(pets) { // Accept pets as a parameter
 
-    // Define the pack layout
-    const pack = d3.pack()
-      .size([width, height])
-      .padding(1);
+  // Define dimensions for the graphic
+  const width = 1400;
+  const height = 700;
 
-    // Create the root hierarchy
-    const root = d3.hierarchy({ children: allTypes })
-      .sum(d => d.count);
-
-    // Compute the pack layout
-    pack(root);
-
-    // Create the SVG container
-    const svg = d3.select("body").append("svg")
-      .attr("width", width)
-      .attr("height", height);
-
-    // Append circles for grouped data
-    if (grouped) {
-      svg.append("g")
-        .attr("fill", "none")
-        .attr("stroke", "#ccc")
-        .selectAll("circle")
-        .data(root.descendants().filter(d => d.height === 1))
-        .join("circle")
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y)
-        .attr("r", d => d.r);
-    }
-
-    // Append circles for leaf nodes
-    svg.append("g")
-      .selectAll("circle")
-      .data(root.leaves())
-      .join("circle")
-      .attr("cx", d => d.x)
-      .attr("cy", d => d.y)
-      .attr("r", d => d.r)
-      .attr("fill", d => color(d.data.name));
-
-    return svg.node();
+  const colors = {
+    "Prints": 'red',
+    "Graphic arts": 'blue',
+    "Paintings": 'green',
+    "Sculpture": 'yellow',
+    "Decorative arts": 'magenta',
+    "Drawings": 'orange',
+    "Photographs": 'purple',
+    "Exterior views": 'pink',
+    "Sheet music": 'brown',
+    "Folk art": 'teal',
+    "Still lifes": 'cyan',
   }
 
-  pack = () => d3.pack()
-    .size([width, height])
-    .padding(1)
-    (d3.hierarchy(data)
-      .sum(d => d.value))
+  // Create an SVG container
+  const svg = d3.select('body')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height);
 
-  data = ({
-    children: Array.from(
-      d3.group(
-        Array.from({ length: n }, (_, i) => ({
-          group: Math.random() * m | 0,
-          value: -Math.log(Math.random())
-        })),
-        d => d.group
-      ),
-      ([, children]) => ({ children })
-    )
-  })
+  allTypes.forEach((d, i) => {
+    svg.append('circle')
+      .attr('cx', 200 + i * (allTypes[i].count + 100))
+      .attr('cy', height / 2)
+      .attr('r', allTypes[i].count * 5)
+      .attr('fill', colors[d.name])
+    // .attr('stroke', 'black')
+  });
 
-  color = d3.scaleOrdinal(d3.range(m), d3.schemeCategory10)
+  // // Iterate over the pets array
+  // pets.forEach((d, i) => {
 
-  d3 = require("d3@5", "d3-array@2")
+
+  //   // const types = pets.filter((item) => Object.values(item)[0] === type);
+
+  //   // for (let i = 0; i < pets.length; i++) {
+  //   //   //assign color for each type
+  //   // }
+
+  //   for (let i = 0; i < pets.length; i++) {
+  //     //assign the shape for each pet
+  //     if (d.topic[i] === 'Cats') {
+  //       svg.append('rect')
+  //         .attr('x', 30)
+  //         .attr('y', i * 30)
+  //         .attr('width', 20)
+  //         .attr('height', 20)
+  //         ;
+  //     } else if (d.topic[i] === 'Dogs') {
+  //       svg.append('circle')
+  //         .attr('cx', 70)
+  //         .attr('cy', i * 30)
+  //         .attr('r', 10)
+  //         ;
+  //     }
+  //   }
+  // });
+
+
+
+
+
 }

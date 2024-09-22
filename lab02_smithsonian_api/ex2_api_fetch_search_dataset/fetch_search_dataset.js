@@ -10,9 +10,8 @@ const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // constructing the initial search query
-// const search = 'mask AND unit_code:"FSG"';
-const search = `topic:"Dogs" AND online_media_type:"Images"`
-// const search = `topic:"Cats" AND online_media_type:"Images"`;
+// const search = `topic:"Dogs" AND online_media_type:"Images"`;
+const search = `topic:"Cats" AND online_media_type:"Images"`;
 
 
 // array ole.log(data)that we will write into
@@ -33,7 +32,7 @@ function fetchSearchData(searchTerm) {
       console.log(data);
       // constructing search queries to get all the rows of data
       // you can change the page size
-      let pageSize = 2000;
+      let pageSize = 10000;
       let numberOfQueries = Math.ceil(data.response.rowCount / pageSize);
       console.log(numberOfQueries)
       for (let i = 0; i < numberOfQueries; i++) {
@@ -76,18 +75,13 @@ function fetchAllData(url) {
 // create your own array with just the data you need
 function addObject(objectData) {
 
-  // we've encountered that some places have data others don't
-  let currentPlace = "";
-  if (objectData.content.indexedStructured.place) {
-    currentPlace = objectData.content.indexedStructured.place[0];
-  }
-
   myArray.push({
     id: objectData.id,
     title: objectData.title,
     link: objectData.content.descriptiveNonRepeating.record_link,
     type: objectData.content.indexedStructured.object_type,
-    topic: objectData.content.indexedStructured.topic
+    topic: objectData.content.indexedStructured.topic,
+    thumbnail: objectData.content.descriptiveNonRepeating.online_media.media[0].thumbnail
   })
 }
 

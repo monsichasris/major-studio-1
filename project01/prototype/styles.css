@@ -2,15 +2,24 @@ body {
     background-color: var(--cream, #FFF9F0);
     margin: 40px;
     padding: 0;
+    font-family: "spirits-soft", serif;
+    color: var(--brown, #3E3A36);
 }
 
 H1 {
-    font-family: "spirits-soft", serif;
     font-size: 60px;
     font-style: normal;
     font-weight: 400;
     line-height: 100%;
     margin: 0;
     text-transform: uppercase;
-    color: var(--brown, #3E3A36);
+
+}
+
+p {
+    font-size: 20px;
+    font-style: light;
+    font-weight: 200;
+    line-height: 150%;
+
 }

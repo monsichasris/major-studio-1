@@ -102,7 +102,7 @@ function displayData() {
     // .style('text-anchor', 'end')
     .attr('dx', '0')
     .attr('dy', '1em')
-    // .attr('transform', d => { return 'rotate(0)' })
+    // .attr('transform', d => { return 'rotate(90)' })
     ;
 
 }
