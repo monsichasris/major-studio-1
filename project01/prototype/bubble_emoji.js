@@ -20,34 +20,6 @@ Promise.all([
     // Combine arrays
     pets = [...data[0], ...data[1], ...data[2], ...data[3], ...data[4], ...data[5], ...data[6], ...data[7], ...data[8], ...data[9], ...data[10], ...data[11]];
     console.log(pets); // Check combined data
-
-    // Get the number of elements where d.data.source starts with "dog"
-    const dogCount = pets.filter(pet => pet.source.startsWith("dog")).length;
-    console.log(`Number of elements where source starts with "dog": ${dogCount}`);
-
-    // Get the number of elements where d.data.source starts with "cat"
-    const catCount = pets.filter(pet => pet.source.startsWith("cat")).length;
-    console.log(`Number of elements where source starts with "cat": ${catCount}`);
-
-    // Group the data by type
-    const groupedByType = d3.group(pets, d => d.type[0]);
-
-    // Get the number of elements where d.data.source starts with "dog" grouped by type
-    const dogCountsByType = Array.from(groupedByType, ([type, items]) => ({
-      type,
-      count: items.filter(pet => pet.source.startsWith("dog")).length
-    }));
-    dogCountsByType.sort((a, b) => b.count - a.count);
-    console.log("Dog counts by type:", dogCountsByType);
-
-    // Get the number of elements where d.data.source starts with "cat" grouped by type
-    const catCountsByType = Array.from(groupedByType, ([type, items]) => ({
-      type,
-      count: items.filter(pet => pet.source.startsWith("cat")).length
-    }));
-    catCountsByType.sort((a, b) => b.count - a.count);
-    console.log("Cat counts by type:", catCountsByType);
-
     analyzeData(pets); // Call analyzeData function
     displayData(pets); // Call your bubble chart function
   });
@@ -69,7 +41,7 @@ function analyzeData(pets) {
       });
     }
   });
-  // Sort the allTypes array in descending order based on count
+
   allTypes.sort((a, b) => b.count - a.count);
 
   console.log(allTypes);
@@ -112,7 +84,7 @@ function displayData(pets) {
   // Append circles for grouped data
   svg.append("g")
     .attr("fill", "none")
-    .attr("stroke", "#ccc")
+    .attr("stroke", "#E3D9CD")
     .selectAll("circle")
     .data(root.leaves())
     .join("circle")
@@ -148,35 +120,36 @@ function displayData(pets) {
       const selection = d3.select(this);
       //Check for topic Property and display the shape based on the topic
       if (d.data.source && d.data.source.startsWith("cat")) {
-        selection.append("rect")
-          .attr("width", 12)
-          .attr("height", 12)
-          .attr("x", -6)
-          .attr("y", -6)
-          .attr("fill", '#48C0DA')
+        selection.append("text")
+          .attr("font-size", 14)
+          .attr("text-anchor", "middle")
+          .attr("dy", ".35em") // Center the text
+          .text("🐱")
           .on("mouseover", function () {
             d3.select(this)
-              .attr("width", 14)
-              .attr("height", 14)
-              .attr("x", -7)
-              .attr("y", -7);
+              .attr("font-size", 16)
+              .attr("transform", "rotate(-15)");
           })
           .on("mouseout", function () {
             d3.select(this)
-              .attr("width", 12)
-              .attr("height", 12)
-              .attr("x", -6)
-              .attr("y", -6);
+              .attr("font-size", 14)
+              .attr("transform", "rotate(0)");
           });
       } else if (d.data.source && d.data.source.startsWith("dog")) {
-        selection.append("circle")
-          .attr("r", 6)
-          .attr("fill", '#FF603D')
+        selection.append("text")
+          .attr("font-size", 14)
+          .attr("text-anchor", "middle")
+          .attr("dy", ".35em")
+          .text("🐶")
           .on("mouseover", function () {
-            d3.select(this).attr("r", 7);
+            d3.select(this)
+              .attr("font-size", 16)
+              .attr("transform", "rotate(-15)");
           })
           .on("mouseout", function () {
-            d3.select(this).attr("r", 6);
+            d3.select(this)
+              .attr("font-size", 14)
+              .attr("transform", "rotate(0)");
           });
       }
     });
@@ -186,7 +159,7 @@ function displayData(pets) {
         tooltip.style("visibility", "visible")
           .html(`Find the ${d.data.source.slice(0, 3)} in <br>
           <b>${d.data.title}</b><br>
-          They live in the form of ${d.data.type[0]}<br>`) // Use .html() to include HTML tags
+          They live in the form of ${d.data.type[0]}<br>`)
           .style("width", "120px")
           .append("img")
           .attr("src", d.data.thumbnail)
@@ -226,7 +199,8 @@ function displayData(pets) {
       return '';
     })
     .attr("font-size", 14)
-    .attr("font-family", "spirits-soft");
+    .attr("font-family", "spirits-soft")
+    .attr("fill", "#3E3A36");
 
   svg.append("g")
     .selectAll("text")
@@ -244,7 +218,8 @@ function displayData(pets) {
       return '';
     })
     .attr("font-size", 14)
-    .attr("font-family", "spirits-soft");
+    .attr("font-family", "spirits-soft")
+    .attr("fill", "#3E3A36");
 
   return svg.node();
 }
