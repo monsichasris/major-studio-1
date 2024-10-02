@@ -21,3 +21,6 @@ This visualization extracts the adjectives from the description field of Decorat
 <p>
 Landscapes in the Smithsonian American Art Museum are categorized by topic by descriptors such as: season, tree, water, road, etc. This visualization looks at what the most common themes are when the paintings are grouped by season. Are there more water scapes depicted in the summer? Mountains in winter? There are 107 documents for Landscape Paintings that specifically depict a season, and we would filter out this subset of paintings and make a heat map by layering images of each painting to compares the frequency of each theme by season.
 </p>
+
+-----------------------------------
+Collaborate with [Olivia Kasmin](https://github.com/oliviakasmin)
