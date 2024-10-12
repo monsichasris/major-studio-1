@@ -10,8 +10,7 @@ const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // constructing the initial search query
-// const search = `topic:"Dogs" AND online_media_type:"Images"`;
-const search = `dog AND unit_code:"NPG" AND online_visual_material:true`;
+const search = `unit_code:"NPG" AND online_visual_material:true AND male`;
 
 
 // array ole.log(data)that we will write into
