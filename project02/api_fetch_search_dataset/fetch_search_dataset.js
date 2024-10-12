@@ -10,9 +10,11 @@ const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // constructing the initial search query
-const search = `unit_code:"NPG" AND online_visual_material:true AND male`;
-
-
+// const search = `unit_code:"NPG" AND online_visual_material:true AND topic: "Men" OR topic: "Women"`;
+//const search = `unit_code:"NPG" AND online_visual_material:true`;
+const search = `unit_code:"NPG" AND online_visual_material:true AND topic: "Men"`;
+const search2 = `unit_code:"NPG" AND online_visual_material:true AND topic: "Women"`;
+const search3 = `unit_code:"NPG" AND online_visual_material:true`;
 // array ole.log(data)that we will write into
 let myArray = [];
 
@@ -73,20 +75,21 @@ function fetchAllData(url) {
 
 // create your own array with just the data you need
 function addObject(objectData) {
-
+ if (objectData.content.indexStructured.topic)
+{
   myArray.push({
     id: objectData.id,
     title: objectData.title,
     link: objectData.content.descriptiveNonRepeating.record_link,
-    type: objectData.content.indexedStructured.object_type,
-    topic: objectData.content.indexedStructured.topic,
-    thumbnail: objectData.content.descriptiveNonRepeating.online_media.media[0].thumbnail
-  })
+    topic: objectData.content.freetext.topic,
+    mf: objectData.content.indexStructured.topic,
+  
+  })}
 }
 
 
-fetchSearchData(search);
-
+fetchSearchData(search3);
+//fetchSearchData(search2);
 
 //---------------------------UNIT CODES------------------------------
 // ACAH: Archives Center, National Museum of American History
