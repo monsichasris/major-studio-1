@@ -1,6 +1,5 @@
 // Smithsonian API example code
 // check API documentation for search here: http://edan.si.edu/openaccess/apidocs/#api-search-search
-// Using this data set https://collections.si.edu/search/results.htm?q=Flowers&view=grid&fq=data_source%3A%22Cooper+Hewitt%2C+Smithsonian+Design+Museum%22&fq=online_media_type%3A%22Images%22&media.CC0=true&fq=object_type:%22Embroidery+%28visual+works%29%22
 
 // put your API key here;
 const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
@@ -10,11 +9,10 @@ const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // constructing the initial search query
-// const search = `unit_code:"NPG" AND online_visual_material:true AND topic: "Men" OR topic: "Women"`;
-//const search = `unit_code:"NPG" AND online_visual_material:true`;
-const search = `unit_code:"NPG" AND online_visual_material:true AND topic: "Men"`;
-const search2 = `unit_code:"NPG" AND online_visual_material:true AND topic: "Women"`;
-const search3 = `unit_code:"NPG" AND online_visual_material:true`;
+const search = `unit_code:"NPG" AND online_visual_material:true AND topic:"Men"`;
+// const search = `unit_code:"NPG" AND online_visual_material:true AND topic:"Women"`;
+
+
 // array ole.log(data)that we will write into
 let myArray = [];
 
@@ -33,7 +31,7 @@ function fetchSearchData(searchTerm) {
       console.log(data);
       // constructing search queries to get all the rows of data
       // you can change the page size
-      let pageSize = 10000;
+      let pageSize = 1000;
       let numberOfQueries = Math.ceil(data.response.rowCount / pageSize);
       console.log(numberOfQueries)
       for (let i = 0; i < numberOfQueries; i++) {
@@ -81,10 +79,10 @@ function addObject(objectData) {
     id: objectData.id,
     title: objectData.title,
     link: objectData.content.descriptiveNonRepeating.record_link,
-    topic: objectData.content.freetext.topic,
-    mf: objectData.content.indexStructured.topic,
-  
-  })}
+    type: objectData.content.indexedStructured.object_type,
+    topic: objectData.content.indexedStructured.topic,
+    // thumbnail: objectData.content.descriptiveNonRepeating.online_media.media[0].thumbnail
+  })
 }
 
 
