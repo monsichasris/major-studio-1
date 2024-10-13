@@ -7,7 +7,7 @@
     
   });
 
-people_data=[], midstage_peoplearray=[], roles=[];
+people_data=[], midstage_peoplearray=[], roles=[], realm_roles=[];
 
 function analyseData(data)
 {
@@ -38,44 +38,28 @@ function analyseData(data)
         }
      //we are grouping by people first, and then by realm inside each person so that we get an accurate count of the realms that each person was in.
    const realmData = d3.group(people_data, d => d.name, d=>d.realm);
-   realmData.forEach((personMap, personName) => {
-    console.log(`Person: ${personName}`);
-    
-    // Loop through each category (realm) inside the personMap
-    personMap.forEach((categoryArray, categoryName) => {
-        console.log(`  Category: ${categoryName}`);
-        
-        // Loop through each entry in the category array (this array contains objects with role, realm, etc.)
-        categoryArray.forEach((entry, index) => {
-            // Access and log the role, realm, and other details
-            
-            roles.push({"role": entry.role, "count": 0});
-             // If the realm already exists in categoryCounts, increment its count
-        if (roles[index].count) {
-            roles[index].count += 1;
-          } else {
-            // Otherwise, initialize the count for this realm
-            roles[index].count = 1;
-          }
-            
-        });
+   const roleData = d3.group(people_data, d => d.realm, d=>d.role);
+   //console.log(roleData)
+   roleData.forEach((role, realm) => {
+        console.log(role); 
+        console.log(realm); 
+       
     });
-});
+    
+    const count_roles = countRoles(roleData);
+    const count_realms = countRealms(realmData);
+    createTreemap(count_roles);
+    createTreemap(count_realms);
+};
 
-  // const roleData = d3.group(people_data, d => d.name, d=>d.role);
-    console.log(realmData);
-
-   //[{realm: name_of_realm, count: number_of_people_in_real},]
+  
 
      
-  //const count_roles = countRoles(roleData);
-  const count_realms = countRealms(realmData);
-  //createTreemap(count_roles);
-  createTreemap(count_realms);
+
  
 
   
-}
+
 //chatgpt
 
 // Updated Function to Count Categories and Format the Data for Treemap
@@ -90,13 +74,17 @@ function countRealms(groupedData) {
         
         // Get the number of entries for this realm
         const count = entries.length;
-        
+        //for the role stacked bar
+        // if(count>1)
+        // {console.log("count: "+count);}
         // If the realm already exists in categoryCounts, increment its count
         if (categoryCounts[realm]) {
           categoryCounts[realm] += 1;
+          
         } else {
           // Otherwise, initialize the count for this realm
           categoryCounts[realm] = 1;
+
         }
       });
     });
