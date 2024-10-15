@@ -1,0 +1,39 @@
+<html>
+<head>
+    <style>
+    * {
+        margin: 1em;
+    } 
+    @media (max-width: 1024px) and (min-width: 480px) {
+        body {
+            font-family: serif;
+            background-color: pink;
+        }
+        h1 {
+            /* sans-serif */
+            font-family: sans-serif;
+            text-transform: capitalize;
+        }
+    }
+    @media (min-width: 1024px){
+        body {
+            background-color: turquoise;
+        }
+        h1 {
+            font-family: Georgia, serif;
+            /* italic */
+            font-style: italic;
+            /* lowercase */
+            text-transform: lowercase;
+        }
+    }
+    </style>
+</head>
+<body>
+
+    <h1>
+        A browser with less than 1024px with will change the body background-color to 'green'
+    </h1>
+
+</body>
+</html>
