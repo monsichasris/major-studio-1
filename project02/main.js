@@ -167,4 +167,4 @@ function createTreemap(data, datasetType) {
         .attr("font-size", "12px")
         .attr("fill", "white")
         .text(d => d.data.name);
-
+}
