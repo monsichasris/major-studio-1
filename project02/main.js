@@ -57,8 +57,10 @@ function analyseData(data, datasetType) {
     }
 
     // Add toggle button functionality for men and women
-    d3.select("body").append("button")
-        .text(`Toggle ${datasetType} Treemap`)
+    d3.select("#chart")
+        .append("button")
+        .attr("class", "toggle")
+        .text(`Toggle ${datasetType}`)
         .on("click", function () {
             // Clear the existing treemap
             d3.select(`#${datasetType}-treemap`).remove();
@@ -146,7 +148,7 @@ function createTreemap(data, datasetType) {
     treemap(root);
 
     // Create the SVG element where the treemap will be drawn, using an ID to distinguish between men and women
-    const svg = d3.select("body").append("svg")
+    const svg = d3.select("#chart").append("svg")
         .attr("id", `${datasetType}-treemap`) // Unique ID for each treemap
         .attr("width", width)
         .attr("height", height);
