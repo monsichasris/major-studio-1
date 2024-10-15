@@ -161,12 +161,44 @@ function createTreemap(data, datasetType) {
         .attr("stroke", "white");
 
     // Add labels to the rectangles (optional)
-    cell.append("text")
-        .attr("x", 5)
-        .attr("y", 15)
-        .attr("font-size", "12px")
-        .attr("fill", "white")
-        .text(d => d.data.name);
+    // Add labels to the rectangles only if the height is greater than 10px and wrap text if necessary
+cell.append("text")
+.attr("x", 5)
+.attr("y", 15)
+.attr("font-size", "12px")
+.attr("fill", "white")
+.each(function(d) {
+    const rectWidth = d.x1 - d.x0;  // Width of the rectangle
+    const rectHeight = d.y1 - d.y0; // Height of the rectangle
+    const textElement = d3.select(this);
+    const words = d.data.name.split(" ");  // Split the text by words
+    const lineHeight = 12; // Line height for each line of text
+    let currentLine = [];
+    let currentY = 15;  // Starting position for the first line of text
+    let tspan = textElement.append("tspan").attr("x", 5).attr("y", currentY);
+
+    words.forEach((word) => {
+        currentLine.push(word);
+        tspan.text(currentLine.join(" "));
+        if (tspan.node().getComputedTextLength() > rectWidth - 10) {
+            currentLine.pop();  // Remove the last word and start a new line
+            tspan.text(currentLine.join(" "));
+            currentLine = [word];
+            currentY += lineHeight; // Move to the next line
+            tspan = textElement.append("tspan")
+                .attr("x", 5)
+                .attr("y", currentY)
+                .text(word);
+        }
+    });
+
+    // Hide text if it exceeds the rectangle height
+    if (rectHeight < (currentY + lineHeight)) {
+        textElement.style("display", "none");
+    }
+})
+.style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none")); // Display only if height > 10px
+
 }
 function harshita_branch_check()
 {
