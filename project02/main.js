@@ -2,7 +2,11 @@
 let isRoleTreemapMen = true;
 let isRoleTreemapWomen = true;
 
-people_data_men = [], people_data_women = [], colourBand=["#d49eff", "#d0fc83"];
+people_data_men = [], people_data_women = [];
+const colors = {
+    "women": '#d49eff', //purple
+    "men": '#d0fc83' //green
+}
 
 d3.json('data/data_men.json').then(function(dataMen) {
     d3.json('data/data_women.json').then(function(dataWomen) {
@@ -157,14 +161,26 @@ function createTreemap(data, datasetType) {
     cell.append("rect")
         .attr("width", d => d.x1 - d.x0)
         .attr("height", d => d.y1 - d.y0)
-        .attr("fill", colourBand[0])
+        .attr("fill", colors[datasetType])
         .attr("stroke", "white");
 
-    // Add labels to the rectangles (optional)
+
+
+    // if (d.data.count>0){
+    // // Add labels to the rectangles (optional)
+    // cell.append("text")
+    // .attr("x", 5)
+    // .attr("y", 15)
+    // .attr("font-size", "12px")
+    // .attr("fill", "black")
+    // .text(d => d.data.name);
+    // }
+
     cell.append("text")
-        .attr("x", 5)
-        .attr("y", 15)
-        .attr("font-size", "12px")
-        .attr("fill", "white")
-        .text(d => d.data.name);
+    .attr("x", 5)
+    .attr("y", 15)
+    .attr("font-size", "12px")
+    .attr("fill", "black")
+    .text(d => d.data.name)
+    .style("display", d=>(d.y1-d.y0)<50 ? "none" : "block");
 }
