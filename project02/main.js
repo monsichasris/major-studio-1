@@ -225,11 +225,11 @@ function createTreemap(data, datasetType) {
 
 function addInteractions(svg, datasetType) {
     // Select all rectangles across both treemaps (men and women)
-    d3.selectAll("#men-treemap rect, #women-treemap rect")
+    d3.selectAll(`#${datasetType}-treemap rect`)
         .on("mouseenter", function(event, d) {
-            // Get the label of the hovered rectangle
-            const hoveredLabel = d.data.name;
-            const category = d3.select(this).node().parentNode.id.includes("realm") ? "realm" : "role"; // Determine category
+            const hoveredLabel = d.data.name; // Get the label of the hovered rectangle
+            const category = datasetType === "men" && isRoleTreemapMen || datasetType === "women" && isRoleTreemapWomen 
+                ? "role" : "realm"; // Determine category based on dataset
 
             // On hover, reduce opacity of all rectangles in both treemaps
             d3.selectAll("rect").attr("opacity", 0.1);  // Set all rectangles to 10% opacity
@@ -245,10 +245,10 @@ function addInteractions(svg, datasetType) {
                 .attr("opacity", 1);  // Set matching rectangles to full opacity
 
             // Call the timeline function for the hovered category (realm/role)
-            if (isRoleTreemapMen && datasetType === "men") {
-                createTimeline(aggregatedDataMen, category, hoveredLabel);
-            } else if (isRoleTreemapWomen && datasetType === "women") {
-                createTimeline(aggregatedDataWomen, category, hoveredLabel);
+            if ((datasetType === "men" && isRoleTreemapMen) || (datasetType === "women" && isRoleTreemapWomen)) {
+                createTimeline(aggregatedDataMen, category, hoveredLabel);  // For roles, use men/women data
+            } else {
+                createTimeline(aggregatedDataWomen, category, hoveredLabel);  // For realms, use women data
             }
         })
         .on("mouseleave", function() {
@@ -261,8 +261,10 @@ function addInteractions(svg, datasetType) {
 }
 
 
+
 function createTimeline(data, category, hoveredLabel) {
-    const timelineData = data[category][hoveredLabel]; // Ensure we're looking up the correct data for the hovered label
+
+    const timelineData = date[category][hoveredLabel] ; //need to make this line make sense that's all //startHere
 
     // Check if there's data for the hovered label
     if (!timelineData) {
@@ -322,6 +324,7 @@ function createTimeline(data, category, hoveredLabel) {
         .attr("height", d => height - y(timelineData[d]))
         .attr("fill", "#69b3a2");
 }
+
 
 
 // Function to aggregate portraits per year for a given realm or role

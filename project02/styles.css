@@ -54,17 +54,26 @@ p{
 
 }
 
-footer{
+footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between;  /* Distribute items between left and right */
     align-items: center;
     background-color: black;
     color: white;
-    padding: 16px 40px;
+    padding: 16px 20px;
     position: fixed;
     bottom: 0;
     width: 100%;
 }
+
+footer label:nth-child(1) {
+    margin-left: 10px;  /* Push the first label to the right */
+}
+
+footer label:nth-child(2) {
+    margin-right: 40px; /* Push the second label to the left */
+}
+
 
 
 
