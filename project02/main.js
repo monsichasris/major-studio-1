@@ -185,7 +185,18 @@ function createTreemap(data, datasetType) {
         .attr("fill", colors[datasetType])
         .attr("stroke", "white");
 
-    // Add labels to the rectangles only if the height is greater than 10px and wrap text if necessary
+
+
+    // if (d.data.count>0){
+    // // Add labels to the rectangles only if the height is greater than 10px and wrap text if necessary
+    // cell.append("text")
+    // .attr("x", 5)
+    // .attr("y", 15)
+    // .attr("font-size", "12px")
+    // .attr("fill", "black")
+    // .text(d => d.data.name);
+    // }
+
     cell.append("text")
         .attr("x", 5)
         .attr("y", 15)
