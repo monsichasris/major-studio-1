@@ -186,7 +186,7 @@ function createTreemap(data, datasetType) {
         .attr("x", 5)
         .attr("y", 15)
         .attr("font-size", "12px")
-        .attr("fill", "white")
+        .attr("fill", "gray")
         .each(function(d) {
             const rectWidth = d.x1 - d.x0;  // Width of the rectangle
             const rectHeight = d.y1 - d.y0; // Height of the rectangle
