@@ -1,0 +1,178 @@
+[
+  {
+      "Name": "Ana",
+      "Attr": [
+          "stormy",
+          "cloudy",
+          "rainy",
+          "sunny"
+      ]
+  },
+  {
+      "Name": "Bill",
+      "Attr": [
+          "rainy",
+          "snowy",
+          "cloudy",
+          "sunny"
+      ]
+  },
+  {
+      "Name": "Claudette",
+      "Attr": [
+          "rainy",
+          "windy",
+          "snowy",
+          "cloudy",
+          "stormy"
+      ]
+  },
+  {
+      "Name": "Danny",
+      "Attr": [
+          "sunny",
+          "snowy",
+          "stormy",
+          "windy",
+          "cloudy"
+      ]
+  },
+  {
+      "Name": "Elsa",
+      "Attr": [
+          "rainy",
+          "cloudy",
+          "stormy",
+          "sunny",
+          "windy",
+          "snowy"
+      ]
+  },
+  {
+      "Name": "Fred",
+      "Attr": [
+          "sunny",
+          "windy",
+          "snowy",
+          "stormy",
+          "rainy"
+      ]
+  },
+  {
+      "Name": "Grace",
+      "Attr": [
+          "sunny",
+          "stormy"
+      ]
+  },
+  {
+      "Name": "Henri",
+      "Attr": [
+          "rainy",
+          "windy",
+          "cloudy"
+      ]
+  },
+  {
+      "Name": "Ida",
+      "Attr": [
+          "stormy",
+          "snowy",
+          "sunny"
+      ]
+  },
+  {
+      "Name": "Julian",
+      "Attr": [
+          "rainy",
+          "cloudy",
+          "sunny",
+          "stormy"
+      ]
+  },
+  {
+      "Name": "Kate",
+      "Attr": [
+          "snowy",
+          "sunny",
+          "windy",
+          "stormy",
+          "cloudy",
+          "rainy"
+      ]
+  },
+  {
+      "Name": "Larry",
+      "Attr": [
+          "rainy",
+          "cloudy",
+          "windy",
+          "sunny",
+          "stormy",
+          "snowy"
+      ]
+  },
+  {
+      "Name": "Mindy",
+      "Attr": [
+          "stormy",
+          "cloudy"
+      ]
+  },
+  {
+      "Name": "Nicholas",
+      "Attr": [
+          "rainy",
+          "snowy",
+          "sunny"
+      ]
+  },
+  {
+      "Name": "Odette",
+      "Attr": [
+          "stormy"
+      ]
+  },
+  {
+      "Name": "Peter",
+      "Attr": [
+          "rainy",
+          "cloudy",
+          "sunny"
+      ]
+  },
+  {
+      "Name": "Rose",
+      "Attr": [
+          "snowy"
+      ]
+  },
+  {
+      "Name": "Sam",
+      "Attr": [
+          "snowy",
+          "cloudy",
+          "rainy"
+      ]
+  },
+  {
+      "Name": "Teresa",
+      "Attr": [
+          "windy",
+          "snowy",
+          "sunny",
+          "stormy",
+          "cloudy",
+          "rainy"
+      ]
+  },
+  {
+      "Name": "Victor",
+      "Attr": [
+          "snowy",
+          "sunny",
+          "stormy",
+          "cloudy"
+      ]
+  }
+]
