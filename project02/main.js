@@ -16,7 +16,12 @@ d3.json('data/data_men.json').then(function(dataMen) {
     console.error('Error loading the men JSON data:', error);
 });
 
-function analyseData(data, datasetType) {
+// Global variables to store aggregated data for timeline
+let aggregatedDataMen = null;
+let aggregatedDataWomen = null;
+
+function analyseData(data, datasetType) 
+{
     let people_data = datasetType === "men" ? people_data_men : people_data_women;
 
     // Exclude portraits that are groups and prepare the data
@@ -45,35 +50,44 @@ function analyseData(data, datasetType) {
     const count_roles = countRoles(roleData);
     const count_realms = countRealms(realmData);
 
-    // Initially show the roles treemap for men or women based on the dataset
+    // Aggregate data by year for both realms and roles
+    const aggregatedByRealm = aggregateByYear(people_data, "realm");
+    const aggregatedByRole = aggregateByYear(people_data, "role");
+
+    // Store the aggregated data for future use (when hovering over rectangles)
     if (datasetType === "men") {
+        aggregatedDataMen = { realms: aggregatedByRealm, roles: aggregatedByRole };
         createTreemap(count_roles, datasetType);
     } else {
+        aggregatedDataWomen = { realms: aggregatedByRealm, roles: aggregatedByRole };
         createTreemap(count_roles, datasetType);
     }
 
-    // Add toggle button functionality for men and women
-    d3.select("body").append("button")
-        .text(`Toggle ${datasetType} Treemap`)
-        .on("click", function () {
-            // Clear the existing treemap
-            d3.select(`#${datasetType}-treemap`).remove();
+    // In analyseData() function where toggle button is created:
+d3.select("body").append("button")
+.text(`Toggle ${datasetType} Treemap`)
+.on("click", function () {
+    // Clear the existing treemap
+    d3.select(`#${datasetType}-treemap`).remove();
 
-            // Toggle between the two datasets
-            if ((datasetType === "men" && isRoleTreemapMen) || (datasetType === "women" && isRoleTreemapWomen)) {
-                createTreemap(count_realms, datasetType); // Show realms treemap
-            } else {
-                createTreemap(count_roles, datasetType); // Show roles treemap
-            }
+    // Toggle between the two datasets
+    if ((datasetType === "men" && isRoleTreemapMen) || (datasetType === "women" && isRoleTreemapWomen)) {
+        createTreemap(count_realms, datasetType); // Show realms treemap
+    } else {
+        createTreemap(count_roles, datasetType); // Show roles treemap
+    }
 
-            // Toggle the flag based on dataset type
-            if (datasetType === "men") {
-                isRoleTreemapMen = !isRoleTreemapMen;
-            } else {
-                isRoleTreemapWomen = !isRoleTreemapWomen;
-            }
-        });
+    // Toggle the flag based on dataset type
+    if (datasetType === "men") {
+        isRoleTreemapMen = !isRoleTreemapMen;
+    } else {
+        isRoleTreemapWomen = !isRoleTreemapWomen;
+    }
+});
+
 }
+
+
 
 // Function to Count Categories and Format the Data for Treemap
 function countRealms(groupedData) {
@@ -124,6 +138,7 @@ function countRoles(groupedData) {
     return { name: "root", children: Object.values(realmCounts) };
 }
 
+
 // Function to Create Treemap for specific dataset (men or women)
 function createTreemap(data, datasetType) {
     const width = 700;  // Width of the treemap for each dataset
@@ -160,47 +175,168 @@ function createTreemap(data, datasetType) {
         .attr("fill", colourBand[0])
         .attr("stroke", "white");
 
-    // Add labels to the rectangles (optional)
     // Add labels to the rectangles only if the height is greater than 10px and wrap text if necessary
-cell.append("text")
-.attr("x", 5)
-.attr("y", 15)
-.attr("font-size", "12px")
-.attr("fill", "white")
-.each(function(d) {
-    const rectWidth = d.x1 - d.x0;  // Width of the rectangle
-    const rectHeight = d.y1 - d.y0; // Height of the rectangle
-    const textElement = d3.select(this);
-    const words = d.data.name.split(" ");  // Split the text by words
-    const lineHeight = 12; // Line height for each line of text
-    let currentLine = [];
-    let currentY = 15;  // Starting position for the first line of text
-    let tspan = textElement.append("tspan").attr("x", 5).attr("y", currentY);
+    cell.append("text")
+        .attr("x", 5)
+        .attr("y", 15)
+        .attr("font-size", "12px")
+        .attr("fill", "white")
+        .each(function(d) {
+            const rectWidth = d.x1 - d.x0;  // Width of the rectangle
+            const rectHeight = d.y1 - d.y0; // Height of the rectangle
+            const textElement = d3.select(this);
+            const words = d.data.name.split(" ");  // Split the text by words
+            const lineHeight = 12; // Line height for each line of text
+            let currentLine = [];
+            let currentY = 15;  // Starting position for the first line of text
+            let tspan = textElement.append("tspan").attr("x", 5).attr("y", currentY);
 
-    words.forEach((word) => {
-        currentLine.push(word);
-        tspan.text(currentLine.join(" "));
-        if (tspan.node().getComputedTextLength() > rectWidth - 10) {
-            currentLine.pop();  // Remove the last word and start a new line
-            tspan.text(currentLine.join(" "));
-            currentLine = [word];
-            currentY += lineHeight; // Move to the next line
-            tspan = textElement.append("tspan")
-                .attr("x", 5)
-                .attr("y", currentY)
-                .text(word);
+            words.forEach((word) => {
+                currentLine.push(word);
+                tspan.text(currentLine.join(" "));
+                if (tspan.node().getComputedTextLength() > rectWidth - 10) {
+                    currentLine.pop();  // Remove the last word and start a new line
+                    tspan.text(currentLine.join(" "));
+                    currentLine = [word];
+                    currentY += lineHeight; // Move to the next line
+                    tspan = textElement.append("tspan")
+                        .attr("x", 5)
+                        .attr("y", currentY)
+                        .text(word);
+                }
+            });
+
+            // Hide text if it exceeds the rectangle height
+            if (rectHeight < (currentY + lineHeight)) {
+                textElement.style("display", "none");
+            }
+        })
+        .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none")); // Display only if height > 10px
+
+    // Add hover interactions
+    addInteractions(svg);
+}
+
+function addInteractions(svg) {
+    // Select all rectangles across both treemaps (men and women)
+    d3.selectAll("#men-treemap rect, #women-treemap rect")
+        .on("mouseenter", function(event, d) {
+            // Get the label of the hovered rectangle
+            const hoveredLabel = d.data.name;
+            const category = d3.select(this).node().parentNode.id.includes("realm") ? "realm" : "role"; // Determine category
+
+            // On hover, reduce opacity of all rectangles in both treemaps
+            d3.selectAll("rect").attr("opacity", 0.1);  // Set all rectangles to 10% opacity
+
+            // Set the hovered rectangle to full opacity
+            d3.select(this).attr("opacity", 1);
+
+            // Highlight matching rectangles in both treemaps
+            d3.selectAll("rect")
+                .filter(function(dd) {
+                    return dd.data.name === hoveredLabel;
+                })
+                .attr("opacity", 1);  // Set matching rectangles to full opacity
+
+            // Call the timeline function for the hovered category (realm/role)
+            if (isRoleTreemapMen && datasetType === "men") {
+                createTimeline(aggregatedDataMen, category, hoveredLabel);
+            } else if (isRoleTreemapWomen && datasetType === "women") {
+                createTimeline(aggregatedDataWomen, category, hoveredLabel);
+            }
+        })
+        .on("mouseleave", function() {
+            // On leaving hover, reset all rectangles to full opacity
+            d3.selectAll("rect").attr("opacity", 1);
+
+            // Remove the timeline when mouse leaves
+            d3.select("#timeline").remove();
+        });
+}
+
+
+function createTimeline(data, category, hoveredLabel) {
+    const timelineData = data[category][hoveredLabel]; // Ensure we're looking up the correct data for the hovered label
+
+    // Check if there's data for the hovered label
+    if (!timelineData) {
+        console.error("No data available for this category and label.");
+        return;
+    }
+
+    const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+    const width = 400 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+
+    // Remove existing timeline if any
+    d3.select("#timeline").remove();
+
+    // Create SVG for the timeline
+    const svg = d3.select("body").append("svg")
+        .attr("id", "timeline")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Get years and values for the timeline
+    const years = Object.keys(timelineData).sort();  // Sort years in ascending order
+    const values = years.map(year => timelineData[year]);
+
+    // Set up scales for the timeline
+    const x = d3.scaleBand()
+        .domain(years)
+        .range([0, width])
+        .padding(0.1);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(values)])
+        .nice()
+        .range([height, 0]);
+
+    // Add X axis
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    // Add Y axis
+    svg.append("g")
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(y));
+
+    // Add bars for the timeline
+    svg.selectAll(".bar")
+        .data(years)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d))
+        .attr("y", d => y(timelineData[d]))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(timelineData[d]))
+        .attr("fill", "#69b3a2");
+}
+
+
+// Function to aggregate portraits per year for a given realm or role
+function aggregateByYear(peopleData, category) {
+    const aggregatedData = {};
+
+    // Loop over the people data and aggregate by year
+    peopleData.forEach(d => {
+        const year = d.date; // Assuming 'date' is in the format YYYY
+        const key = d[category];  // Can be either 'realm' or 'role'
+        
+        if (!aggregatedData[key]) {
+            aggregatedData[key] = {};
         }
+
+        if (!aggregatedData[key][year]) {
+            aggregatedData[key][year] = 0;
+        }
+
+        aggregatedData[key][year]++;
     });
 
-    // Hide text if it exceeds the rectangle height
-    if (rectHeight < (currentY + lineHeight)) {
-        textElement.style("display", "none");
-    }
-})
-.style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none")); // Display only if height > 10px
-
-}
-function harshita_branch_check()
-{
-    console.log("hi")
+    return aggregatedData;
 }
