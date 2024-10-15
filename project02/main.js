@@ -220,10 +220,10 @@ function createTreemap(data, datasetType) {
         .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none")); // Display only if height > 10px
 
     // Add hover interactions
-    addInteractions(svg);
+    addInteractions(svg, datasetType);
 }
 
-function addInteractions(svg) {
+function addInteractions(svg, datasetType) {
     // Select all rectangles across both treemaps (men and women)
     d3.selectAll("#men-treemap rect, #women-treemap rect")
         .on("mouseenter", function(event, d) {
