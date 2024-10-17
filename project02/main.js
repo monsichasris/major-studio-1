@@ -71,7 +71,8 @@ function analyseData(data, datasetType)
     d3.select("#filter")
         .append("button")
         .attr("class", "toggle")
-        .text(`Toggle`)
+        .style('background-color', colors[datasetType])
+        .text(`${datasetType}`)
         .on("click", function () {
             // Clear the existing treemap
             d3.select(`#${datasetType}-treemap`).remove();
@@ -91,8 +92,11 @@ function analyseData(data, datasetType)
     }
 });
 
-}
 
+
+
+
+}
 
 
 // Function to Count Categories and Format the Data for Treemap
