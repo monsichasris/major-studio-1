@@ -2,11 +2,7 @@
 let isRoleTreemapMen = true;
 let isRoleTreemapWomen = true;
 
-people_data_men = [], people_data_women = [];
-const colors = {
-    "women": '#d49eff', //purple
-    "men": '#d0fc83' //green
-}
+
 
 d3.json('data/data_men.json').then(function(dataMen) {
     d3.json('data/data_women.json').then(function(dataWomen) {
@@ -68,11 +64,10 @@ function analyseData(data, datasetType)
     }
 
     // Add toggle button functionality for men and women
-    d3.select("#filter")
+    d3.select("#chart")
         .append("button")
         .attr("class", "toggle")
-        .style('background-color', colors[datasetType])
-        .text(`${datasetType}`)
+        .text(`Toggle ${datasetType}`)
         .on("click", function () {
             // Clear the existing treemap
             d3.select(`#${datasetType}-treemap`).remove();

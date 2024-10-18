@@ -1,3 +1,38 @@
+body{
+    margin: 0;
+    font-family: "basic-sans", sans-serif;
+    font-weight: 400;
+
+}
+
+#chart{
+    padding: 80px;
+    display: flex;
+    flex-direction: row;
+}
+
+.toggle{
+    height: 40px;
+    color: none;
+    background: none;
+    border-color: black;
+    border-width: 2px;
+    border-radius: 24px;
+    
+}
+
+header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    
+}
+
+.title{
+    text-align: center;
+    margin-top: 40px;
+}
+
  body{
     height: 100%;
     margin: 0;
