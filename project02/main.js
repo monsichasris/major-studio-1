@@ -68,10 +68,11 @@ function analyseData(data, datasetType)
     }
 
     // Add toggle button functionality for men and women
-    d3.select("#chart")
+    d3.select("#filter")
         .append("button")
         .attr("class", "toggle")
-        .text(`Toggle ${datasetType}`)
+        .style('background-color', colors[datasetType])
+        .text(`${datasetType}`)
         .on("click", function () {
             // Clear the existing treemap
             d3.select(`#${datasetType}-treemap`).remove();
@@ -91,8 +92,11 @@ function analyseData(data, datasetType)
     }
 });
 
-}
 
+
+
+
+}
 
 
 // Function to Count Categories and Format the Data for Treemap
