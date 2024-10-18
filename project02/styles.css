@@ -75,8 +75,26 @@ footer label:nth-child(2) {
 }
 
 
-
-
 label{
     text-align: center;
+}
+
+html{
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    flex: 1; /* This makes the content-wrapper take up the available space */
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #f1f1f1;
+    position: relative;
+    bottom: 0;
+    width: 100%;
 }
