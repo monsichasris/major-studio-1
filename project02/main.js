@@ -59,11 +59,17 @@ function analyseData(data, datasetType)
  function mapData(data) {
     let realm_data = new Map();  // Initialize the Map
     let peopleInRealm =[];//create of 16
+    let realms =["arts and culture", "Medicine",  ]
     //goes through each datapoint
     for (let i = 0; i < data.length; i++) {
         let realm = data[i].realm;  // Extract the realm from the data object
         let name = data[i].name;
-        if (realm_data.has(realm))// && //check if this realm has this person counted only once) {
+        for(j=0; j<realms.length; j++)//go through an array of the string names of the realms, and check it against the current realm so that we have an index for the peopleInRealm array
+        {
+            //peopleInRealm[j] should be equal to all the people in the realm at realms[j]
+            peopleInRealm[j]
+        }
+        if (realm_data.has(realm) && !(peopleInRealm[].includes(name)))//check if this realm has this person counted only once) {
             // If the realm already exists, increment the count
             //and the name is unique for this realm--this is the part that I need to add i
             realm_data.set(realm, realm_data.get(realm) + 1);
