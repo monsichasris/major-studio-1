@@ -1,41 +1,36 @@
-
-
-colors=[];
-colors
-d3.json('data/data_women.json').then(function(dataWomen) {
+// Load and analyze both men's and women's data simultaneously
+Promise.all([
+    d3.json('data/data_women.json'),
+    d3.json('data/data_men.json')
+]).then(function([dataWomen, dataMen]) {
     analyseData(dataWomen, "women");
+    analyseData(dataMen, "men");
 }).catch(function(error) {
-    console.error('Error loading the women JSON data:', error);
+    console.error('Error loading the JSON data:', error);
 });
 
 let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
-function analyseData(data, datasetType) 
-{
+function analyseData(data, datasetType) {
     // going through each portrait
-    for (let i = 0; i < data.length; i++) 
-        {
+    for (let i = 0; i < data.length; i++) {
         datum = data[i];
         //going through each sitter in an individual datum
-       
         for (let j = 0; j < datum.sitter.length; j++) {
             sitter_count= d3.rollup(
                 datum.sitter,
                 v => v.length,
-                d => d.substring(0, datum.sitter[j].indexOf(':')))
+                d => d.substring(0, datum.sitter[j].indexOf(':')));
              
-            if(sitter_count.size==1)
-            {
+            if(sitter_count.size==1){
                 //this is checking for portraits that have only one sitter to ensure that its indivuual portraits and not group
                 //its adding it until it finds a different name. it should add it if it only has one name
             let name = datum.sitter[j].substring(0, datum.sitter[j].indexOf(':'))
             let realm = datum.sitter[j].substring(datum.sitter[j].indexOf(':') + 2, datum.sitter[j].indexOf('\\'));
             let role = datum.sitter[j].substring(datum.sitter[j].lastIndexOf('\\') + 1, datum.sitter[j].length);
-//we only want it if it has a date
-            if(datum.date)
-                {
-            
+                //we only want it if it has a date
+            if(datum.date){ 
             current_usable_object = 
-{
+            {
                 "name": name,
                 "realm": realm,
                 "role": role,
@@ -43,15 +38,13 @@ function analyseData(data, datasetType)
                 "date": datum.date
             }
             people_data.push(current_usable_object);
-        
-                    
-                };
+            };
 
-            }
+        }
             
-            } 
-        } 
-        console.log(people_data)    
+    } 
+} 
+console.log(people_data)    
        
     // Get the hierarchical data for the treemap
     let hierarchyData = mapData(people_data);
@@ -100,9 +93,12 @@ function analyseData(data, datasetType)
 }
 
 
+const colorScale = d3.scaleOrdinal()
+    .domain(["men", "women"])
+    .range(["#D0FC83", "#D49EFF"]);
 
 function createTreemap(data, datasetType) {
-    const width = 700;  // Width of the treemap for each dataset
+    const width = 600;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
 
     // Create the root of the hierarchy from the data, summing only at the realm level
@@ -113,57 +109,59 @@ function createTreemap(data, datasetType) {
                 d.value = d.children.reduce((acc, child) => acc + child.count, 0);
             }
         })
-        .sum(d => d.count);  // Sum the 'count' value only for realms
+        .sum(d => d.count)  // Sum the 'count' value only for realms
+        .sort((a, b) => b.value - a.value);  // Sort the realms based on their counts
 
     // Set up the treemap layout with the size and padding options
-    const treemap = d3.treemap()
+    d3.treemap()
         .size([width, height])  // Set the dimensions of the treemap
         .padding(2)  // Add some padding between the nodes
-        .round(true);  // Ensure that the rectangles have integer coordinates (removes gaps)
-
-    // Apply the treemap layout to the data
-    treemap(root);
+        .round(true) // Ensure that the rectangles have integer coordinates (removes gaps)
+        (root);  
 
     // Create the SVG element where the treemap will be drawn
-    const svg = d3.select("#chart").select("svg").remove(); // Remove the old treemap if it exists
-    const newSvg = d3.select("#chart").append("svg")
-        .attr("id", `${datasetType}-treemap`) // Unique ID for each treemap (e.g., "women-treemap")
+    const svg = d3.select(`#${datasetType}-treemap`)
+        .append("svg")
         .attr("width", width)
         .attr("height", height);
 
     // Draw the rectangles for each realm node
-    const cell = newSvg.selectAll("g")
+    const cell = svg.selectAll("g")
         .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
-        .enter().append("g")
+        .enter()
+        .append("g")
         .attr("transform", d => `translate(${d.x0},${d.y0})`)  // Positioning each cell based on layout
-
-        // Add click event to each realm
-        .on("click", function(event, d) {
-            const clickedRealm = d.data.name; // Get the name of the clicked realm
-            const rolesData = d.data.roles;    // Get the roles for this realm
-
-            // Prepare data for the new treemap for roles
-            const rolesHierarchyData = {
-                name: clickedRealm,
-                children: Object.entries(rolesData).map(([role, count]) => ({
-                    name: role,
-                    count: count
-                }))
-            };
-
-            // Create a new treemap for roles
-            createTreemap(rolesHierarchyData, `${datasetType}-roles`); // Call createTreemap again for roles
-        });
 
     // Add rectangles to represent each realm
     cell.append("rect")
         .attr("width", d => d.x1 - d.x0)  // Width of the rectangle
         .attr("height", d => d.y1 - d.y0)  // Height of the rectangle
-        .attr("fill", d => {
-            // Assign color based on dataset type (e.g., "women" or "men")
-            return datasetType === "women" ? "lightcoral" : "lightblue";
+        .attr("fill", d => colorScale(datasetType))  // Fill color based on datasetType
+        .attr("stroke", "white")
+        
+        .on("mouseover", function(event, d) {
+            highlightSharedRealms(d.data.name);
         })
-        .attr("stroke", "white");
+        .on("mouseout", function(event, d) {
+            resetHighlight();
+        })
+                // Add click event to each realm
+        .on("click", function(event, d) {
+        const clickedRealm = d.data.name; // Get the name of the clicked realm
+        const rolesData = d.data.roles;   // Get the roles for this realm
+
+        // Prepare data for the new treemap for roles
+        const rolesHierarchyData = {
+            name: clickedRealm,
+            children: Object.entries(rolesData).map(([role, count]) => ({
+                name: role,
+                count: count
+            }))
+        };
+
+    // Create a new treemap for roles
+    createTreemap(rolesHierarchyData, `${datasetType}-roles`); // Call createTreemap again for roles
+});
 
     // Add labels (realm names) to the rectangles
     cell.append("text")
@@ -173,6 +171,51 @@ function createTreemap(data, datasetType) {
         .attr("fill", "black")
         .text(d => d.data.name);  // Display the name of the realm
 }
+
+// Function to transform data into a hierarchical structure
+function transformDataToHierarchy(data) {
+    if (data.children) {
+        return data;
+    }
+
+    const hierarchyData = {
+        name: "root",
+        children: []
+    };
+
+    data.forEach(d => {
+        const realmNode = {
+            name: d.realm,
+            count: d.count,
+            roles: d.roles,
+            children: Object.entries(d.roles).map(([role, count]) => ({
+                name: role,
+                count: count
+            }))
+        };
+
+        hierarchyData.children.push(realmNode);
+    });
+
+    return hierarchyData;
+}
+
+// Function to highlight shared realms
+function highlightSharedRealms(realmName) {
+    d3.selectAll("rect")
+        .filter(d => d.data.name === realmName)
+        .attr("stroke", "red")
+        .attr("stroke-width", 3);
+}
+
+// Function to reset highlight
+function resetHighlight() {
+    d3.selectAll("rect")
+        .attr("stroke", "white")
+        .attr("stroke-width", 1);
+}
+
+
 
 
 
