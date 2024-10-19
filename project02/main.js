@@ -2,8 +2,6 @@
 let isRoleTreemapMen = true;
 let isRoleTreemapWomen = true;
 
-
-
 d3.json('data/data_men.json').then(function(dataMen) {
     d3.json('data/data_women.json').then(function(dataWomen) {
         // Analyze and process both datasets
@@ -64,7 +62,7 @@ function analyseData(data, datasetType)
     }
 
     // Add toggle button functionality for men and women
-    d3.select("#chart")
+    d3.select("#filter")
         .append("button")
         .attr("class", "toggle")
         .text(`Toggle ${datasetType}`)
@@ -290,7 +288,7 @@ function createTimeline(data, category, hoveredLabel) {
     d3.select("#timeline").remove();
 
     // Create SVG for the timeline
-    const svg = d3.select("body").append("svg")
+    const svg = d3.select("#chart").append("svg")
         .attr("id", "timeline")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
