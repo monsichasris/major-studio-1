@@ -2,7 +2,7 @@
 
 colors=[];
 colors
-let globalMinYear, globalMaxYear;
+let globalMinYear, globalMaxYear,  globalMaxY = 0; ;
 
 d3.json('data/data_women.json').then(function(dataWomen) {
     analyseData(dataWomen, "women");
@@ -234,18 +234,24 @@ function gatherTimelineData(data, realm) {
         }
     }
 
-    // Convert the yearCount object into an array for easier visualization
-    return Object.entries(yearCount).map(([year, count]) => ({
-        year: year,
-        count: count
-    }));
+   const timelineData = Object.entries(yearCount).map(([year, count]) => ({
+    year: year,
+    count: count
+}));
+
+// Update the global max Y value if a higher count is found
+const maxCount = d3.max(timelineData, d => d.count);
+globalMaxY = Math.max(globalMaxY, maxCount);  // Keep track of the global max count for y-axis normalization
+
+return timelineData;
+
 }
 function createTimeline(data) {
     // Remove previous timeline if it exists
     d3.select("#timeline").select("svg").remove(); 
 
-    const width = 700;  // Width for the timeline
-    const height = 100; // Height for the timeline
+    const width = window.innerWidth;  // Width for the timeline
+    const height = 300; // Height for the timeline
     const margin = { top: 10, right: 30, bottom: 30, left: 40 };
 
     // Set up the SVG for the timeline
@@ -261,8 +267,9 @@ function createTimeline(data) {
 
     // Set up the y-scale for the count values
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.count)]).nice()
-        .range([height - margin.bottom, margin.top]);
+    .domain([0, globalMaxY])  // Normalize y-axis using the global maximum count
+    .range([height - margin.bottom, margin.top]);
+
 
     // Add the bars to the timeline
     svg.selectAll(".bar")
@@ -318,11 +325,17 @@ function gatherTimelineDataForRole(data, role) {
         }
     }
 
-    // Convert the yearCount object into an array for easier visualization
-    return Object.entries(yearCount).map(([year, count]) => ({
+    const timelineData = Object.entries(yearCount).map(([year, count]) => ({
         year: year,
         count: count
     }));
+    
+    // Update the global max Y value if a higher count is found
+    const maxCount = d3.max(timelineData, d => d.count);
+    globalMaxY = Math.max(globalMaxY, maxCount);  // Keep track of the global max count for y-axis normalization
+    
+    return timelineData;
+    
 }
 
 
