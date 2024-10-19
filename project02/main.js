@@ -1,6 +1,3 @@
-
-
-
 d3.json('data/data_women.json').then(function(dataWomen) {
         analyseData(dataWomen, "women");
     }).catch(function(error) {
@@ -9,8 +6,7 @@ d3.json('data/data_women.json').then(function(dataWomen) {
 
 
 let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
-function analyseData(data, datasetType) 
-{
+function analyseData(data) {
     // going through each portrait
     for (let i = 0; i < data.length; i++) 
         {
@@ -23,35 +19,27 @@ function analyseData(data, datasetType)
                 v => v.length,
                 d => d.substring(0, datum.sitter[j].indexOf(':')))
              
-            if(sitter_count.size==1)
-            {
-                //its adding it until it finds a different name. it should add it if it only has one name
+            if(sitter_count.size==1){
+            //its adding it until it finds a different name. it should add it if it only has one name
             let name = datum.sitter[j].substring(0, datum.sitter[j].indexOf(':'))
             let realm = datum.sitter[j].substring(datum.sitter[j].indexOf(':') + 2, datum.sitter[j].indexOf('\\'));
             let role = datum.sitter[j].substring(datum.sitter[j].lastIndexOf('\\') + 1, datum.sitter[j].length);
-//we only want it if it has a date
-            if(datum.date)
-                {
-            
-            current_usable_object = 
-{
-                "name": name,
-                "realm": realm,
-                "role": role,
-                "id": datum.id,
-                "date": datum.date
-            }
-            people_data.push(current_usable_object);
-        
-                    
+            //we only want it if it has a date
+                if(datum.date){  
+                    current_usable_object = {
+                    "name": name,
+                    "realm": realm,
+                    "role": role,
+                    "id": datum.id,
+                    "date": datum.date
+                    }
+                    people_data.push(current_usable_object);
                 };
-
             }
-            
-            } 
         } 
-        console.log(people_data)    
-       mapData(people_data);
+    } 
+    console.log(people_data)    
+    mapData(people_data);
  }
 
 
@@ -105,94 +93,82 @@ return realm_data;
 
  }
 
+//Transform the mapped data into a hierarchical structure.
+ function transformDataToHierarchy(realm_data) {
+    const hierarchyData = {
+        name: "root",
+        children: []
+    };
+
+    realm_data.forEach((value, key) => {
+        const realmNode = {
+            name: key,
+            count: value.count,
+            children: []
+        };
+
+        Object.keys(value.roleCounts).forEach(role => {
+            realmNode.children.push({
+                name: role,
+                count: value.roleCounts[role]
+            });
+        });
+
+        hierarchyData.children.push(realmNode);
+    });
+
+    return hierarchyData;
+}
 
 // Function to Create Treemap for specific dataset (men or women)
-function createTreemap(data, datasetType) {
+function createTreemap(data) {
     const width = 700;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
 
+    // Transform the data into a hierarchical structure
+    const hierarchyData = transformDataToHierarchy(data);
+
     // Create the root of the hierarchy
-    const root = d3.hierarchy(data)
-        .sum(d => d.count); // The size of each rectangle will be proportional to the count
+    const root = d3.hierarchy(hierarchyData)
+        .sum(d => d.count)
+        .sort((a, b) => b.value - a.value);
 
-    // Set up the treemap layout
-    const treemap = d3.treemap()
-        .size([width, height])  // Set the dimensions of the treemap
-        .padding(1);  // Space between the nodes
+    // Create the treemap layout
+    d3.treemap()
+        .size([width, height])
+        .padding(1)
+        (root);
 
-    // Apply the treemap layout to the data
-    treemap(root);
-
-    // Create the SVG element where the treemap will be drawn, using an ID to distinguish between men and women
-    const svg = d3.select("#chart").append("svg")
-        .attr("id", `${datasetType}-treemap`) // Unique ID for each treemap
+    // Create an SVG element for the treemap
+    const svg = d3.select("#treemap_women")
+        .append("svg")
         .attr("width", width)
         .attr("height", height);
 
-    // Draw the rectangles for each node
-    const cell = svg.selectAll("g")
+    // Create nodes for each leaf in the hierarchy
+    const nodes = svg.selectAll("g")
         .data(root.leaves())
-        .enter().append("g")
-        .attr("transform", d => `translate(${d.x0},${d.y0})`);  // Positioning each cell
+        .enter()
+        .append("g")
+        .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-    // Add rectangles to represent each category
-    cell.append("rect")
+    // Create rectangles for each node
+    nodes.append("rect")
         .attr("width", d => d.x1 - d.x0)
         .attr("height", d => d.y1 - d.y0)
-        .attr("fill", colors[datasetType])
-        .attr("stroke", "white");
+        .attr("fill", "steelblue");
 
-
-
-    // if (d.data.count>0){
-    // // Add labels to the rectangles only if the height is greater than 10px and wrap text if necessary
-    // cell.append("text")
-    // .attr("x", 5)
-    // .attr("y", 15)
-    // .attr("font-size", "12px")
-    // .attr("fill", "black")
-    // .text(d => d.data.name);
-    // }
-
-    cell.append("text")
+    // Add text labels to each node
+    nodes.append("text")
         .attr("x", 5)
         .attr("y", 15)
         .attr("font-size", "12px")
         .attr("fill", "gray")
-        .each(function(d) {
-            const rectWidth = d.x1 - d.x0;  // Width of the rectangle
-            const rectHeight = d.y1 - d.y0; // Height of the rectangle
-            const textElement = d3.select(this);
-            const words = d.data.name.split(" ");  // Split the text by words
-            const lineHeight = 12; // Line height for each line of text
-            let currentLine = [];
-            let currentY = 15;  // Starting position for the first line of text
-            let tspan = textElement.append("tspan").attr("x", 5).attr("y", currentY);
-
-            words.forEach((word) => {
-                currentLine.push(word);
-                tspan.text(currentLine.join(" "));
-                if (tspan.node().getComputedTextLength() > rectWidth - 10) {
-                    currentLine.pop();  // Remove the last word and start a new line
-                    tspan.text(currentLine.join(" "));
-                    currentLine = [word];
-                    currentY += lineHeight; // Move to the next line
-                    tspan = textElement.append("tspan")
-                        .attr("x", 5)
-                        .attr("y", currentY)
-                        .text(word);
-                }
-            });
-
-            // Hide text if it exceeds the rectangle height
-            if (rectHeight < (currentY + lineHeight)) {
-                textElement.style("display", "none");
-            }
-        })
+        .text(d => d.data.name)
         .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none")); // Display only if height > 10px
 
-    // Add hover interactions
-    addInteractions(svg, datasetType);
+// Add hover interactions
+addInteractions(svg);
 }
 
 function addInteractions(svg, datasetType) {
