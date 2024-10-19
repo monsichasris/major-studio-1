@@ -53,13 +53,14 @@ function analyseData(data, datasetType)
         console.log(people_data)    
        mapData(people_data);
  }
-    
+
  
    
  function mapData(data) {
     let realm_data = new Map();  // Initialize the Map
     let peopleInRealm =[];//create of 16
-    let realms =["arts and culture", "Medicine",  ]
+    let realms = data.map(d => d.realm).filter((value, index, self) => self.indexOf(value) === index);
+    console.log(realms);
     //goes through each datapoint
     for (let i = 0; i < data.length; i++) {
         let realm = data[i].realm;  // Extract the realm from the data object
@@ -69,7 +70,8 @@ function analyseData(data, datasetType)
             //peopleInRealm[j] should be equal to all the people in the realm at realms[j]
             peopleInRealm[j]
         }
-        if (realm_data.has(realm) && !(peopleInRealm[].includes(name)))//check if this realm has this person counted only once) {
+        if (realm_data.has(realm) && !(peopleInRealm[i].includes(name))){
+            //check if this realm has this person counted only once)
             // If the realm already exists, increment the count
             //and the name is unique for this realm--this is the part that I need to add i
             realm_data.set(realm, realm_data.get(realm) + 1);
@@ -85,7 +87,7 @@ function analyseData(data, datasetType)
     }
 
     console.log(realm_data);  // Logs the realm and its count
-}
+ }
 
 
 
