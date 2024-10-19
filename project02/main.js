@@ -55,6 +55,8 @@ function analyseData(data, datasetType)
  }
 
 
+
+
  function mapData(data) {
     let realm_data = new Map();  // Initialize the Map to store realm counts
     let peopleInRealm = {};  // Initialize an object to store arrays of names for each realm
@@ -62,6 +64,7 @@ function analyseData(data, datasetType)
     // Extract unique realms from the data
     let realms = data.map(d => d.realm).filter((value, index, self) => self.indexOf(value) === index);
     console.log(realms);
+
 
     // Initialize arrays for each realm in the peopleInRealm object
     realms.forEach(realm => {
@@ -73,7 +76,18 @@ for (let i = 0; i < data.length; i++) {
     let realm = data[i].realm;  // Extract the realm from the data object
     let name = data[i].name;  // Extract the name from the data object
     let role = data[i].role;  // Extract the role from the data object
+for (let i = 0; i < data.length; i++) {
+    let realm = data[i].realm;  // Extract the realm from the data object
+    let name = data[i].name;  // Extract the name from the data object
+    let role = data[i].role;  // Extract the role from the data object
 
+    // Check if the name is already counted in the current realm
+    if (peopleInRealm[realm].includes(name)) {
+        continue;  // Skip if the name is already counted
+    }
+
+    // Add the name to the array for the current realm
+    peopleInRealm[realm].push(name);
     // Check if the name is already counted in the current realm
     if (peopleInRealm[realm].includes(name)) {
         continue;  // Skip if the name is already counted
@@ -91,8 +105,8 @@ if (realm_data.has(realm)) {
     }
     if (realmInfo.roleCounts[role]) {
         realmInfo.roleCounts[role] += 1;
-            } else {
-                realmInfo.roleCounts[role] = 1;
+    } else {
+        realmInfo.roleCounts[role] = 1;
     }
     realm_data.set(realm, realmInfo);
 } else {
