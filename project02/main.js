@@ -133,6 +133,17 @@ function createTreemap(data, datasetType) {
         .attr("width", width)
         .attr("height", height);
 
+    // Create a tooltip element
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("background-color", "white")
+        .style("border", "1px solid #ccc")
+        .style("padding", "5px")
+        .style("border-radius", "3px")
+        .style("box-shadow", "0px 0px 5px rgba(0, 0, 0, 0.3)");
+
     // Draw the rectangles for each realm node
     const cell = newSvg.selectAll("g")
         .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
@@ -350,15 +361,18 @@ function transformDataToHierarchy(data) {
 // Function to highlight shared realms
 function highlightSharedRealms(realmName) {
     d3.selectAll("rect")
-        .filter(d => d.data.name === realmName)
-        .attr("stroke", "red")
-        .attr("stroke-width", 3);
+        .filter(d => d.data.name !== realmName)
+        .attr("opacity", "0.2");
+    d3.selectAll("text")
+        .filter(d => d.data.name !== realmName)
+        .attr("fill", "gray");
 }
 
 // Function to reset highlight
 function resetHighlight() {
     d3.selectAll("rect")
-        .attr("stroke", "white")
-        .attr("stroke-width", 1);
+    .attr("opacity", "1")
+    d3.selectAll("text")
+        .attr("fill", "black");
 }
 
