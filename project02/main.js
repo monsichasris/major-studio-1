@@ -152,29 +152,35 @@ function createTreemap(data, datasetType) {
         .enter().append("g")
         .attr("transform", d => `translate(${d.x0},${d.y0})`)  // Positioning each cell based on layout
 
-        // Add click event to each realm
-        .on("click", function(event, d) {
-            const clickedRealm = d.data.name; // Get the name of the clicked realm
-            const rolesData = d.data.roles;    // Get the roles for this realm
-        
-            // Prepare data for the new treemap for roles
-            const rolesHierarchyData = {
-                name: clickedRealm,
-                children: Object.entries(rolesData).map(([role, count]) => ({
-                    name: role,
-                    count: count
-                }))
-            };
-        
-            // Gather date data for timeline
-            const timelineData = gatherTimelineData(people_data, clickedRealm);
-        
-            // Create a new treemap for roles
-            createTreemap(rolesHierarchyData, `${datasetType}-roles`);
-        
-            // Create the timeline for the clicked realm
-            createTimeline(timelineData);
-        });
+        // Add click event to each realm or role
+.on("click", function(event, d) {
+    const clickedName = d.data.name; // Get the name of the clicked realm or role
+    const rolesData = d.data.roles;  // Get the roles for this realm (only available at realm level)
+    
+    if (rolesData) {
+        // If rolesData exists, we are clicking on a realm
+        const rolesHierarchyData = {
+            name: clickedName,
+            children: Object.entries(rolesData).map(([role, count]) => ({
+                name: role,
+                count: count
+            }))
+        };
+
+        // Gather date data for timeline for the clicked realm
+        const timelineData = gatherTimelineData(people_data, clickedName);
+
+        // Create a new treemap for roles within this realm
+        createTreemap(rolesHierarchyData, `${datasetType}-roles`);
+
+        // Update the timeline for the clicked realm
+        createTimeline(timelineData);
+    } else {
+        // If no rolesData, we are clicking on a role, so update the timeline for that role
+        const timelineData = gatherTimelineDataForRole(people_data, clickedName);
+        createTimeline(timelineData);
+    }
+});
         
 
     // Add rectangles to represent each realm
@@ -278,6 +284,45 @@ function createTimeline(data) {
     svg.append("g")
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(y));
+}
+function gatherTimelineDataForRole(data, role) {
+    const yearCount = {};
+
+    // Iterate through each person data entry
+    for (const entry of data) {
+        if (entry.role === role) {
+            // Extract the year(s) and convert to decades
+            const dates = entry.date;  // Dates can be a single year or an array of year strings
+
+            dates.forEach(date => {
+                let year;
+                // Check if the date is a decade or a single year
+                const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
+                if (decadeMatch) {
+                    year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
+                } else {
+                    year = new Date(date).getFullYear(); // Attempt to get the year directly
+                }
+
+                // Only count valid years
+                if (year) {
+                    // Increment count for this decade
+                    const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
+                    if (yearCount[decade]) {
+                        yearCount[decade] += 1; // Increment count for the decade
+                    } else {
+                        yearCount[decade] = 1; // Initialize count for this decade
+                    }
+                }
+            });
+        }
+    }
+
+    // Convert the yearCount object into an array for easier visualization
+    return Object.entries(yearCount).map(([year, count]) => ({
+        year: year,
+        count: count
+    }));
 }
 
 
