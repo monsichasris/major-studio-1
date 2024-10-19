@@ -368,6 +368,88 @@ function resetHighlight() {
 }
 
 
+
+
+
+=======
+}
+
+
+
+function createTreemap(data, datasetType) {
+    const width = 600;  // Width of the treemap for each dataset
+    const height = 600; // Height of the treemap for each dataset
+
+    // Create the root of the hierarchy from the data, summing only at the realm level
+    const root = d3.hierarchy(data)
+        .eachBefore(d => {
+            // Set 'count' at each realm level by summing its children's counts
+            if (d.children) {
+                d.value = d.children.reduce((acc, child) => acc + child.count, 0);
+            }
+        })
+        .sum(d => d.count)  // Sum the 'count' value only for realms
+        .sort((a, b) => b.value - a.value);  // Sort the realms based on their counts
+
+    // Set up the treemap layout with the size and padding options
+    d3.treemap()
+        .size([width, height])  // Set the dimensions of the treemap
+        .padding(2)  // Add some padding between the nodes
+        .round(true) // Ensure that the rectangles have integer coordinates (removes gaps)
+        (root);  
+
+    // Create the SVG element where the treemap will be drawn
+    const svg = d3.select(`#${datasetType}-treemap`)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Draw the rectangles for each realm node
+    const cell = svg.selectAll("g")
+        .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
+        .enter()
+        .append("g")
+        .attr("transform", d => `translate(${d.x0},${d.y0})`)  // Positioning each cell based on layout
+
+        // Add click event to each realm or role
+.on("click", function(event, d) {
+    const clickedName = d.data.name; // Get the name of the clicked realm or role
+    const rolesData = d.data.roles;  // Get the roles for this realm (only available at realm level)
+    
+    if (rolesData) {
+        // If rolesData exists, we are clicking on a realm
+        const rolesHierarchyData = {
+            name: clickedName,
+            children: Object.entries(rolesData).map(([role, count]) => ({
+                name: role,
+                count: count
+            }))
+        };
+
+        // Gather date data for timeline for the clicked realm
+        const timelineData = gatherTimelineData(people_data, clickedName);
+
+        // Create a new treemap for roles within this realm
+        createTreemap(rolesHierarchyData, `${datasetType}-roles`);
+
+        // Update the timeline for the clicked realm
+        createTimeline(timelineData);
+    } else {
+        // If no rolesData, we are clicking on a role, so update the timeline for that role
+        const timelineData = gatherTimelineDataForRole(people_data, clickedName);
+        createTimeline(timelineData);
+    }
+});
+        
+
+    // Add labels (realm names) to the rectangles
+    cell.append("text")
+        .attr("x", 5)
+        .attr("y", 15)
+        .attr("font-size", "12px")
+        .attr("fill", "black")
+        .text(d => d.data.name);  // Display the name of the realm
+}
 function gatherTimelineData(data, realm) {
     const yearCount = {};
 
