@@ -68,22 +68,12 @@ console.log(people_data)
 
  function mapData(data) {
     let realm_data = new Map();  // Initialize the Map to store realm counts
-    let peopleInRealm = {};  // Initialize an object to store arrays of names for each realm
 
-    // Extract unique realms from the data
-    let realms = data.map(d => d.realm).filter((value, index, self) => self.indexOf(value) === index);
-    console.log(realms);
-
-    // Initialize arrays for each realm in the peopleInRealm object
-    realms.forEach(realm => {
-        peopleInRealm[realm] = [];
-    });
-    
     // Iterate through each datapoint
     for (let i = 0; i < data.length; i++) {
         let realm = data[i].realm;  // Extract the realm from the data object
-        let name = data[i].name;  // Extract the name from the data object
-        let role = data[i].role;  // Extract the role from the data object
+        let name = data[i].name;     // Extract the name from the data object
+        let role = data[i].role;     // Extract the role from the data object
 
         // Update the count for the current realm in the realm_data Map
         if (!realm_data.has(realm)) {
@@ -270,16 +260,35 @@ function createTreemap(data, datasetType) {
     treemap(root);
 
     // Create the SVG element where the treemap will be drawn
-    const svg = d3.select("#chart").append("svg")
+    const svg = d3.select("#chart").select("svg").remove(); // Remove the old treemap if it exists
+    const newSvg = d3.select("#chart").append("svg")
         .attr("id", `${datasetType}-treemap`) // Unique ID for each treemap (e.g., "women-treemap")
         .attr("width", width)
         .attr("height", height);
 
     // Draw the rectangles for each realm node
-    const cell = svg.selectAll("g")
+    const cell = newSvg.selectAll("g")
         .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
         .enter().append("g")
-        .attr("transform", d => `translate(${d.x0},${d.y0})`);  // Positioning each cell based on layout
+        .attr("transform", d => `translate(${d.x0},${d.y0})`)  // Positioning each cell based on layout
+
+        // Add click event to each realm
+        .on("click", function(event, d) {
+            const clickedRealm = d.data.name; // Get the name of the clicked realm
+            const rolesData = d.data.roles;    // Get the roles for this realm
+
+            // Prepare data for the new treemap for roles
+            const rolesHierarchyData = {
+                name: clickedRealm,
+                children: Object.entries(rolesData).map(([role, count]) => ({
+                    name: role,
+                    count: count
+                }))
+            };
+
+            // Create a new treemap for roles
+            createTreemap(rolesHierarchyData, `${datasetType}-roles`); // Call createTreemap again for roles
+        });
 
     // Add rectangles to represent each realm
     cell.append("rect")
@@ -299,5 +308,6 @@ function createTreemap(data, datasetType) {
         .attr("fill", "black")
         .text(d => d.data.name);  // Display the name of the realm
 }
+
 
 
