@@ -62,66 +62,46 @@ function analyseData(data, datasetType)
 
  function mapData(data) {
     let realm_data = new Map();  // Initialize the Map to store realm counts
-    let peopleInRealm = {};  // Initialize an object to store arrays of names for each realm
 
-    // Extract unique realms from the data
-    let realms = data.map(d => d.realm).filter((value, index, self) => self.indexOf(value) === index);
-    console.log(realms);
-
-    // Initialize arrays for each realm in the peopleInRealm object
-    realms.forEach(realm => {
-        peopleInRealm[realm] = [];
-    });
-    
     // Iterate through each datapoint
     for (let i = 0; i < data.length; i++) {
         let realm = data[i].realm;  // Extract the realm from the data object
-        let name = data[i].name;  // Extract the name from the data object
-        let role = data[i].role;  // Extract the role from the data object
+        let name = data[i].name;     // Extract the name from the data object
+        let role = data[i].role;     // Extract the role from the data object
 
-        // Check if the name is already counted in the current realm
-        if (peopleInRealm[realm].includes(name)) {
-            continue;  // Skip if the name is already counted
+        // Update the count for the current realm in the realm_data Map
+        if (!realm_data.has(realm)) {
+            realm_data.set(realm, { count: 0, roles: {} });  // Initialize with count and roles
         }
-
-        // Add the name to the array for the current realm
-        peopleInRealm[realm].push(name);
-
-        // Update the count and roles for the current realm in the Map
-        if (realm_data.has(realm)) {
-            let realmInfo = realm_data.get(realm);
-            realmInfo.count += 1;
-            if (!realmInfo.roles.includes(role)) {
-                realmInfo.roles.push(role);
-            }
-            if (realmInfo.roleCounts[role]) {
-                realmInfo.roleCounts[role] += 1;
-            } else {
-                realmInfo.roleCounts[role] = 1;
-            }
-            realm_data.set(realm, realmInfo);
+        let realmInfo = realm_data.get(realm);
+        realmInfo.count += 1;  // Increment count for the realm
+        
+        // Update roles count for this realm
+        if (realmInfo.roles[role]) {
+            realmInfo.roles[role] += 1;  // Increment count for the role
         } else {
-            realm_data.set(realm, { count: 1, roles: [role], roleCounts: { [role]: 1 } });
+            realmInfo.roles[role] = 1;    // Initialize with count = 1
         }
+        realm_data.set(realm, realmInfo);
     }
 
-    console.log(realm_data);
-
-    // Convert the Map into a hierarchical structure for the treemap
-   // Convert the realm_data Map into a hierarchical structure for the treemap
-let hierarchyData = {
-    name: "Root",
-    children: Array.from(realm_data).map(([realm, realmInfo]) => ({
-        name: realm,     // Name of the realm
-        count: realmInfo.count,  // Count of individuals in that realm
-        // No children to show roles, keeping it simple
-    }))
-};
-
+    // Convert the realm_data Map into a hierarchical structure for the treemap
+    let hierarchyData = {
+        name: "Root",
+        children: Array.from(realm_data).map(([realm, realmInfo]) => ({
+            name: realm,      // Name of the realm
+            count: realmInfo.count,  // Count of individuals in that realm
+            roles: realmInfo.roles,  // Keep the roles for later use
+        }))
+    };
 
     console.log(hierarchyData);
     return hierarchyData;
-}function createTreemap(data, datasetType) {
+}
+
+
+
+function createTreemap(data, datasetType) {
     const width = 700;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
 
@@ -145,16 +125,35 @@ let hierarchyData = {
     treemap(root);
 
     // Create the SVG element where the treemap will be drawn
-    const svg = d3.select("#chart").append("svg")
+    const svg = d3.select("#chart").select("svg").remove(); // Remove the old treemap if it exists
+    const newSvg = d3.select("#chart").append("svg")
         .attr("id", `${datasetType}-treemap`) // Unique ID for each treemap (e.g., "women-treemap")
         .attr("width", width)
         .attr("height", height);
 
     // Draw the rectangles for each realm node
-    const cell = svg.selectAll("g")
+    const cell = newSvg.selectAll("g")
         .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
         .enter().append("g")
-        .attr("transform", d => `translate(${d.x0},${d.y0})`);  // Positioning each cell based on layout
+        .attr("transform", d => `translate(${d.x0},${d.y0})`)  // Positioning each cell based on layout
+
+        // Add click event to each realm
+        .on("click", function(event, d) {
+            const clickedRealm = d.data.name; // Get the name of the clicked realm
+            const rolesData = d.data.roles;    // Get the roles for this realm
+
+            // Prepare data for the new treemap for roles
+            const rolesHierarchyData = {
+                name: clickedRealm,
+                children: Object.entries(rolesData).map(([role, count]) => ({
+                    name: role,
+                    count: count
+                }))
+            };
+
+            // Create a new treemap for roles
+            createTreemap(rolesHierarchyData, `${datasetType}-roles`); // Call createTreemap again for roles
+        });
 
     // Add rectangles to represent each realm
     cell.append("rect")
@@ -174,5 +173,6 @@ let hierarchyData = {
         .attr("fill", "black")
         .text(d => d.data.name);  // Display the name of the realm
 }
+
 
 
