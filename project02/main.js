@@ -237,7 +237,7 @@ function resetHighlight() {
 
 // Function to Create Treemap for specific dataset (men or women)
 function createTreemap(data, datasetType) {
-    const width = 700;  // Width of the treemap for each dataset
+    const width = 600;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
 
     // Create the root of the hierarchy from the data, summing only at the realm level
@@ -248,57 +248,59 @@ function createTreemap(data, datasetType) {
                 d.value = d.children.reduce((acc, child) => acc + child.count, 0);
             }
         })
-        .sum(d => d.count);  // Sum the 'count' value only for realms
+        .sum(d => d.count)  // Sum the 'count' value only for realms
+        .sort((a, b) => b.value - a.value);  // Sort the realms based on their counts
 
     // Set up the treemap layout with the size and padding options
-    const treemap = d3.treemap()
+    d3.treemap()
         .size([width, height])  // Set the dimensions of the treemap
         .padding(2)  // Add some padding between the nodes
-        .round(true);  // Ensure that the rectangles have integer coordinates (removes gaps)
-
-    // Apply the treemap layout to the data
-    treemap(root);
+        .round(true) // Ensure that the rectangles have integer coordinates (removes gaps)
+        (root);  
 
     // Create the SVG element where the treemap will be drawn
-    const svg = d3.select("#chart").select("svg").remove(); // Remove the old treemap if it exists
-    const newSvg = d3.select("#chart").append("svg")
-        .attr("id", `${datasetType}-treemap`) // Unique ID for each treemap (e.g., "women-treemap")
+    const svg = d3.select(`#${datasetType}-treemap`)
+        .append("svg")
         .attr("width", width)
         .attr("height", height);
 
     // Draw the rectangles for each realm node
-    const cell = newSvg.selectAll("g")
+    const cell = svg.selectAll("g")
         .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
-        .enter().append("g")
+        .enter()
+        .append("g")
         .attr("transform", d => `translate(${d.x0},${d.y0})`)  // Positioning each cell based on layout
-
-        // Add click event to each realm
-        .on("click", function(event, d) {
-            const clickedRealm = d.data.name; // Get the name of the clicked realm
-            const rolesData = d.data.roles;    // Get the roles for this realm
-
-            // Prepare data for the new treemap for roles
-            const rolesHierarchyData = {
-                name: clickedRealm,
-                children: Object.entries(rolesData).map(([role, count]) => ({
-                    name: role,
-                    count: count
-                }))
-            };
-
-            // Create a new treemap for roles
-            createTreemap(rolesHierarchyData, `${datasetType}-roles`); // Call createTreemap again for roles
-        });
 
     // Add rectangles to represent each realm
     cell.append("rect")
         .attr("width", d => d.x1 - d.x0)  // Width of the rectangle
         .attr("height", d => d.y1 - d.y0)  // Height of the rectangle
-        .attr("fill", d => {
-            // Assign color based on dataset type (e.g., "women" or "men")
-            return datasetType === "women" ? "lightcoral" : "lightblue";
+        .attr("fill", d => colorScale(datasetType))  // Fill color based on datasetType
+        .attr("stroke", "white")
+        
+        .on("mouseover", function(event, d) {
+            highlightSharedRealms(d.data.name);
         })
-        .attr("stroke", "white");
+        .on("mouseout", function(event, d) {
+            resetHighlight();
+        })
+                // Add click event to each realm
+        .on("click", function(event, d) {
+        const clickedRealm = d.data.name; // Get the name of the clicked realm
+        const rolesData = d.data.roles;   // Get the roles for this realm
+
+        // Prepare data for the new treemap for roles
+        const rolesHierarchyData = {
+            name: clickedRealm,
+            children: Object.entries(rolesData).map(([role, count]) => ({
+                name: role,
+                count: count
+            }))
+        };
+
+    // Create a new treemap for roles
+    createTreemap(rolesHierarchyData, `${datasetType}-roles`); // Call createTreemap again for roles
+});
 
     // Add labels (realm names) to the rectangles
     cell.append("text")
@@ -308,6 +310,51 @@ function createTreemap(data, datasetType) {
         .attr("fill", "black")
         .text(d => d.data.name);  // Display the name of the realm
 }
+
+// Function to transform data into a hierarchical structure
+function transformDataToHierarchy(data) {
+    if (data.children) {
+        return data;
+    }
+
+    const hierarchyData = {
+        name: "root",
+        children: []
+    };
+
+    data.forEach(d => {
+        const realmNode = {
+            name: d.realm,
+            count: d.count,
+            roles: d.roles,
+            children: Object.entries(d.roles).map(([role, count]) => ({
+                name: role,
+                count: count
+            }))
+        };
+
+        hierarchyData.children.push(realmNode);
+    });
+
+    return hierarchyData;
+}
+
+// Function to highlight shared realms
+function highlightSharedRealms(realmName) {
+    d3.selectAll("rect")
+        .filter(d => d.data.name === realmName)
+        .attr("stroke", "red")
+        .attr("stroke-width", 3);
+}
+
+// Function to reset highlight
+function resetHighlight() {
+    d3.selectAll("rect")
+        .attr("stroke", "white")
+        .attr("stroke-width", 1);
+}
+
+
 
 
 
