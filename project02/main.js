@@ -56,39 +56,76 @@ function analyseData(data, datasetType)
 
  
    
+//  function mapData(data) {
+//     let realm_data = new Map();  // Initialize the Map
+//     let peopleInRealm =[];//create of 16
+//     let realms = data.map(d => d.realm).filter((value, index, self) => self.indexOf(value) === index);
+//     console.log(realms);
+//     //goes through each datapoint
+//     for (let i = 0; i < data.length; i++) {
+//         let realm = data[i].realm;  // Extract the realm from the data object
+//         let name = data[i].name;
+//         for(j=0; j<realms.length; j++)//go through an array of the string names of the realms, and check it against the current realm so that we have an index for the peopleInRealm array
+//         {
+//             //peopleInRealm[j] should be equal to all the people in the realm at realms[j]
+//             peopleInRealm[j]
+//         }
+//         if (realm_data.has(realm) && !(peopleInRealm[i].includes(name))){
+//             //check if this realm has this person counted only once)
+//             // If the realm already exists, increment the count
+//             //and the name is unique for this realm--this is the part that I need to add i
+//             realm_data.set(realm, realm_data.get(realm) + 1);
+//             console.log(name)
+//         } else {
+//             // If the realm doesn't exist, add it with a count of 1
+//             realm_data.set(realm, 1);
+//             //and add the name in the name array
+//             peopleInRealm.push(name);
+//             console.log("people in realm")
+//             console.log(peopleInRealm)
+//         }
+//     }
+
+//     console.log(realm_data);  // Logs the realm and its count
+//  }
+
  function mapData(data) {
-    let realm_data = new Map();  // Initialize the Map
-    let peopleInRealm =[];//create of 16
+    let realm_data = new Map();  // Initialize the Map to store realm counts
+    let peopleInRealm = {};  // Initialize an object to store arrays of names for each realm
+
+    // Extract unique realms from the data
     let realms = data.map(d => d.realm).filter((value, index, self) => self.indexOf(value) === index);
     console.log(realms);
-    //goes through each datapoint
+    // Initialize arrays for each realm in the peopleInRealm object
+    realms.forEach(realm => {
+        peopleInRealm[realm] = [];
+    });
+    
+    // Iterate through each datapoint
     for (let i = 0; i < data.length; i++) {
         let realm = data[i].realm;  // Extract the realm from the data object
-        let name = data[i].name;
-        for(j=0; j<realms.length; j++)//go through an array of the string names of the realms, and check it against the current realm so that we have an index for the peopleInRealm array
-        {
-            //peopleInRealm[j] should be equal to all the people in the realm at realms[j]
-            peopleInRealm[j]
+        let name = data[i].name;  // Extract the name from the data object
+
+        // Check if the name is already counted in the current realm
+        if (peopleInRealm[realm].includes(name)) {
+            continue;  // Skip if the name is already counted
+            
         }
-        if (realm_data.has(realm) && !(peopleInRealm[i].includes(name))){
-            //check if this realm has this person counted only once)
-            // If the realm already exists, increment the count
-            //and the name is unique for this realm--this is the part that I need to add i
+        // Add the name to the array for the current realm
+        peopleInRealm[realm].push(name);
+
+        // Update the count for the current realm in the Map
+        if (realm_data.has(realm)) {
             realm_data.set(realm, realm_data.get(realm) + 1);
-            console.log(name)
+            
         } else {
-            // If the realm doesn't exist, add it with a count of 1
             realm_data.set(realm, 1);
-            //and add the name in the name array
-            peopleInRealm.push(name);
-            console.log("people in realm")
-            console.log(peopleInRealm)
         }
     }
-
-    console.log(realm_data);  // Logs the realm and its count
- }
-
+    console.log(peopleInRealm)
+    console.log(realm_data);
+    return realm_data;
+}
 
 
 
