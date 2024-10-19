@@ -53,7 +53,7 @@ function analyseData(data, datasetType)
         console.log(people_data)    
        mapData(people_data);
  }
-
+    
  
    
  function mapData(data) {
@@ -68,15 +68,21 @@ function analyseData(data, datasetType)
         for(j=0; j<realms.length; j++)//go through an array of the string names of the realms, and check it against the current realm so that we have an index for the peopleInRealm array
         {
             //peopleInRealm[j] should be equal to all the people in the realm at realms[j]
-            peopleInRealm[j]
+            if()
+            
         }
-        if (realm_data.has(realm) && !(peopleInRealm[i].includes(name))){
-            //check if this realm has this person counted only once)
+        if (realm_data.has(realm) && !(peopleInRealm[j].includes(name)))//check if this realm has this person counted only once) {
             // If the realm already exists, increment the count
             //and the name is unique for this realm--this is the part that I need to add i
             realm_data.set(realm, realm_data.get(realm) + 1);
             console.log(name)
-        } else {
+        } 
+        elif (realm_data.has(realm) && (peopleInRealm[j].includes(name)))
+        {
+
+        } 
+        else
+        {
             // If the realm doesn't exist, add it with a count of 1
             realm_data.set(realm, 1);
             //and add the name in the name array
@@ -87,7 +93,7 @@ function analyseData(data, datasetType)
     }
 
     console.log(realm_data);  // Logs the realm and its count
- }
+}
 
 
 
