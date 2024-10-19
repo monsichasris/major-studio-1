@@ -1,3 +1,8 @@
+
+
+
+let globalMinYear, globalMaxYear, globalMaxY = 0;
+
 // Load and analyze both men's and women's data simultaneously
 Promise.all([
     d3.json('data/data_women.json'),
@@ -171,6 +176,130 @@ function createTreemap(data, datasetType) {
         .attr("fill", "black")
         .text(d => d.data.name);  // Display the name of the realm
 }
+function gatherTimelineData(data, realm) {
+    const yearCount = {};
+
+    // Iterate through each person data entry
+    for (const entry of data) {
+        if (entry.realm === realm) {
+            // Extract the year(s) and convert to decades
+            const dates = entry.date;  // Dates can be a single year or an array of year strings
+
+            dates.forEach(date => {
+                let year;
+                // Check if the date is a decade or a single year
+                const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
+                if (decadeMatch) {
+                    year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
+                } else {
+                    year = new Date(date).getFullYear(); // Attempt to get the year directly
+                }
+
+                // Only count valid years
+                if (year) {
+                    // Increment count for this decade
+                    const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
+                    if (yearCount[decade]) {
+                        yearCount[decade] += 1; // Increment count for the decade
+                    } else {
+                        yearCount[decade] = 1; // Initialize count for this decade
+                    }
+                }
+            });
+        }
+    }
+
+    // Convert the yearCount object into an array for easier visualization
+    return Object.entries(yearCount).map(([year, count]) => ({
+        year: year,
+        count: count
+    }));
+}
+function createTimeline(data) {
+    // Remove previous timeline if it exists
+    d3.select("#timeline").select("svg").remove(); 
+
+    const width = 700;  // Width for the timeline
+    const height = 100; // Height for the timeline
+    const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+
+    // Set up the SVG for the timeline
+    const svg = d3.select("#timeline")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Use the globalMinYear and globalMaxYear to ensure consistent x-axis range
+    const x = d3.scaleLinear()
+        .domain([globalMinYear, globalMaxYear + 10])  // Add 10 to extend the scale past the last decade
+        .range([margin.left, width - margin.right]);
+
+    // Set up the y-scale for the count values
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.count)]).nice()
+        .range([height - margin.bottom, margin.top]);
+
+    // Add the bars to the timeline
+    svg.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d.year))  // Position based on the start of the decade (or year)
+        .attr("y", d => y(d.count))  // Position the top of the bar based on count
+        .attr("height", d => y(0) - y(d.count))  // Set the height of the bar
+        .attr("width", d => x(+d.year + 10) - x(d.year))  // Span the width from this decade to the next
+        .attr("fill", "steelblue");
+
+    // Add x-axis to show year/decade labels
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).tickFormat(d => d));  // Format the x-axis with year/decade labels
+
+    // Add y-axis to show counts
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+}
+function gatherTimelineDataForRole(data, role) {
+    const yearCount = {};
+
+    // Iterate through each person data entry
+    for (const entry of data) {
+        if (entry.role === role) {
+            // Extract the year(s) and convert to decades
+            const dates = entry.date;  // Dates can be a single year or an array of year strings
+
+            dates.forEach(date => {
+                let year;
+                // Check if the date is a decade or a single year
+                const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
+                if (decadeMatch) {
+                    year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
+                } else {
+                    year = new Date(date).getFullYear(); // Attempt to get the year directly
+                }
+
+                // Only count valid years
+                if (year) {
+                    // Increment count for this decade
+                    const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
+                    if (yearCount[decade]) {
+                        yearCount[decade] += 1; // Increment count for the decade
+                    } else {
+                        yearCount[decade] = 1; // Initialize count for this decade
+                    }
+                }
+            });
+        }
+    }
+
+    // Convert the yearCount object into an array for easier visualization
+    return Object.entries(yearCount).map(([year, count]) => ({
+        year: year,
+        count: count
+    }));
+}
+
 
 // Function to transform data into a hierarchical structure
 function transformDataToHierarchy(data) {
@@ -214,8 +343,4 @@ function resetHighlight() {
         .attr("stroke", "white")
         .attr("stroke-width", 1);
 }
-
-
-
-
 
