@@ -377,12 +377,6 @@ function resetHighlight() {
 
 
 
-
-=======
-}
-
-
-
 function createTreemap(data, datasetType) {
     const width = 700;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
