@@ -2,6 +2,8 @@
 
 colors=[];
 colors
+let globalMinYear, globalMaxYear;
+
 d3.json('data/data_women.json').then(function(dataWomen) {
     analyseData(dataWomen, "women");
 }).catch(function(error) {
@@ -53,6 +55,19 @@ function analyseData(data, datasetType)
         } 
         console.log(people_data)    
        
+     // Calculate the global minimum and maximum years in the dataset
+     const allYears = people_data.flatMap(entry => {
+        const dates = entry.date; // Assuming entry.date contains all the years associated with the entry
+        return dates.map(date => {
+            const decadeMatch = date.match(/(\d{4})s/);
+            return decadeMatch ? parseInt(decadeMatch[1]) : new Date(date).getFullYear();
+        });
+    });
+
+    globalMinYear = Math.min(...allYears);
+    globalMaxYear = Math.max(...allYears);
+    
+    // Now you can call createTreemap() or other functions as needed
     // Get the hierarchical data for the treemap
     let hierarchyData = mapData(people_data);
 
@@ -141,7 +156,7 @@ function createTreemap(data, datasetType) {
         .on("click", function(event, d) {
             const clickedRealm = d.data.name; // Get the name of the clicked realm
             const rolesData = d.data.roles;    // Get the roles for this realm
-
+        
             // Prepare data for the new treemap for roles
             const rolesHierarchyData = {
                 name: clickedRealm,
@@ -150,10 +165,17 @@ function createTreemap(data, datasetType) {
                     count: count
                 }))
             };
-
+        
+            // Gather date data for timeline
+            const timelineData = gatherTimelineData(people_data, clickedRealm);
+        
             // Create a new treemap for roles
-            createTreemap(rolesHierarchyData, `${datasetType}-roles`); // Call createTreemap again for roles
+            createTreemap(rolesHierarchyData, `${datasetType}-roles`);
+        
+            // Create the timeline for the clicked realm
+            createTimeline(timelineData);
         });
+        
 
     // Add rectangles to represent each realm
     cell.append("rect")
@@ -173,6 +195,89 @@ function createTreemap(data, datasetType) {
         .attr("fill", "black")
         .text(d => d.data.name);  // Display the name of the realm
 }
+function gatherTimelineData(data, realm) {
+    const yearCount = {};
 
+    // Iterate through each person data entry
+    for (const entry of data) {
+        if (entry.realm === realm) {
+            // Extract the year(s) and convert to decades
+            const dates = entry.date;  // Dates can be a single year or an array of year strings
+
+            dates.forEach(date => {
+                let year;
+                // Check if the date is a decade or a single year
+                const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
+                if (decadeMatch) {
+                    year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
+                } else {
+                    year = new Date(date).getFullYear(); // Attempt to get the year directly
+                }
+
+                // Only count valid years
+                if (year) {
+                    // Increment count for this decade
+                    const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
+                    if (yearCount[decade]) {
+                        yearCount[decade] += 1; // Increment count for the decade
+                    } else {
+                        yearCount[decade] = 1; // Initialize count for this decade
+                    }
+                }
+            });
+        }
+    }
+
+    // Convert the yearCount object into an array for easier visualization
+    return Object.entries(yearCount).map(([year, count]) => ({
+        year: year,
+        count: count
+    }));
+}
+function createTimeline(data) {
+    // Remove previous timeline if it exists
+    d3.select("#timeline").select("svg").remove(); 
+
+    const width = 700;  // Width for the timeline
+    const height = 100; // Height for the timeline
+    const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+
+    // Set up the SVG for the timeline
+    const svg = d3.select("#timeline")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Use the globalMinYear and globalMaxYear to ensure consistent x-axis range
+    const x = d3.scaleLinear()
+        .domain([globalMinYear, globalMaxYear + 10])  // Add 10 to extend the scale past the last decade
+        .range([margin.left, width - margin.right]);
+
+    // Set up the y-scale for the count values
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.count)]).nice()
+        .range([height - margin.bottom, margin.top]);
+
+    // Add the bars to the timeline
+    svg.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d.year))  // Position based on the start of the decade (or year)
+        .attr("y", d => y(d.count))  // Position the top of the bar based on count
+        .attr("height", d => y(0) - y(d.count))  // Set the height of the bar
+        .attr("width", d => x(+d.year + 10) - x(d.year))  // Span the width from this decade to the next
+        .attr("fill", "steelblue");
+
+    // Add x-axis to show year/decade labels
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).tickFormat(d => d));  // Format the x-axis with year/decade labels
+
+    // Add y-axis to show counts
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+}
 
 
