@@ -1,5 +1,5 @@
 
-
+let x=100;
 colors=[];
 colors
 let globalMinYear, globalMaxYear,  globalMaxY = 0; ;
@@ -42,7 +42,9 @@ function analyseData(data, datasetType)
                 "realm": realm,
                 "role": role,
                 "id": datum.id,
-                "date": datum.date
+                "date": datum.date,
+                "link": datum.link,
+                "thumbnail": datum.thumbnail
             }
             people_data.push(current_usable_object);
         
@@ -64,8 +66,16 @@ function analyseData(data, datasetType)
         });
     });
 
-    globalMinYear = Math.min(...allYears);
-    globalMaxYear = Math.max(...allYears);
+       // Assuming the analyseData function processes the data and fills allYears
+    // Now, we can determine globalMinYear and globalMaxYear
+    globalMinYear = Infinity;
+    globalMaxYear = -Infinity;
+
+    // Iterate over all years to find min and max
+    for (let year of allYears) {
+        if (year < globalMinYear) globalMinYear = year;
+        if (year > globalMaxYear) globalMaxYear = year;
+    }
     
     // Now you can call createTreemap() or other functions as needed
     // Get the hierarchical data for the treemap
@@ -179,6 +189,7 @@ function createTreemap(data, datasetType) {
         // If no rolesData, we are clicking on a role, so update the timeline for that role
         const timelineData = gatherTimelineDataForRole(people_data, clickedName);
         createTimeline(timelineData);
+        showPeople(clickedName);
     }
 });
         
@@ -337,5 +348,33 @@ function gatherTimelineDataForRole(data, role) {
     return timelineData;
     
 }
+
+function showPeople(selectedRole) {
+    console.log(selectedRole);
+    d3.select("#people-thumbnails").selectAll("div").remove(); // Clear previous thumbnails
+
+    const peopleInRole = people_data.filter(person => person.role === selectedRole);
+    
+    const thumbnailsDiv = d3.select("#people-thumbnails");
+
+    peopleInRole.forEach(person => {
+        const personDiv = thumbnailsDiv.append("div").attr("class", "person-thumbnail");
+
+        // Create an anchor element with the href linking to the full-size image or another resource
+        const link = personDiv.append("a")
+            .attr("href", person.thumbnail) // Link to the full-size image or some other resource
+            .attr("target", "_blank"); // Open link in a new tab
+        x+=20;
+        // Append the image inside the anchor tag
+        link.append("img")
+            .attr("src", person.thumbnail) // Thumbnail version of the image
+            .attr("alt", person.name)
+            .attr("height", 100) // Optional, you can adjust as necessary
+            .attr('x', x+20)
+
+       personDiv.append("p").text(person.name);
+    });
+}
+
 
 
