@@ -4,7 +4,7 @@ colors=[];
 colors
 let globalMinYear, globalMaxYear,  globalMaxY = 0; ;
 
-d3.json('data/data_women.json').then(function(dataWomen) {
+d3.json('data/data_men.json').then(function(dataWomen) {
     analyseData(dataWomen, "women");
 }).catch(function(error) {
     console.error('Error loading the women JSON data:', error);
@@ -362,7 +362,7 @@ function showPeople(selectedRole) {
 
         // Create an anchor element with the href linking to the full-size image or another resource
         const link = personDiv.append("a")
-            .attr("href", person.thumbnail) // Link to the full-size image or some other resource
+            .attr("href", person.link) // Link to the full-size image or some other resource
             .attr("target", "_blank"); // Open link in a new tab
         x+=20;
         // Append the image inside the anchor tag
@@ -372,7 +372,8 @@ function showPeople(selectedRole) {
             .attr("height", 100) // Optional, you can adjust as necessary
             .attr('x', x+20)
 
-       personDiv.append("p").text(person.name);
+       personDiv.append("p").text(person.name)
+       
     });
 }
 
