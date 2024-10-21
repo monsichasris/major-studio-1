@@ -12,12 +12,10 @@ Promise.all([
     allRealmData[0] =analyseData(dataWomen),
     allRealmData[1] =analyseData(dataMen)])
     .then(
-        
-       
-        Promise.all([ hierarchyData=[mapData(allRealmData[0]), mapData(allRealmData[1])]])
+       Promise.all([ hierarchyData=[mapData(allRealmData[0]), mapData(allRealmData[1])]])
         .then(
             createTreemap(hierarchyData[0], 0),
-            createTreemap(hierarchyData[1], 1)
+            createTreemap(hierarchyData[1], 1),
         )
     )
     
@@ -74,8 +72,7 @@ return (people_data)
  function mapData(data) {
     
     let realm_data = new Map();  // Initialize the Map to store realm counts
-    console.log("hi");
-    console.log(data);
+    
     // Iterate through each datapoint
     for (let i = 0; i < data.length; i++) {
         let realm = data[i].realm;  // Extract the realm from the data object
@@ -117,20 +114,28 @@ const colorScale = d3.scaleOrdinal()
     .domain(["1", "0"])
     .range(["#D0FC83", "#D49EFF"]);
 
+
+
+
+
 function createTreemap(data, index) {
     const width = 600;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
 
 // Transform the data into a hierarchical structure
-hierarchyData[index] = transformDataToHierarchy(data),
-console.log("hierarchyData")
-console.log(hierarchyData[index])
+hierarchyData[index] = transformDataToHierarchy(data);
 
+console.log(hierarchyData[index] )
 
 // Create the root of the hierarchy
+
 const root = d3.hierarchy(hierarchyData[index])
     .sum(d => d.count)
     .sort((a, b) => b.value - a.value);
+
+
+
+
 
 // Create the treemap layout
 d3.treemap()
@@ -142,12 +147,14 @@ d3.treemap()
 // Remove any existing SVG element in the correct container
 
 d3.select(`#treemap-${index}`).select("svg").remove();
-
+console.log(index)
 // Create the SVG element where the treemap will be drawn
 const svg = d3.select(`#treemap-${index}`)
     .append("svg")
     .attr("width", width)
     .attr("height", height);
+
+
 
     // Create a tooltip element
     const tooltip = d3.select("body").append("div")
@@ -215,9 +222,7 @@ const svg = d3.select(`#treemap-${index}`)
                 }))
             };
         
-            console.log("data is here");
-            console.log(roleHierarchyData.roleData[0]); // Log the second role data
-            console.log(roleHierarchyData.roleData[1]); // Log the second role data
+           
             // Call the createTreemap function for each roleData
             createTreemap(roleHierarchyData.roleData[0], 0);
             createTreemap(roleHierarchyData.roleData[1], 1);
