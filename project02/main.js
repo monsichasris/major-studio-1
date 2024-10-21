@@ -1,5 +1,5 @@
 
-
+let allRealmData=[{}, {}], index=0, hierarchyData = [], roleData =[];
 
 let globalMinYear, globalMaxYear, globalMaxY = 0;
 
@@ -8,15 +8,27 @@ Promise.all([
     d3.json('data/data_women.json'),
     d3.json('data/data_men.json')
 ]).then(function([dataWomen, dataMen]) {
-    analyseData(dataWomen, "women");
-    analyseData(dataMen, "men");
+    Promise.all([
+    allRealmData[0] =analyseData(dataWomen),
+    allRealmData[1] =analyseData(dataMen)])
+    .then(
+        
+       
+        Promise.all([ hierarchyData=[mapData(allRealmData[0]), mapData(allRealmData[1])]])
+        .then(
+            createTreemap(hierarchyData[0], 0),
+            createTreemap(hierarchyData[1], 1)
+        )
+    )
+    
 }).catch(function(error) {
     console.error('Error loading the JSON data:', error);
 });
 
 let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
-function analyseData(data, datasetType) {
+function analyseData(data, index) {
     // going through each portrait
+    people_data=[];
     for (let i = 0; i < data.length; i++) {
         datum = data[i];
         //going through each sitter in an individual datum
@@ -42,25 +54,28 @@ function analyseData(data, datasetType) {
                 "id": datum.id,
                 "date": datum.date
             }
+            
             people_data.push(current_usable_object);
+            
             };
 
         }
             
     } 
 } 
-console.log(people_data)    
-       
-    // Get the hierarchical data for the treemap
-    let hierarchyData = mapData(people_data);
+  
+return (people_data)
 
-    // Create the treemap using the hierarchical data
-    createTreemap(hierarchyData, datasetType);
  }
 
- function mapData(data) {
-    let realm_data = new Map();  // Initialize the Map to store realm counts
 
+
+
+ function mapData(data) {
+    
+    let realm_data = new Map();  // Initialize the Map to store realm counts
+    console.log("hi");
+    console.log(data);
     // Iterate through each datapoint
     for (let i = 0; i < data.length; i++) {
         let realm = data[i].realm;  // Extract the realm from the data object
@@ -93,24 +108,27 @@ console.log(people_data)
         }))
     };
 
-    console.log(hierarchyData);
+
     return hierarchyData;
 }
 
 
 const colorScale = d3.scaleOrdinal()
-    .domain(["men", "women"])
+    .domain(["1", "0"])
     .range(["#D0FC83", "#D49EFF"]);
 
-function createTreemap(data, datasetType) {
+function createTreemap(data, index) {
     const width = 600;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
 
 // Transform the data into a hierarchical structure
-const hierarchyData = transformDataToHierarchy(data);
+hierarchyData[index] = transformDataToHierarchy(data),
+console.log("hierarchyData")
+console.log(hierarchyData[index])
+
 
 // Create the root of the hierarchy
-const root = d3.hierarchy(hierarchyData)
+const root = d3.hierarchy(hierarchyData[index])
     .sum(d => d.count)
     .sort((a, b) => b.value - a.value);
 
@@ -122,10 +140,11 @@ d3.treemap()
 
 
 // Remove any existing SVG element in the correct container
-d3.select(`#${datasetType}-treemap`).select("svg").remove();
+
+d3.select(`#treemap-${index}`).select("svg").remove();
 
 // Create the SVG element where the treemap will be drawn
-const svg = d3.select(`#${datasetType}-treemap`)
+const svg = d3.select(`#treemap-${index}`)
     .append("svg")
     .attr("width", width)
     .attr("height", height);
@@ -151,7 +170,7 @@ const svg = d3.select(`#${datasetType}-treemap`)
     cell.append("rect")
         .attr("width", d => d.x1 - d.x0)  // Width of the rectangle
         .attr("height", d => d.y1 - d.y0)  // Height of the rectangle
-        .attr("fill", d => colorScale(datasetType))  // Fill color based on datasetType
+        .attr("fill", d => colorScale(index))  // Fill color based on datasetType
         .attr("stroke", "white")
      
         .on("mouseover", function(event, d) {
@@ -169,17 +188,41 @@ const svg = d3.select(`#${datasetType}-treemap`)
         })
         // on click event show the children data inside the realm treemap
         .on("click", function(event, d) {
-            const roleData = d.data.roles;
+            
+            const namey = d.data.name; // Get the name from the clicked data
+        
+            // Find the child in hierarchyData[0].children with the same name
+            const childFromHierarchy0 = hierarchyData[0].children.find(child => child.name === namey);
+            const childFromHierarchy1 = hierarchyData[1].children.find(child => child.name === namey);
+        
+            // Check if the children were found
+            if (!childFromHierarchy0 || !childFromHierarchy1) {
+                console.log("Child not found in one or both hierarchies for name:", namey);
+                return; // Exit if not found
+            }
+        
+            // Create the roleHierarchyData object
             const roleHierarchyData = {
                 name: d.data.name,
+                roleData: {
+                    0: childFromHierarchy0.roles, // Using property names without quotes
+                    1: childFromHierarchy1.roles
+                },
+                // Assuming roleData is defined elsewhere, or you need to define it
                 children: Object.entries(roleData).map(([role, count]) => ({
                     name: role,
                     count: count
                 }))
             };
-            createTreemap(roleHierarchyData, 'men');
-            createTreemap(roleHierarchyData, 'women');
+        
+            console.log("data is here");
+            console.log(roleHierarchyData.roleData[0]); // Log the second role data
+            console.log(roleHierarchyData.roleData[1]); // Log the second role data
+            // Call the createTreemap function for each roleData
+            createTreemap(roleHierarchyData.roleData[0], 0);
+            createTreemap(roleHierarchyData.roleData[1], 1);
         });
+        
 
 
 
@@ -322,32 +365,36 @@ function gatherTimelineDataForRole(data, role) {
 
 // Function to transform data into a hierarchical structure
 function transformDataToHierarchy(data) {
+    // Check if data already has a children property, returning it as is
     if (data.children) {
         return data;
     }
 
+    // Initialize the hierarchyData with a root name
     const hierarchyData = {
         name: "root",
         children: []
     };
 
-    data.forEach(d => {
+    // Log the input data for debugging
+    console.log(data);
+
+    // Transform each role-count pair into the desired hierarchy structure
+    Object.entries(data).forEach(([role, count]) => {
         const realmNode = {
-            name: d.realm,
-            count: d.count,
-            roles: d.roles,
-            children: Object.entries(d.roles).map(([role, count]) => ({
-                name: role,
-                count: count
-            }))
+            name: role,
+            count: count,
+            roles: { [role]: count }, // Keep the role structure if necessary
+            children: [] // Initialize an empty children array if needed later
         };
 
+        // Push the realmNode to the children of hierarchyData
         hierarchyData.children.push(realmNode);
     });
 
-    return hierarchyData;
-    console.log(hierarchyData)
+    return hierarchyData; // Return the transformed hierarchy
 }
+
 
 // Function to highlight shared realms
 function highlightSharedRealms(realmName) {
@@ -367,3 +414,17 @@ function resetHighlight() {
     .attr("fill", "black");
 }
 
+// function drawingChildren()
+// {
+//     const roleData = d.data.roles;
+//             const roleHierarchyData = {
+//                 name: d.data.name,
+//                 //roles should be filtered by the name as the realm
+//                 children: Object.entries(roleData).map(([role, count]) => ({
+//                     name: role,
+//                     count: count
+//                 }))
+//             };
+//             createTreemap(roleHierarchyData, 'men');
+//             createTreemap(roleHierarchyData, 'women');
+// }
