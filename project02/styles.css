@@ -96,6 +96,7 @@ p{
     padding-left: 40px;
     padding-right: 40px;
     padding-top: 0px;
+    text-align: center;
     
 }
 
@@ -114,7 +115,23 @@ p{
     object-fit: cover; /* Ensure the image covers the container without stretching */
 }
 
+#intro{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 80vh;
+    margin: 80px;
+}
 
+#sq{
+    display: flex;
+    flex-direction: row;
+    gap: 80px;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+}
 
 footer {
     display: flex;

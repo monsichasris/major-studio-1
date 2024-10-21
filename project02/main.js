@@ -1,18 +1,25 @@
-
-
-
 let globalMinYear, globalMaxYear, globalMaxY = 0;
+
+let menData, womenData;
 
 // Load and analyze both men's and women's data simultaneously
 Promise.all([
     d3.json('data/data_women.json'),
     d3.json('data/data_men.json')
 ]).then(function([dataWomen, dataMen]) {
+    womenData = dataWomen;
+    menData = dataMen;
+
     analyseData(dataWomen, "women");
     analyseData(dataMen, "men");
+
+    // Log the analyzed data for both men and women
+    console.log("Analyzed women data:", womenData);
+    console.log("Analyzed men data:", menData);
 }).catch(function(error) {
     console.error('Error loading the JSON data:', error);
 });
+
 
 let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
 function analyseData(data, datasetType) {
@@ -49,7 +56,9 @@ function analyseData(data, datasetType) {
             
     } 
 } 
-console.log(people_data)    
+// console.log(people_data)    
+console.log(`Analyzed ${datasetType} data:`, data);
+
        
     // Get the hierarchical data for the treemap
     let hierarchyData = mapData(people_data);
@@ -168,17 +177,21 @@ const svg = d3.select(`#${datasetType}-treemap`)
             tooltip.style("visibility", "hidden");
         })
         // on click event show the children data inside the realm treemap
+        // .on("click", function(event, d) {
+        //     const roleData = d.data.roles;
+        //     const roleHierarchyData = {
+        //         name: d.data.name,
+        //         children: Object.entries(roleData).map(([role, count]) => ({
+        //             name: role,
+        //             count: count
+        //         }))
+        //     };
+        //     createTreemap(roleHierarchyData, 'men');
+        //     createTreemap(roleHierarchyData, 'women');
+        // });
         .on("click", function(event, d) {
-            const roleData = d.data.roles;
-            const roleHierarchyData = {
-                name: d.data.name,
-                children: Object.entries(roleData).map(([role, count]) => ({
-                    name: role,
-                    count: count
-                }))
-            };
-            createTreemap(roleHierarchyData, 'men');
-            createTreemap(roleHierarchyData, 'women');
+            console.log(`Clicked on realm: ${d.data.name}`);
+            handleClickEvent(d.data.name);
         });
 
 
@@ -195,6 +208,42 @@ const svg = d3.select(`#${datasetType}-treemap`)
         .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none"));  // Display the name of the realm
    
 } 
+
+function handleClickEvent(realmName) {
+    // Find the corresponding realm data in both datasets
+    const menRealmData = menData.find(realm => realm.realm === realmName);
+    const womenRealmData = womenData.find(realm => realm.realm === realmName);
+
+if (!menRealmData || !womenRealmData) {
+        console.error(`Realm data not found for realm: ${realmName}`);
+        return;
+    }
+
+    // Prepare data for the new treemap for roles
+    const roleHierarchyDataMen = {
+        name: menRealmData.realm,
+        children: Object.entries(menRealmData.roles).map(([role, count]) => ({
+            name: role,
+            count: count
+        }))
+    };
+
+    const roleHierarchyDataWomen = {
+        name: womenRealmData.realm,
+        children: Object.entries(womenRealmData.roles).map(([role, count]) => ({
+            name: role,
+            count: count
+        }))
+    };
+
+    console.log("Role hierarchy data for men:", roleHierarchyDataMen);
+    console.log("Role hierarchy data for women:", roleHierarchyDataWomen);
+
+    // Create a new treemap for roles for both men and women
+    createTreemap(roleHierarchyDataMen, 'men');
+    createTreemap(roleHierarchyDataWomen, 'women');
+}
+
 function gatherTimelineData(data, realm) {
     const yearCount = {};
 
