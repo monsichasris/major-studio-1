@@ -4,7 +4,7 @@ colors=[];
 colors
 let globalMinYear, globalMaxYear,  globalMaxY = 0; ;
 
-d3.json('data/data_men.json').then(function(dataWomen) {
+d3.json('data/data_women.json').then(function(dataWomen) {
     analyseData(dataWomen, "women");
 }).catch(function(error) {
     console.error('Error loading the women JSON data:', error);
