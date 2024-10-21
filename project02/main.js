@@ -100,7 +100,7 @@ return (people_data)
 
     // Convert the realm_data Map into a hierarchical structure for the treemap
     let hierarchyData = {
-        name: "Root",
+        name: datasetType,
         children: Array.from(realm_data).map(([realm, realmInfo]) => ({
             name: realm,      // Name of the realm
             count: realmInfo.count,  // Count of individuals in that realm
@@ -260,31 +260,18 @@ const svg = d3.select(`#treemap-${index}`)
 } 
 
 function handleClickEvent(realmName) {
-    // Find the corresponding realm data in both datasets
-    const menRealmData = menData.find(realm => realm.realm === realmName);
-    const womenRealmData = womenData.find(realm => realm.realm === realmName);
+    // Filter the people_data for the selected realm
+    const menRealmData = people_data.filter(d => d.realm === realmName && menData.includes(d));
+    const womenRealmData = people_data.filter(d => d.realm === realmName && womenData.includes(d));
 
-if (!menRealmData || !womenRealmData) {
+    if (menRealmData.length === 0 || womenRealmData.length === 0) {
         console.error(`Realm data not found for realm: ${realmName}`);
         return;
     }
 
-    // Prepare data for the new treemap for roles
-    const roleHierarchyDataMen = {
-        name: menRealmData.realm,
-        children: Object.entries(menRealmData.roles).map(([role, count]) => ({
-            name: role,
-            count: count
-        }))
-    };
-
-    const roleHierarchyDataWomen = {
-        name: womenRealmData.realm,
-        children: Object.entries(womenRealmData.roles).map(([role, count]) => ({
-            name: role,
-            count: count
-        }))
-    };
+    // Generate hierarchical data for the new treemap for roles
+    const roleHierarchyDataMen = mapData(menRealmData, 'men');
+    const roleHierarchyDataWomen = mapData(womenRealmData, 'women');
 
     console.log("Role hierarchy data for men:", roleHierarchyDataMen);
     console.log("Role hierarchy data for women:", roleHierarchyDataWomen);
