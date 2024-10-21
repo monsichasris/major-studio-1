@@ -111,7 +111,7 @@ return (people_data)
 
 
 const colorScale = d3.scaleOrdinal()
-    .domain(["1", "0"])
+    .domain([1, 0])
     .range(["#D0FC83", "#D49EFF"]);
 
 
