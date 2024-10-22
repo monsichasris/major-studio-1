@@ -201,7 +201,7 @@ function initializeLayout() {
 function draw() {
   // filter data based on state.filters
   const filteredData = state.data
-    .filter(d => state.filters.checked.indexOf(d[CLASS]) > -1)
+    .filter(d => state.filters.checked.indexOf(d[CLASS]) > -1) //absence of a class in the checked array means it is not selected
     .sort((a, b) =>
       d3.descending(a[state.sizeBy.selected], b[state.sizeBy.selected])
     );
