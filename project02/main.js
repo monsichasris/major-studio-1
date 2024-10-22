@@ -1,7 +1,7 @@
 
 let allRealmData=[{}, {}], index=0, hierarchyData = [], roleData =[];
 
-let globalMinYear, globalMaxYear, globalMaxY = 0;
+let globalMinYear=0, globalMaxYear=0, globalMaxY = 0;
 
 // Load and analyze both men's and women's data simultaneously
 Promise.all([
@@ -61,13 +61,30 @@ function analyseData(data, index) {
             
     } 
 } 
+// Calculate the global minimum and maximum years in the dataset
+     const allYears = people_data.flatMap(entry => {
+        const dates = entry.date; // Assuming entry.date contains all the years associated with the entry
+        return dates.map(date => {
+            const decadeMatch = date.match(/(\d{4})s/);
+            return decadeMatch ? parseInt(decadeMatch[1]) : new Date(date).getFullYear();
+        });
+    });
+
+       // Assuming the analyseData function processes the data and fills allYears
+    // Now, we can determine globalMinYear and globalMaxYear
+    globalMinYear = Infinity;
+    globalMaxYear = -Infinity;
+
+    // Iterate over all years to find min and max
+    for (let year of allYears) {
+        if (year < globalMinYear) globalMinYear = year;
+        if (year > globalMaxYear) globalMaxYear = year;
+    }
+    
   
 return (people_data)
 
  }
-
-
-
 
  function mapData(data) {
     
@@ -109,13 +126,9 @@ return (people_data)
     return hierarchyData;
 }
 
-
 const colorScale = d3.scaleOrdinal()
     .domain(["1", "0"])
     .range(["#D0FC83", "#D49EFF"]);
-
-
-
 
 
 function createTreemap(data, index) {
@@ -125,16 +138,13 @@ function createTreemap(data, index) {
 // Transform the data into a hierarchical structure
 hierarchyData[index] = transformDataToHierarchy(data);
 
-console.log(hierarchyData[index] )
+
 
 // Create the root of the hierarchy
 
 const root = d3.hierarchy(hierarchyData[index])
     .sum(d => d.count)
     .sort((a, b) => b.value - a.value);
-
-
-
 
 
 // Create the treemap layout
@@ -147,7 +157,7 @@ d3.treemap()
 // Remove any existing SVG element in the correct container
 
 d3.select(`#treemap-${index}`).select("svg").remove();
-console.log(index)
+
 // Create the SVG element where the treemap will be drawn
 const svg = d3.select(`#treemap-${index}`)
     .append("svg")
@@ -226,10 +236,29 @@ const svg = d3.select(`#treemap-${index}`)
             // Call the createTreemap function for each roleData
             createTreemap(roleHierarchyData.roleData[0], 0);
             createTreemap(roleHierarchyData.roleData[1], 1);
+
+
+            //for the timelines
+
+            if (roleHierarchyData.name) {
+                // If rolesData exists, we are clicking on a realm
+                //need to pass data that has the time, need to pass the data that has all the paintings in that real
+                console.log(roleHierarchyData.name)
+                const timelineData = gatherTimelineData((allRealmData[0].filter(item => item.realm === roleHierarchyData.name)), (allRealmData[1].filter(item => item.realm === roleHierarchyData.name)), roleHierarchyData.name);
+                createTimeline(timelineData);
+            } else {
+                // If no rolesData, we are clicking on a role, so update the timeline for that role
+                console.log("look here")
+                console.log(roleHierarchyData)
+                //console.log((allRealmData[0].filter(item => item.role === roleHierarchyData.name)))
+                //const timelineData = gatherTimelineDataForRole(roleHierarchyData.roleData[0], roleHierarchyData.name);
+                
+                //createTimeline(timelineData);
+                //showPeople(roleHierarchyData.name);
+            }
+
         });
         
-
-
 
      
         
@@ -243,51 +272,61 @@ const svg = d3.select(`#treemap-${index}`)
         .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none"));  // Display the name of the realm
    
 } 
-function gatherTimelineData(data, realm) {
+function gatherTimelineData(data1, data2, realm) {
     const yearCount = {};
-
     // Iterate through each person data entry
-    for (const entry of data) {
-        if (entry.realm === realm) {
-            // Extract the year(s) and convert to decades
-            const dates = entry.date;  // Dates can be a single year or an array of year strings
+    
+    for (i=0; i<data1.length; i++) {
+        entry = data1[i]
+        // Extract the year(s) and convert to decades
+        const dates = entry.date;  // Dates can be a single year or an array of year strings
+      
+        if(dates[1])
+            
+        dates.forEach(date => {
+            let year;
+            // Check if the date is a decade or a single year
+            const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
+            if (decadeMatch) {
+                year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
+            } else {
+                year = new Date(date).getFullYear(); // Attempt to get the year directly
+            }
 
-            dates.forEach(date => {
-                let year;
-                // Check if the date is a decade or a single year
-                const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
-                if (decadeMatch) {
-                    year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
+            // Only count valid years
+            if (year) {
+                // Increment count for this decade
+                const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
+                if (yearCount[decade]) {
+                    yearCount[decade] += 1; // Increment count for the decade
                 } else {
-                    year = new Date(date).getFullYear(); // Attempt to get the year directly
+                    yearCount[decade] = 1; // Initialize count for this decade
                 }
-
-                // Only count valid years
-                if (year) {
-                    // Increment count for this decade
-                    const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
-                    if (yearCount[decade]) {
-                        yearCount[decade] += 1; // Increment count for the decade
-                    } else {
-                        yearCount[decade] = 1; // Initialize count for this decade
-                    }
-                }
-            });
-        }
+            
+            }
+        });
+        
     }
+    
+const timelineData = Object.entries(yearCount).map(([year, count]) => ({
+    year: year,
+    count: count
+ 
+}));
+// Update the global max Y value if a higher count is found
+const maxCount = d3.max(timelineData, d => d.count);
+globalMaxY = Math.max(globalMaxY, maxCount);  // Keep track of the global max count for y-axis normalization
 
-    // Convert the yearCount object into an array for easier visualization
-    return Object.entries(yearCount).map(([year, count]) => ({
-        year: year,
-        count: count
-    }));
+return timelineData;
+
 }
 function createTimeline(data) {
+   
     // Remove previous timeline if it exists
     d3.select("#timeline").select("svg").remove(); 
 
-    const width = 700;  // Width for the timeline
-    const height = 100; // Height for the timeline
+    const width = window.innerWidth;  // Width for the timeline
+    const height = 300; // Height for the timeline
     const margin = { top: 10, right: 30, bottom: 30, left: 40 };
 
     // Set up the SVG for the timeline
@@ -300,11 +339,12 @@ function createTimeline(data) {
     const x = d3.scaleLinear()
         .domain([globalMinYear, globalMaxYear + 10])  // Add 10 to extend the scale past the last decade
         .range([margin.left, width - margin.right]);
-
+       
     // Set up the y-scale for the count values
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.count)]).nice()
-        .range([height - margin.bottom, margin.top]);
+    .domain([0, globalMaxY])  // Normalize y-axis using the global maximum count
+    .range([height - margin.bottom, margin.top]);
+
 
     // Add the bars to the timeline
     svg.selectAll(".bar")
@@ -360,11 +400,45 @@ function gatherTimelineDataForRole(data, role) {
         }
     }
 
-    // Convert the yearCount object into an array for easier visualization
-    return Object.entries(yearCount).map(([year, count]) => ({
+    const timelineData = Object.entries(yearCount).map(([year, count]) => ({
         year: year,
         count: count
     }));
+    
+    // Update the global max Y value if a higher count is found
+    const maxCount = d3.max(timelineData, d => d.count);
+    globalMaxY = Math.max(globalMaxY, maxCount);  // Keep track of the global max count for y-axis normalization
+    
+    return timelineData;
+    
+}
+
+function showPeople(selectedRole) {
+    console.log(selectedRole);
+    d3.select("#people-thumbnails").selectAll("div").remove(); // Clear previous thumbnails
+
+    const peopleInRole = people_data.filter(person => person.role === selectedRole);
+    
+    const thumbnailsDiv = d3.select("#people-thumbnails");
+
+    peopleInRole.forEach(person => {
+        const personDiv = thumbnailsDiv.append("div").attr("class", "person-thumbnail");
+
+        // Create an anchor element with the href linking to the full-size image or another resource
+        const link = personDiv.append("a")
+            .attr("href", person.link) // Link to the full-size image or some other resource
+            .attr("target", "_blank"); // Open link in a new tab
+        x+=20;
+        // Append the image inside the anchor tag
+        link.append("img")
+            .attr("src", person.thumbnail) // Thumbnail version of the image
+            .attr("alt", person.name)
+            .attr("height", 100) // Optional, you can adjust as necessary
+            .attr('x', x+20)
+
+       personDiv.append("p").text(person.name)
+       
+    });
 }
 
 
@@ -381,8 +455,7 @@ function transformDataToHierarchy(data) {
         children: []
     };
 
-    // Log the input data for debugging
-    console.log(data);
+  
 
     // Transform each role-count pair into the desired hierarchy structure
     Object.entries(data).forEach(([role, count]) => {
@@ -419,17 +492,3 @@ function resetHighlight() {
     .attr("fill", "black");
 }
 
-// function drawingChildren()
-// {
-//     const roleData = d.data.roles;
-//             const roleHierarchyData = {
-//                 name: d.data.name,
-//                 //roles should be filtered by the name as the realm
-//                 children: Object.entries(roleData).map(([role, count]) => ({
-//                     name: role,
-//                     count: count
-//                 }))
-//             };
-//             createTreemap(roleHierarchyData, 'men');
-//             createTreemap(roleHierarchyData, 'women');
-// }
