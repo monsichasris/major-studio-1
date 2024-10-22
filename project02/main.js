@@ -50,7 +50,10 @@ function analyseData(data, index) {
                 "realm": realm,
                 "role": role,
                 "id": datum.id,
-                "date": datum.date
+                "date": datum.date,
+                "link": datum.link,
+                "thumbnail": datum.thumbnail,
+
             }
             
             people_data.push(current_usable_object);
@@ -240,21 +243,19 @@ const svg = d3.select(`#treemap-${index}`)
 
             //for the timelines
 
-            if (roleHierarchyData.name) {
-                // If rolesData exists, we are clicking on a realm
-                //need to pass data that has the time, need to pass the data that has all the paintings in that real
-                console.log(roleHierarchyData.name)
+            if (isRealm(d.data)) {
+               
+                
                 const timelineData = gatherTimelineData((allRealmData[0].filter(item => item.realm === roleHierarchyData.name)), (allRealmData[1].filter(item => item.realm === roleHierarchyData.name)), roleHierarchyData.name);
                 createTimeline(timelineData);
             } else {
                 // If no rolesData, we are clicking on a role, so update the timeline for that role
-                console.log("look here")
-                console.log(roleHierarchyData)
-                //console.log((allRealmData[0].filter(item => item.role === roleHierarchyData.name)))
-                //const timelineData = gatherTimelineDataForRole(roleHierarchyData.roleData[0], roleHierarchyData.name);
+               
+                const timelineData = gatherTimelineDataForRole((allRealmData[0].filter(item => item.role === roleHierarchyData.name)), (allRealmData[1].filter(item => item.realm === roleHierarchyData.name)), roleHierarchyData.name);
                 
-                //createTimeline(timelineData);
-                //showPeople(roleHierarchyData.name);
+                createTimeline(timelineData);
+                console.log(roleHierarchyData.name)
+                showPeople(roleHierarchyData.name);
             }
 
         });
@@ -281,30 +282,31 @@ function gatherTimelineData(data1, data2, realm) {
         // Extract the year(s) and convert to decades
         const dates = entry.date;  // Dates can be a single year or an array of year strings
       
-        if(dates[1])
-            
-        dates.forEach(date => {
-            let year;
-            // Check if the date is a decade or a single year
-            const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
-            if (decadeMatch) {
-                year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
-            } else {
-                year = new Date(date).getFullYear(); // Attempt to get the year directly
-            }
-
-            // Only count valid years
-            if (year) {
-                // Increment count for this decade
-                const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
-                if (yearCount[decade]) {
-                    yearCount[decade] += 1; // Increment count for the decade
+        if(dates[0]){
+            dates.forEach(date => {
+                let year;
+                // Check if the date is a decade or a single year
+                const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
+                if (decadeMatch) {
+                    year = parseInt(decadeMatch[1]); // Extract the year (e.g., 1860)
                 } else {
-                    yearCount[decade] = 1; // Initialize count for this decade
+                    year = new Date(date).getFullYear(); // Attempt to get the year directly
                 }
-            
-            }
-        });
+    
+                // Only count valid years
+                if (year) {
+                    // Increment count for this decade
+                    const decade = Math.floor(year / 10) * 10; // Convert to decade (e.g., 1860)
+                    if (yearCount[decade]) {
+                        yearCount[decade] += 1; // Increment count for the decade
+                    } else {
+                        yearCount[decade] = 1; // Initialize count for this decade
+                    }
+                
+                }
+            });
+
+        }
         
     }
     
@@ -367,16 +369,16 @@ function createTimeline(data) {
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(y));
 }
-function gatherTimelineDataForRole(data, role) {
+function gatherTimelineDataForRole(data1, data2, role) {
     const yearCount = {};
 
     // Iterate through each person data entry
-    for (const entry of data) {
-        if (entry.role === role) {
-            // Extract the year(s) and convert to decades
-            const dates = entry.date;  // Dates can be a single year or an array of year strings
-
-            dates.forEach(date => {
+    for (i=0; i<data1.length; i++) {
+        entry = data1[i]
+        // Extract the year(s) and convert to decades
+        const dates = entry.date;  // Dates can be a single year or an array of year strings
+      if(dates[0]) {
+           dates.forEach(date => {
                 let year;
                 // Check if the date is a decade or a single year
                 const decadeMatch = date.match(/(\d{4})s/);  // Match for '1860s'
@@ -398,6 +400,7 @@ function gatherTimelineDataForRole(data, role) {
                 }
             });
         }
+        
     }
 
     const timelineData = Object.entries(yearCount).map(([year, count]) => ({
@@ -414,15 +417,18 @@ function gatherTimelineDataForRole(data, role) {
 }
 
 function showPeople(selectedRole) {
+    let x=0;
     console.log(selectedRole);
     d3.select("#people-thumbnails").selectAll("div").remove(); // Clear previous thumbnails
-
+    console.log("people data:")
+    console.log(people_data.filter(person => person.role === selectedRole))
     const peopleInRole = people_data.filter(person => person.role === selectedRole);
     
     const thumbnailsDiv = d3.select("#people-thumbnails");
 
     peopleInRole.forEach(person => {
         const personDiv = thumbnailsDiv.append("div").attr("class", "person-thumbnail");
+        //const personDiv = thumbnailsDiv.append("#people-thumbnails");
 
         // Create an anchor element with the href linking to the full-size image or another resource
         const link = personDiv.append("a")
@@ -492,3 +498,10 @@ function resetHighlight() {
     .attr("fill", "black");
 }
 
+function isRealm(data)
+{
+if(Object.keys(data.roles).length>1)
+    return true;
+else
+    return false;
+}
