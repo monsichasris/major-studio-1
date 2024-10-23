@@ -3,6 +3,16 @@ let allRealmData=[{}, {}], index=0, hierarchyData = [], roleData =[];
 
 let globalMinYear=0, globalMaxYear=0, globalMaxY = 0;
 
+// Get the back button element from the DOM
+document.addEventListener("DOMContentLoaded", function() {
+    const backButton = document.getElementById("backButton");
+    if (!backButton) {
+        console.error("Back button element not found in the DOM.");
+        return;
+    }
+
+    let treemapClicked = false;
+
 // Load and analyze both men's and women's data simultaneously
 Promise.all([
     d3.json('data/data_women.json'),
@@ -87,7 +97,7 @@ function analyseData(data, index) {
   
 return (people_data)
 
- }
+}
 
  function mapData(data) {
     
@@ -129,9 +139,11 @@ return (people_data)
     return hierarchyData;
 }
 
+
 const colorScale = d3.scaleOrdinal()
     .domain([1, 0])
     .range(["#D0FC83", "#D49EFF"]);
+
 
 
 function createTreemap(data, index) {
@@ -141,14 +153,10 @@ function createTreemap(data, index) {
 // Transform the data into a hierarchical structure
 hierarchyData[index] = transformDataToHierarchy(data);
 
-
-
 // Create the root of the hierarchy
-
 const root = d3.hierarchy(hierarchyData[index])
     .sum(d => d.count)
     .sort((a, b) => b.value - a.value);
-
 
 // Create the treemap layout
 d3.treemap()
@@ -156,9 +164,7 @@ d3.treemap()
     .padding(1)
     (root);
 
-
 // Remove any existing SVG element in the correct container
-
 d3.select(`#treemap-${index}`).select("svg").remove();
 
 // Create the SVG element where the treemap will be drawn
@@ -166,8 +172,6 @@ const svg = d3.select(`#treemap-${index}`)
     .append("svg")
     .attr("width", width)
     .attr("height", height);
-
-
 
     // Create a tooltip element
     const tooltip = d3.select("body").append("div")
@@ -208,61 +212,9 @@ const svg = d3.select(`#treemap-${index}`)
         })
         // on click event show the children data inside the realm treemap
         .on("click", function(event, d) {
-            
-            const namey = d.data.name; // Get the name from the clicked data
-        
-            // Find the child in hierarchyData[0].children with the same name
-            const childFromHierarchy0 = hierarchyData[0].children.find(child => child.name === namey);
-            const childFromHierarchy1 = hierarchyData[1].children.find(child => child.name === namey);
-        
-            // Check if the children were found
-            if (!childFromHierarchy0 || !childFromHierarchy1) {
-                console.log("Child not found in one or both hierarchies for name:", namey);
-                return; // Exit if not found
-            }
-        
-            // Create the roleHierarchyData object
-            const roleHierarchyData = {
-                name: d.data.name,
-                roleData: {
-                    0: childFromHierarchy0.roles, // Using property names without quotes
-                    1: childFromHierarchy1.roles
-                },
-                // Assuming roleData is defined elsewhere, or you need to define it
-                children: Object.entries(roleData).map(([role, count]) => ({
-                    name: role,
-                    count: count
-                }))
-            };
-        
-           
-            // Call the createTreemap function for each roleData
-            createTreemap(roleHierarchyData.roleData[0], 0);
-            createTreemap(roleHierarchyData.roleData[1], 1);
-
-
-            //for the timelines
-
-            if (isRealm(d.data)) {
-               
-                
-                const timelineData = gatherTimelineData((allRealmData[0].filter(item => item.realm === roleHierarchyData.name)), (allRealmData[1].filter(item => item.realm === roleHierarchyData.name)), roleHierarchyData.name);
-                createTimeline(timelineData);
-            } else {
-                // If no rolesData, we are clicking on a role, so update the timeline for that role
-               
-                const timelineData = gatherTimelineDataForRole((allRealmData[0].filter(item => item.role === roleHierarchyData.name)), (allRealmData[1].filter(item => item.realm === roleHierarchyData.name)), roleHierarchyData.name);
-                
-                createTimeline(timelineData);
-                console.log(roleHierarchyData.name)
-                showPeople(roleHierarchyData.name);
-            }
-
+            handleTreemapClick(event, d);
         });
-        
-
-     
-        
+            
   // Add labels (realm names) to the rectangles
     cell.append("text")
         .attr("x", 5)
@@ -271,8 +223,59 @@ const svg = d3.select(`#treemap-${index}`)
         .attr("fill", "black")
         .text(d => d.data.name)
         .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none"));  // Display the name of the realm
+    
    
 } 
+
+function handleTreemapClick(event, d) {
+    const namey = d.data.name; // Get the name from the clicked data
+
+    // Find the child in hierarchyData[0].children with the same name
+    const childFromHierarchy0 = hierarchyData[0].children.find(child => child.name === namey);
+    const childFromHierarchy1 = hierarchyData[1].children.find(child => child.name === namey);
+
+    // Create the roleHierarchyData object
+    const roleHierarchyData = {
+        name: d.data.name,
+        roleData: {
+            0: childFromHierarchy0.roles, // Using property names without quotes
+            1: childFromHierarchy1.roles
+        },
+        // Assuming roleData is defined elsewhere, or you need to define it
+        children: Object.entries(roleData).map(([role, count]) => ({
+            name: role,
+            count: count
+        }))
+    };
+
+    // Call the createTreemap function for each roleData
+    createTreemap(roleHierarchyData.roleData[0], 0);
+    createTreemap(roleHierarchyData.roleData[1], 1);
+
+    treemapClicked = true; // Set the flag to disable further clicks
+    backButton.style.display = "block"; // Show the back button
+
+    // For the timelines
+    if (isRealm(d.data)) {
+        const timelineData = gatherTimelineData(
+            allRealmData[0].filter(item => item.realm === roleHierarchyData.name),
+            allRealmData[1].filter(item => item.realm === roleHierarchyData.name),
+            roleHierarchyData.name
+        );
+        createTimeline(timelineData);
+    } else {
+        // If no rolesData, we are clicking on a role, so update the timeline for that role
+        const timelineData = gatherTimelineDataForRole(
+            allRealmData[0].filter(item => item.role === roleHierarchyData.name),
+            allRealmData[1].filter(item => item.realm === roleHierarchyData.name),
+            roleHierarchyData.name
+        );
+        createTimeline(timelineData);
+        console.log(roleHierarchyData.name);
+        showPeople(roleHierarchyData.name);
+    }
+}
+
 function gatherTimelineData(data1, data2, realm) {
     const yearCount = {};
     // Iterate through each person data entry
@@ -322,6 +325,7 @@ globalMaxY = Math.max(globalMaxY, maxCount);  // Keep track of the global max co
 return timelineData;
 
 }
+
 function createTimeline(data) {
    
     // Remove previous timeline if it exists
@@ -369,6 +373,7 @@ function createTimeline(data) {
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(y));
 }
+
 function gatherTimelineDataForRole(data1, data2, role) {
     const yearCount = {};
 
@@ -447,7 +452,6 @@ function showPeople(selectedRole) {
     });
 }
 
-
 // Function to transform data into a hierarchical structure
 function transformDataToHierarchy(data) {
     // Check if data already has a children property, returning it as is
@@ -479,7 +483,6 @@ function transformDataToHierarchy(data) {
     return hierarchyData; // Return the transformed hierarchy
 }
 
-
 // Function to highlight shared realms
 function highlightSharedRealms(realmName) {
     d3.selectAll("rect")
@@ -505,3 +508,40 @@ if(Object.keys(data.roles).length>1)
 else
     return false;
 }
+
+
+
+// Event listener for the back button
+backButton.addEventListener("click", function() {
+    // Clear the treemap container
+    d3.select(`#treemap-${index}`).selectAll("*").remove();
+
+    // Recreate the realm treemap
+    createTreemap(hierarchyData[0], 0);
+    createTreemap(hierarchyData[1], 1);
+
+    // Clear the timeline and people thumbnails
+    d3.select("#timeline").selectAll("*").remove();
+    d3.select("#people-thumbnails").selectAll("*").remove();
+
+    treemapClicked = false; // Reset the flag to enable clicks
+    backButton.style.display = "none"; // Hide the back button
+});
+console.log(backButton); 
+    // on click event show the children data inside the realm treemap
+    d3.selectAll("rect").on("click", function(event, d) {
+        if (treemapClicked) {
+            console.log("Click event disabled after first click");
+            return; // Exit if the treemap has already been clicked
+        }
+
+        if (d.data.isChild) {
+            console.log("Click event disabled for child treemap");
+            tooltip.style("visibility", "hidden"); // Hide the tooltip
+            return; // Exit if it is a child treemap
+        }
+
+        handleTreemapClick(event, d); // Call the new function
+
+    });
+});
