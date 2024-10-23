@@ -377,90 +377,90 @@ return timelineData;
 // }
 
 
-function createTimeline(data) {
-    // Remove previous timeline if it exists
-    d3.select("#timeline").select("svg").remove(); 
+// function createTimeline(data) {
+//     // Remove previous timeline if it exists
+//     d3.select("#timeline").select("svg").remove(); 
     
-    const width = window.innerWidth;  // Width for the timeline
-    const height = 300; // Height for the timeline
-    const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+//     const width = window.innerWidth;  // Width for the timeline
+//     const height = 300; // Height for the timeline
+//     const margin = { top: 10, right: 30, bottom: 30, left: 40 };
 
-    // Set up the SVG for the timeline
-    const svg = d3.select("#timeline")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+//     // Set up the SVG for the timeline
+//     const svg = d3.select("#timeline")
+//         .append("svg")
+//         .attr("width", width)
+//         .attr("height", height);
 
-    // Extract all unique years from all datasets
-    let allYears = new Set();
+//     // Extract all unique years from all datasets
+//     let allYears = new Set();
     
-    data.forEach(dataset => {
-        dataset.forEach(entry => {
-            allYears.add(entry.year);  // Add the year to the Set
-        });
-    });
+//     data.forEach(dataset => {
+//         dataset.forEach(entry => {
+//             allYears.add(entry.year);  // Add the year to the Set
+//         });
+//     });
 
 
-    allYears = Array.from(allYears).sort();  
+//     allYears = Array.from(allYears).sort();  
     
-    const normalizedData = data.map(dataset => {
-    // Create a map where the key is the year and the value is the count
-    const yearMap = new Map(dataset.map(entry => [entry.year, entry.count]));  // Use entry.year and entry.count directly
+//     const normalizedData = data.map(dataset => {
+//     // Create a map where the key is the year and the value is the count
+//     const yearMap = new Map(dataset.map(entry => [entry.year, entry.count]));  // Use entry.year and entry.count directly
 
-    // Map over allYears and fill in missing years with count = 0
-    return allYears.map(year => ({
-        year: +year,  // Convert the year from string to a number
-        count: yearMap.get(year) || 0  // If the year exists in this dataset, use the count, otherwise 0
-    }));
-});
+//     // Map over allYears and fill in missing years with count = 0
+//     return allYears.map(year => ({
+//         year: +year,  // Convert the year from string to a number
+//         count: yearMap.get(year) || 0  // If the year exists in this dataset, use the count, otherwise 0
+//     }));
+// });
 
-    // Use the globalMinYear and globalMaxYear to ensure consistent x-axis range
-    const x = d3.scaleLinear()
-        .domain([Math.min(...allYears), Math.max(...allYears) + 10])  // Add 10 to extend the scale past the last decade
-        .range([margin.left, width - margin.right]);
+//     // Use the globalMinYear and globalMaxYear to ensure consistent x-axis range
+//     const x = d3.scaleLinear()
+//         .domain([Math.min(...allYears), Math.max(...allYears) + 10])  // Add 10 to extend the scale past the last decade
+//         .range([margin.left, width - margin.right]);
 
-    // Set up the y-scale for the count values (stack height)
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(normalizedData.flat(), d => d.count)])  // Get the maximum count across all data for y-axis
-        .range([height - margin.bottom, margin.top]);
+//     // Set up the y-scale for the count values (stack height)
+//     const y = d3.scaleLinear()
+//         .domain([0, d3.max(normalizedData.flat(), d => d.count)])  // Get the maximum count across all data for y-axis
+//         .range([height - margin.bottom, margin.top]);
 
-    // Set up color scale for different categories
-    const color = d3.scaleOrdinal()
-        .domain(d3.range(data.length))  // Assuming data is an array of arrays, one color per series
-        .range(d3.schemeCategory10);  // Using the d3 color scheme
+//     // Set up color scale for different categories
+//     const color = d3.scaleOrdinal()
+//         .domain(d3.range(data.length))  // Assuming data is an array of arrays, one color per series
+//         .range(d3.schemeCategory10);  // Using the d3 color scheme
 
-    // D3 stack generator for the normalized data
-    const stack = d3.stack()
-        .keys(d3.range(normalizedData.length))  // One stack per dataset (i.e., series)
-        .value((d, key) => d[key].count);  // Access the count for each stack layer
+//     // D3 stack generator for the normalized data
+//     const stack = d3.stack()
+//         .keys(d3.range(normalizedData.length))  // One stack per dataset (i.e., series)
+//         .value((d, key) => d[key].count);  // Access the count for each stack layer
 
-    // Stack the data based on normalized years
-    const series = stack(d3.transpose(normalizedData));
+//     // Stack the data based on normalized years
+//     const series = stack(d3.transpose(normalizedData));
 
-    // Add the stacked bars to the timeline
-    svg.selectAll(".layer")
-        .data(series)
-        .enter().append("g")
-        .attr("class", "layer")
-        .attr("fill", (d, i) => color(i))  // Assign color to each layer
-        .selectAll("rect")
-        .data(d => d)
-        .enter().append("rect")
-        .attr("x", d => x(d.data.year))  // x-position based on year
-        .attr("y", d => y(d[1]))  // Top of the stack
-        .attr("height", d => y(d[0]) - y(d[1]))  // Height based on the difference in stack levels
-        .attr("width", x(allYears[1]) - x(allYears[0]) - 1)  // Width of the bar, with slight gap
+//     // Add the stacked bars to the timeline
+//     svg.selectAll(".layer")
+//         .data(series)
+//         .enter().append("g")
+//         .attr("class", "layer")
+//         .attr("fill", (d, i) => color(i))  // Assign color to each layer
+//         .selectAll("rect")
+//         .data(d => d)
+//         .enter().append("rect")
+//         .attr("x", d => x(d.data.year))  // x-position based on year
+//         .attr("y", d => y(d[1]))  // Top of the stack
+//         .attr("height", d => y(d[0]) - y(d[1]))  // Height based on the difference in stack levels
+//         .attr("width", x(allYears[1]) - x(allYears[0]) - 1)  // Width of the bar, with slight gap
 
-    // Add x-axis to show year/decade labels
-    svg.append("g")
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).tickFormat(d => d));  // Format the x-axis with year/decade labels
+//     // Add x-axis to show year/decade labels
+//     svg.append("g")
+//         .attr("transform", `translate(0,${height - margin.bottom})`)
+//         .call(d3.axisBottom(x).tickFormat(d => d));  // Format the x-axis with year/decade labels
 
-    // Add y-axis to show counts
-    svg.append("g")
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y));
-}
+//     // Add y-axis to show counts
+//     svg.append("g")
+//         .attr("transform", `translate(${margin.left},0)`)
+//         .call(d3.axisLeft(y));
+// }
 
 // function createTimeline(data) {
 //     // Remove previous timeline if it exists
@@ -546,6 +546,95 @@ function createTimeline(data) {
 //         .attr("transform", `translate(${margin.left},0)`)
 //         .call(d3.axisLeft(y));
 // }
+
+function createTimeline(data) {
+    // Remove previous timeline if it exists
+    d3.select("#timeline").select("svg").remove(); 
+    
+    const width = window.innerWidth;  // Width for the timeline
+    const height = 300; // Height for the timeline
+    const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+
+    // Set up the SVG for the timeline
+    const svg = d3.select("#timeline")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Helper function to group by decades
+    function getDecade(year) {
+        return Math.floor(year / 10) * 10;
+    }
+
+    // Extract all unique decades from the datasets
+    let allDecades = new Set();
+    
+    data.forEach(dataset => {
+        dataset.forEach(entry => {
+            allDecades.add(getDecade(+entry.year));  // Add the decade to the Set
+        });
+    });
+
+    allDecades = Array.from(allDecades).sort();  // Convert to array and sort
+
+    // Normalize the datasets by filling missing decades with count = 0
+    const normalizedData = allDecades.map(decade => {
+        let result = { decade: +decade };
+        data.forEach((dataset, index) => {
+            const entry = dataset.find(e => getDecade(+e.year) === decade);
+            result[`dataset${index}`] = entry ? entry.count : 0;  // Add count for each dataset
+        });
+        return result;
+    });
+
+    // Set up the x-scale to represent decades
+    const x = d3.scaleBand()
+        .domain(allDecades)  // Use decades as x-axis labels
+        .range([margin.left, width - margin.right])
+        .padding(0.1);  // Add some padding between bars
+
+    // Set up the y-scale for the count values (stack height)
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(normalizedData, d => d3.sum(Object.values(d).slice(1)))])  // Sum counts for y-axis
+        .range([height - margin.bottom, margin.top]);
+
+    // // Set up color scale for different datasets
+    // const color = d3.scaleOrdinal()
+    //     .domain(d3.range(data.length))  // One color per dataset (index)
+    //     .range(colorScale);  // Using the d3 color scheme
+
+    // D3 stack generator for the normalized data
+    const stack = d3.stack()
+        .keys(d3.range(data.length).map(i => `dataset${i}`));  // Stack by `dataset0`, `dataset1`, etc.
+
+    // Stack the data based on decades
+    const series = stack(normalizedData);
+
+    // Add the stacked bars to the timeline
+    svg.selectAll(".layer")
+        .data(series)
+        .enter().append("g")
+        .attr("class", "layer")
+        .attr("fill", (d, i) => colorScale(i))  // Assign color to each layer (dataset)
+        .selectAll("rect")
+        .data(d => d)
+        .enter().append("rect")
+        .attr("x", d => x(d.data.decade))  // x-position based on decade
+        .attr("y", d => y(d[1]))  // Top of the stack
+        .attr("height", d => y(d[0]) - y(d[1]))  // Height based on the difference in stack levels
+        .attr("width", x.bandwidth());  // Width of the bar
+
+    // Add x-axis to show decade labels
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).tickFormat(d => d));  // Format the x-axis with decade labels
+
+    // Add y-axis to show counts
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+}
+
 
 
 function gatherTimelineDataForRole(data1, data2, role) {
