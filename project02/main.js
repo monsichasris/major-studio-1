@@ -309,7 +309,7 @@ function handleTreemapClick(event, d) {
         .text(d => d.data.name)
         .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none"));  // Display the name of the realm
    
-} 
+
 
 // Event listener for the back button
 backButton.addEventListener("click", function() {
@@ -331,7 +331,6 @@ backButton.addEventListener("click", function() {
 
 
 
-});
 
 function isRealm(data)
 {
