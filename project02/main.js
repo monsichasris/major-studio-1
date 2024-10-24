@@ -250,7 +250,8 @@ const svg = d3.select(`#treemap-${index}`)
                 createTimeline(timelineData);
             } else {
                 // If no rolesData, we are clicking on a role, so update the timeline for that role
-                pretimeline_data =[allRealmData[0].filter(item => item.role === roleHierarchyData.name), allRealmData[1].filter(item => item.realm === roleHierarchyData.name)]
+                console.log("why is the second one mepty")
+                pretimeline_data =[allRealmData[0].filter(item => item.role === roleHierarchyData.name), allRealmData[1].filter(item => item.role === roleHierarchyData.name)]
                 console.log(pretimeline_data)
                 const timelineData = gatherTimelineDataForRole(pretimeline_data, roleHierarchyData.name);
                 
@@ -370,7 +371,7 @@ function gatherTimelineDataForRole(data, role) {
             
         }
 
-
+    
    console.log("here")
    console.log(yearCount)
     if(yearCount)
@@ -381,19 +382,13 @@ function gatherTimelineDataForRole(data, role) {
         }));
     }
     
-    else
-    {
-        timelineData[j] = Object.entries(yearCount).map(([year, count]) => ({
-            year: "None",
-            count: 0
-        }));
-    }
+   
 
 
     }
 
     // Update the global max Y value if a higher count is found
-     maxCount = d3.max((timelineData[0]+timelineData[0]), d => d.count);
+     maxCount = d3.max((timelineData[0]+timelineData[1]), d => d.count);
     globalMaxY = Math.max(globalMaxY, maxCount);  // Keep track of the global max count for y-axis normalization
     
     return timelineData;
