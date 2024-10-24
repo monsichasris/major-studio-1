@@ -7,20 +7,13 @@ This visualization looks at the “careers” of the sitters in the NPG, grouped
 </p>
 <br>
 <br>
+<img width="1724" alt="Screenshot 2024-10-24 at 11 56 20 AM" src="https://github.com/user-attachments/assets/2871e7bb-2273-4374-960d-e8e4a4f86704">
+<img width="1722" alt="Screenshot 2024-10-24 at 11 56 29 AM" src="https://github.com/user-attachments/assets/dc03bb55-1a0d-4e2c-ad82-dd878b6c0c6f">
 
-![CH_qualitative](https://github.com/user-attachments/assets/34cea99e-c74c-4072-8dda-0b3c0377a9c6)
-<h4>Words in Design: The Art of Describing Decorative Masterpieces at the Cooper Hewitt</h4>
-<p>
-This visualization extracts the adjectives from the description field of Decorative arts objects in the Cooper Hewitt, Smithsonian Design Museum. The frequency of the adjectives will be counted for a number of categories, including glassware (470 documents), tiles (1,742 documents), chairs (110 documents), containers (460 documents) and buttons (442 documents), and an overview for each category will be presented with a word cloud of those adjectives in the shape of the object category. An additional bar chart will be also be displayed detailing the frequency of each adjective.
-</p>
-<br>
-<br>
 
-![Landscape_qualitative](https://github.com/user-attachments/assets/faafb2a8-c1c2-4469-81df-d4116bb1a0a6)
-<h4>Seasons of Reflection: Exploring Nature's Palette at the Smithsonian American Art Museum</h4>
-<p>
-Landscapes in the Smithsonian American Art Museum are categorized by topic by descriptors such as: season, tree, water, road, etc. This visualization looks at what the most common themes are when the paintings are grouped by season. Are there more water scapes depicted in the summer? Mountains in winter? There are 107 documents for Landscape Paintings that specifically depict a season, and we would filter out this subset of paintings and make a heat map by layering images of each painting to compares the frequency of each theme by season.
-</p>
+
+<img width="1720" alt="Screenshot 2024-10-24 at 11 56 04 AM" src="https://github.com/user-attachments/assets/513900e8-411d-4178-9d9b-42bd5684d00f">
+
 
 -----------------------------------
-Collaborate with [Olivia Kasmin](https://github.com/oliviakasmin)
+Collaboration with [Harshita](https://github.com/hushbrush)
