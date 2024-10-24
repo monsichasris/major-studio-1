@@ -53,12 +53,19 @@ header{
     gap: 40px;
 }
 
+#buttonContainer{
+    display: flex;
+    justify-content: center;
+}
+
 #backButton {
     display: none;
     top: 10px;
     left: 10px;
     padding: 10px;
     color: #000000;
+    border: #000000;
+    border-radius: 8px;
     cursor: pointer;
 }
 
