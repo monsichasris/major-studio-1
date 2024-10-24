@@ -156,3 +156,17 @@ label{
     font-size: 14px;
     padding: 10px 16px;
 }
+
+/* Add this CSS to your styles.css file or in a <style> tag in your HTML */
+
+#people-thumbnails {
+    display: flex;             /* Use flexbox for horizontal layout */
+    flex-wrap: wrap;          /* Allow items to wrap if they exceed the container's width */
+    gap: 10px;                /* Optional: Add some space between thumbnails */
+}
+
+.person-thumbnail {
+    display: flex;            /* Use flexbox for aligning the image and text */
+    flex-direction: column;   /* Align items in a column within each thumbnail */
+    align-items: center;      /* Center items horizontally */
+}
