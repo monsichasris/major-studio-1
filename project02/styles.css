@@ -97,6 +97,16 @@ p{
     gap: 80px;
 }
 
+.tooltip{
+    position: absolute;
+    visibility: hidden;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 3px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+}
+
 footer {
     position: relative;
     display: flex;
