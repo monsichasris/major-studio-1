@@ -314,17 +314,15 @@ function handleTreemapClick(event, d) {
 // Event listener for the back button
 backButton.addEventListener("click", function() {
     // Clear the treemap container
-    d3.selectAll(`#treemap-0, #treemap-1`).selectAll("*").remove();
-
-    // Recreate the treemaps
-    createTreemap(hierarchyData[0], 0);
-    createTreemap(hierarchyData[1], 1);
+    d3.select(`#treemap-0, #treemap-1`).selectAll("*").remove();
+    // Recreate the treemaps from the realm data
+    createTreemap(mapData(allRealmData[0]), 0);
+    createTreemap(mapData(allRealmData[1]), 1);
 
     // Clear the timeline and people thumbnails
     d3.select("#timeline").selectAll("*").remove();
     d3.select("#people-thumbnails").selectAll("*").remove();
 
-    
 
     treemapClicked = false; // Reset the flag to enable clicks
     backButton.style.display = "none"; // Hide the back button
