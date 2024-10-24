@@ -322,11 +322,15 @@ backButton.addEventListener("click", function() {
     // Clear the timeline and people thumbnails
     d3.select("#timeline").selectAll("*").remove();
     d3.select("#people-thumbnails").selectAll("*").remove();
+    d3.select(".tooltip").style("visibility", "hidden");
 
 
     treemapClicked = false; // Reset the flag to enable clicks
     backButton.style.display = "none"; // Hide the back button
 });
+
+
+
 });
 
 function isRealm(data)
