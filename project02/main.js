@@ -209,6 +209,7 @@ const cell = svg.selectAll("g")
         .attr("height", d => d.y1 - d.y0)  // Height of the rectangle
         .attr("fill", d => colorScale(index))  // Fill color based on datasetType
         .attr("stroke", "white")
+        .style("cursor", "pointer")
      
         .on("mouseover", function(event, d) {
             highlightSharedRealms(d.data.name);
@@ -313,6 +314,7 @@ function handleClick(event, d) {
         showPeople(d.data.name);
     }
     treemapClicked = true; // Set the flag to disable further clicks
+    backButton.innerHTML = `← ${d.data.name}`; // Show the back button with the name of the realm
     backButton.style.display = "block"; // Show the back button
 }
 
@@ -538,12 +540,12 @@ function createTimeline(data) {
     d3.select("#timeline").select("svg").remove(); 
 
     // Height for the timeline
-    const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+    const margin = { top: 10, right: 100, bottom: 30, left: 100 };
 
     // Set up the SVG for the timeline
     const svg = d3.select("#timeline")
         .append("svg")
-        .attr("width", width)
+        .attr("width", width- margin.right)
         .attr("height", height);
 
     // Helper function to group by decades
@@ -592,28 +594,43 @@ function createTimeline(data) {
     // Stack the data based on decades
     const series = stack(normalizedData);
 
-    // Add the stacked bars to the timeline
-    svg.selectAll(".layer")
-        .data(series)
-        .enter().append("g")
-        .attr("class", "layer")
-        .attr("fill", (d, i) => colorScale(i))  // Assign color to each layer (dataset)
-        .selectAll("rect")
-        .data(d => d)
-        .enter().append("rect")
-        .attr("x", d => x(d.data.decade))  // x-position based on decade
-        .attr("y", d => y(d[1]))  // Top of the stack
-        .attr("height", d => y(d[0]) - y(d[1]))  // Height based on the difference in stack levels
-        .attr("width", x.bandwidth());  // Width of the bar
+        // Add the stacked bars to the timeline
+        svg.selectAll(".layer")
+            .data(series)
+            .enter().append("g")
+            .attr("class", "layer")
+            .attr("fill", (d, i) => colorScale(i))  // Assign color to each layer (dataset)
+            .selectAll("rect")
+            .data(d => d)
+            .enter().append("rect")
+            .attr("x", d => x(d.data.decade))  // x-position based on decade
+            .attr("y", d => y(d[1]))  // Top of the stack
+            .attr("height", d => y(d[0]) - y(d[1]))  // Height based on the difference in stack levels
+            .attr("width", x.bandwidth());  // Width of the bar
 
-    // Add x-axis to show decade labels
-    svg.append("g")
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).tickFormat(d => d));  // Format the x-axis with decade labels
-
-    // Add y-axis to show counts
-    svg.append("g")
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y));
+        // Add x-axis to show decade labels
+        svg.append("g")
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x).tickFormat(d => d).tickSize(0))  // Format the x-axis with decade labels
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.bottom)
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .text("Decade");
+        // Add y-axis to show counts
+        svg.append("g")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).ticks(6))  // Limit the number of ticks to 6
+            .append("text")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", margin.left - 160)
+            .attr("x", -height / 2)
+            .style("font-size", "12px")
+            .text("Count");
 }
-});
+
+});// end of the DOMContentLoaded event listener

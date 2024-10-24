@@ -26,7 +26,7 @@ h1{
     text-transform: uppercase;
     font-style: normal;
     font-weight: 400;
-   margin-bottom: 0px;
+    margin-bottom: 0px;
     
 }
 
@@ -76,25 +76,32 @@ p{
 #buttonContainer{
     display: flex;
     justify-content: center;
+    
 }
 
 #backButton {
     display: none;
-    top: 10px;
-    left: 10px;
+    transform: translateX(-24px);
     padding: 10px;
+    background: transparent;
     color: #000000;
     border: #000000;
-    border-radius: 8px;
-    cursor: pointer;
+    font-family: "salo-variable", sans-serif;
+    font-size: 40px;
+    font-weight: 500;
 }
 
 #chart{
     padding: 80px;
+    padding-bottom: 8px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     gap: 80px;
+}
+
+#timeline{
+    margin-bottom: 40px;
 }
 
 .tooltip{
@@ -117,6 +124,8 @@ footer {
     text-align: center;
     padding: 16px, 8px;
     bottom: 0;
+    margin-bottom: 0;
+    margin-top: 40px;
 }
 
 label{
