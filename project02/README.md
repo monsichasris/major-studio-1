@@ -7,6 +7,9 @@ This visualization looks at the “careers” of the sitters in the NPG, grouped
 </p>
 <br>
 <br>
+<img width="1728" alt="Screenshot 2024-10-24 at 12 01 31 PM" src="https://github.com/user-attachments/assets/53600b96-e1c5-4a81-8838-c207004939d6">
+
+
 <img width="1724" alt="Screenshot 2024-10-24 at 11 56 20 AM" src="https://github.com/user-attachments/assets/2871e7bb-2273-4374-960d-e8e4a4f86704">
 <img width="1722" alt="Screenshot 2024-10-24 at 11 56 29 AM" src="https://github.com/user-attachments/assets/dc03bb55-1a0d-4e2c-ad82-dd878b6c0c6f">
 
