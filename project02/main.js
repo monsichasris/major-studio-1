@@ -288,7 +288,7 @@ function handleTreemapClick(event, d) {
             roleHierarchyData.name
         );
         createTimeline(timelineData);
-    } else {
+    } else if (roleHierarchyData.roleData[0] || roleHierarchyData.roleData[1]) {
         // If no rolesData, we are clicking on a role, so update the timeline for that role
         const timelineData = gatherTimelineDataForRole(
             allRealmData[0].filter(item => item.role === roleHierarchyData.name),
@@ -297,7 +297,13 @@ function handleTreemapClick(event, d) {
         );
         createTimeline(timelineData);
         showPeople(roleHierarchyData.name);
+    } else {
+        console.log("No valid data to display.");
     }
+
+    // Clear old tooltips but keep the current data tooltip visible
+    d3.selectAll(".tooltip").style("visibility", "hidden");
+    d3.select(this).select(".tooltip").style("visibility", "visible");
 }
 
 // Event listener for the back button
@@ -311,11 +317,15 @@ backButton.addEventListener("click", function() {
     // Clear the timeline and people thumbnails
     d3.select("#timeline").selectAll("*").remove();
     d3.select("#people-thumbnails").selectAll("*").remove();
+    d3.select(".tooltip").style("visibility", "hidden");
 
 
     treemapClicked = false; // Reset the flag to enable clicks
     backButton.style.display = "none"; // Hide the back button
 });
+
+
+
 });
 
 function isRealm(data)
