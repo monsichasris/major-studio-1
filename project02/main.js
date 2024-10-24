@@ -145,7 +145,6 @@ const colorScale = d3.scaleOrdinal()
     .range(["#D0FC83", "#D49EFF"]);
 
 
-
 function createTreemap(data, index) {
     const width = 600;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
@@ -214,17 +213,43 @@ const svg = d3.select(`#treemap-${index}`)
         .on("click", function(event, d) {
             handleTreemapClick(event, d);
         });
-            
-  // Add labels (realm names) to the rectangles
-    cell.append("text")
-        .attr("x", 5)
-        .attr("y", 15)
-        .attr("font-size", "12px")
-        .attr("fill", "black")
-        .text(d => d.data.name)
-        .style("display", d => (d.y1 - d.y0 > 10 ? "block" : "none"));  // Display the name of the realm
-    
-   
+
+        cell.append("text")
+            .attr("x", 5)
+            .attr("y", 15)
+            .attr("font-size", "12px")
+            .attr("fill", "black")
+            .text(d => d.data.name)
+            .style("display", d => {
+                const rectWidth = d.x1 - d.x0;
+                const rectHeight = d.y1 - d.y0;
+                const containerWidth = 600; // Assuming the container width is 600
+                const containerHeight = 600; // Assuming the container height is 600
+                return (rectWidth * rectHeight > 0.01 * containerWidth * containerHeight) ? "block" : "none";
+            }) // Display the name of the realm
+            .call(wrapText);
+
+        function wrapText(selection) {
+            selection.each(function(d) {
+                const rectWidth = d.x1 - d.x0;
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word, line = [], lineNumber = 0;
+                const lineHeight = 1.1, y = text.attr("y"), dy = 0;
+                let tspan = text.text(null).append("tspan").attr("x", 5).attr("y", y).attr("dy", dy + "em");
+
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > rectWidth) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 5).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
 } 
 
 function handleTreemapClick(event, d) {
@@ -267,13 +292,40 @@ function handleTreemapClick(event, d) {
         // If no rolesData, we are clicking on a role, so update the timeline for that role
         const timelineData = gatherTimelineDataForRole(
             allRealmData[0].filter(item => item.role === roleHierarchyData.name),
-            allRealmData[1].filter(item => item.realm === roleHierarchyData.name),
+            allRealmData[1].filter(item => item.role === roleHierarchyData.name),
             roleHierarchyData.name
         );
         createTimeline(timelineData);
-        console.log(roleHierarchyData.name);
         showPeople(roleHierarchyData.name);
     }
+}
+
+// Event listener for the back button
+backButton.addEventListener("click", function() {
+    // Clear the treemap container
+    d3.selectAll(`#treemap-0, #treemap-1`).selectAll("*").remove();
+
+    // Recreate the treemaps
+    createTreemap(hierarchyData[0], 0);
+    createTreemap(hierarchyData[1], 1);
+
+    // Clear the timeline and people thumbnails
+    d3.select("#timeline").selectAll("*").remove();
+    d3.select("#people-thumbnails").selectAll("*").remove();
+
+    
+
+    treemapClicked = false; // Reset the flag to enable clicks
+    backButton.style.display = "none"; // Hide the back button
+});
+});
+
+function isRealm(data)
+{
+if(Object.keys(data.roles).length>1)
+    return true;
+else
+    return false;
 }
 
 function gatherTimelineData(data1, data2, realm) {
@@ -484,12 +536,12 @@ function transformDataToHierarchy(data) {
 }
 
 // Function to highlight shared realms
-function highlightSharedRealms(realmName) {
+function highlightSharedRealms(name) {
     d3.selectAll("rect")
-        .filter(d => d.data.name !== realmName)
+        .filter(d => d.data.name !== name)
         .attr("opacity", "0.2");
     d3.selectAll("text")
-        .filter(d => d.data.name !== realmName)
+        .filter(d => d.data.name !== name)
         .attr("fill", "gray");
 }
 
@@ -500,48 +552,3 @@ function resetHighlight() {
     d3.selectAll("text")
     .attr("fill", "black");
 }
-
-function isRealm(data)
-{
-if(Object.keys(data.roles).length>1)
-    return true;
-else
-    return false;
-}
-
-
-
-// Event listener for the back button
-backButton.addEventListener("click", function() {
-    // Clear the treemap container
-    d3.select(`#treemap-${index}`).selectAll("*").remove();
-
-    // Recreate the realm treemap
-    createTreemap(hierarchyData[0], 0);
-    createTreemap(hierarchyData[1], 1);
-
-    // Clear the timeline and people thumbnails
-    d3.select("#timeline").selectAll("*").remove();
-    d3.select("#people-thumbnails").selectAll("*").remove();
-
-    treemapClicked = false; // Reset the flag to enable clicks
-    backButton.style.display = "none"; // Hide the back button
-});
-console.log(backButton); 
-    // on click event show the children data inside the realm treemap
-    d3.selectAll("rect").on("click", function(event, d) {
-        if (treemapClicked) {
-            console.log("Click event disabled after first click");
-            return; // Exit if the treemap has already been clicked
-        }
-
-        if (d.data.isChild) {
-            console.log("Click event disabled for child treemap");
-            tooltip.style("visibility", "hidden"); // Hide the tooltip
-            return; // Exit if it is a child treemap
-        }
-
-        handleTreemapClick(event, d); // Call the new function
-
-    });
-});
