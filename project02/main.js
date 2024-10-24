@@ -36,7 +36,7 @@ Promise.all([
 
 
 function analyseData(data, index) {
-    
+    people_data=[]
     // going through each portrait
     
     for (let i = 0; i < data.length; i++) {
@@ -96,7 +96,9 @@ function analyseData(data, index) {
         if (year > globalMaxYear) globalMaxYear = year;
     }
     
-forPeople[index] =people_data;
+forPeople[index] =[...people_data];
+console.log(people_data)
+console.log(forPeople[index])
 return (people_data)
 
 }
