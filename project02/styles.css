@@ -1,74 +1,10 @@
 body{
     margin: 0;
-    font-family: "basic-sans", sans-serif;
-    font-weight: 400;
-
-}
-
-#chart{
-    padding: 80px;
-    display: flex;
-    flex-direction: row;
-}
-
-.toggle{
-    height: 40px;
-    color: none;
-    background: none;
-    border-color: black;
-    border-width: 2px;
-    border-radius: 24px;
-    
-}
-
-header{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    
-}
-
-.title{
-    text-align: center;
-    margin-top: 40px;
-}
-
- body{
-    height: 100%;
-    margin: 0;
+    padding: 0;
     font-family: "basic-sans", sans-serif;
     font-weight: 400;
     flex-direction: column;
-    padding: 0;
-}
-.content-wrapper {
-    flex: 1; /* This makes the content-wrapper take up the available space */
-}
 
-#chart{
-    padding: 80px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 40px;
-}
-
-#backButton {
-    display: none;
-    top: 10px;
-    left: 10px;
-    padding: 10px;
-    color: #000000;
-    cursor: pointer;
-}
-
-.toggle{
-    height: 40px;
-    width: 120px;
-    border: none;
-    border-width: 2px;
-    border-radius: 24px;
-    
 }
 
 header{
@@ -137,22 +73,41 @@ p{
     margin: 0;
 }
 
+#buttonContainer{
+    display: flex;
+    justify-content: center;
+}
+
+#backButton {
+    display: none;
+    top: 10px;
+    left: 10px;
+    padding: 10px;
+    color: #000000;
+    border: #000000;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#chart{
+    padding: 80px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 80px;
+}
+
 footer {
+    position: relative;
     display: flex;
     justify-content: space-between;
     background-color: black;
     color: white;
-    position: fixed;
-    bottom: 0;
     width: 100%;
     text-align: center;
-    padding: 6px;
-    position: relative;
+    padding: 16px, 8px;
     bottom: 0;
-    
 }
-
-
 
 label{
     text-align: center;
@@ -161,16 +116,15 @@ label{
     padding: 10px 16px;
 }
 
-/* Add this CSS to your styles.css file or in a <style> tag in your HTML */
 
 #people-thumbnails {
-    display: flex;             /* Use flexbox for horizontal layout */
-    flex-wrap: wrap;          /* Allow items to wrap if they exceed the container's width */
-    gap: 10px;                /* Optional: Add some space between thumbnails */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .person-thumbnail {
-    display: flex;            /* Use flexbox for aligning the image and text */
-    flex-direction: column;   /* Align items in a column within each thumbnail */
-    align-items: center;      /* Center items horizontally */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
