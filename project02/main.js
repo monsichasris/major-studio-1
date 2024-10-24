@@ -210,15 +210,14 @@ const cell = svg.selectAll("g")
         .attr("fill", d => colorScale(index))  // Fill color based on datasetType
         .attr("stroke", "white")
         .style("cursor", "pointer")
-     
         .on("mouseover", function(event, d) {
             highlightSharedRealms(d.data.name);
             tooltip.style("visibility", "visible")
-                .text(`${d.data.name}: ${d.data.count}`);
+            .text(`${d.data.name}: ${d.data.count}`);
         })
         .on("mousemove", function(event) {
             tooltip.style("top", (event.pageY - 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
+            .style("left", (event.pageX + 10) + "px");
         })
         .on("mouseout", function(event, d) {
             resetHighlight();
@@ -226,7 +225,8 @@ const cell = svg.selectAll("g")
         })
         // on click event show the children data inside the realm treemap
         .on("click", function(event, d) {
-           handleClick(event, d);
+            handleClick(event, d);
+            tooltip.style("visibility", "hidden"); // Reset tooltip to hidden after click
         });
         
   // Add labels (realm names) to the rectangles
@@ -291,6 +291,7 @@ function handleClick(event, d) {
             isChild: true
         }))
     };
+   
 
     // Call the createTreemap function for each roleData
     createTreemap(roleHierarchyData.roleData[0], 0);
@@ -458,6 +459,11 @@ function showPeople(selectedRole) {
     
     peopleInRole.forEach(person => {
         console.log(person)
+        // Check if the person name already exists in the thumbnailsDiv
+        if (!thumbnailsDiv.selectAll(".person-thumbnail").filter(function() { return d3.select(this).text() === person.name; }).empty()) {
+            return; // Skip appending if the person name already exists
+        }
+
         const personDiv = thumbnailsDiv.append("div").attr("class", "person-thumbnail");
       
 
@@ -466,14 +472,36 @@ function showPeople(selectedRole) {
             .attr("href", person.link) // Link to the full-size image or some other resource
             .attr("target", "_blank"); // Open link in a new tab
         x+=20;
+        // Check if the person name already exists in the thumbnailsDiv
+        if (!thumbnailsDiv.selectAll("div").filter(function(d) { return d3.select(this).text() === person.name; }).empty()) {
+            return; // Skip appending if the person name already exists
+        }
+
         // Append the image inside the anchor tag
         link.append("img")
             .attr("src", person.thumbnail) // Thumbnail version of the image
             .attr("alt", person.name)
             .attr("height", 100) // Optional, you can adjust as necessary
-            .attr('x', x+20)
+            .attr('x', x + 20)
+            .style("border", "10px solid") // Add border style
+            .style("border-color", colorScale(i)); // Assign color based on index
 
-       personDiv.append("p").text(person.name)
+    personDiv.append("text")
+        .text(person.name)
+        .attr("class", "person-name")
+        .style("cursor", "pointer");
+
+    personDiv
+    .on("mouseover", function() {
+        d3.select(this)
+        .style('transform', 'scale(1.1)')
+        .style("font-size", "14px"); // Increase font size on mouse over
+    })
+    .on("mouseout", function() {
+        d3.select(this)
+        .style('transform', 'scale(1)')
+        .style("font-size", "initial"); // Reset font size on mouse out
+    });
        
     });
     }
