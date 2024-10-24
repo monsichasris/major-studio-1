@@ -1,7 +1,8 @@
 
-let allRealmData=[{}, {}], index=0, hierarchyData = [], roleData =[], pretimeline_data;
+let allRealmData=[{}, {}], index=0, hierarchyData = [], roleData =[], pretimeline_data, forPeople=[[],[]];
 
 let globalMinYear=0, globalMaxYear=0, globalMaxY = 0;
+let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
 
 // Load and analyze both men's and women's data simultaneously
 Promise.all([
@@ -9,8 +10,8 @@ Promise.all([
     d3.json('data/data_men.json')
 ]).then(function([dataWomen, dataMen]) {
     Promise.all([
-    allRealmData[0] =analyseData(dataWomen),
-    allRealmData[1] =analyseData(dataMen)])
+    allRealmData[0] =analyseData(dataWomen, 0),
+    allRealmData[1] =analyseData(dataMen, 1)])
     .then(
        Promise.all([ hierarchyData=[mapData(allRealmData[0]), mapData(allRealmData[1])]])
         .then(
@@ -23,10 +24,11 @@ Promise.all([
     console.error('Error loading the JSON data:', error);
 });
 
-let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
+
 function analyseData(data, index) {
+    
     // going through each portrait
-    people_data=[];
+    
     for (let i = 0; i < data.length; i++) {
         datum = data[i];
         //going through each sitter in an individual datum
@@ -84,7 +86,7 @@ function analyseData(data, index) {
         if (year > globalMaxYear) globalMaxYear = year;
     }
     
-  
+forPeople[index] =people_data;
 return (people_data)
 
  }
@@ -216,7 +218,12 @@ const svg = d3.select(`#treemap-${index}`)
             const childFromHierarchy1 = hierarchyData[1].children.find(child => child.name === namey);
         
             // Check if the children were found
+            //add text here
             if (!childFromHierarchy0 || !childFromHierarchy1) {
+                
+                if(!isRealm(d.data))
+                 console.log("No equivalent role for the other sex")
+                else 
                 console.log("Child not found in one or both hierarchies for name:", namey);
                 return; // Exit if not found
             }
@@ -244,20 +251,14 @@ const svg = d3.select(`#treemap-${index}`)
             //for the timelines
 
             if (isRealm(d.data)) {
-               
                 pretimeline_data =[(allRealmData[0].filter(item => item.realm === roleHierarchyData.name)), (allRealmData[1].filter(item => item.realm === roleHierarchyData.name))];
                 const timelineData = gatherTimelineData(pretimeline_data, d.data.name );
                 createTimeline(timelineData);
             } else {
-                // If no rolesData, we are clicking on a role, so update the timeline for that role
-                console.log("why is the second one mepty")
                 pretimeline_data =[allRealmData[0].filter(item => item.role === roleHierarchyData.name), allRealmData[1].filter(item => item.role === roleHierarchyData.name)]
-                console.log(pretimeline_data)
                 const timelineData = gatherTimelineDataForRole(pretimeline_data, roleHierarchyData.name);
-                
                 createTimeline(timelineData);
-                showPeople(roleHierarchyData.name);
-
+                showPeople(d.data.name);
             }
 
         });
@@ -372,8 +373,7 @@ function gatherTimelineDataForRole(data, role) {
         }
 
     
-   console.log("here")
-   console.log(yearCount)
+   
     if(yearCount)
     {
         timelineData[j] = Object.entries(yearCount).map(([year, count]) => ({
@@ -381,7 +381,13 @@ function gatherTimelineDataForRole(data, role) {
             count: count
         }));
     }
-    
+    else 
+    {
+        timelineData[j] = Object.entries(yearCount).map(([year, count]) => ({
+            year: none,
+            count: 0
+        }));
+    }
    
 
 
@@ -401,15 +407,17 @@ function showPeople(selectedRole) {
     console.log(selectedRole);
     d3.select("#people-thumbnails").selectAll("div").remove(); // Clear previous thumbnails
     console.log("people data:")
-    console.log(people_data.filter(person => person.role === selectedRole))
-    for (i=0; 0<people_data.length; i++)
+    
+    for (i=0; i<2; i++)
     {
-
-        const peopleInRole = people_data[i].filter(person => person.role === selectedRole);
+        console.log(forPeople[0])
+        
+    const peopleInRole = forPeople[i].filter(person => person.role === selectedRole);
     
     const thumbnailsDiv = d3.select("#people-thumbnails");
-
+    
     peopleInRole.forEach(person => {
+        console.log(person)
         const personDiv = thumbnailsDiv.append("div").attr("class", "person-thumbnail");
       
 
@@ -485,7 +493,7 @@ function resetHighlight() {
 
 function isRealm(data)
 {
-    console.log(Object.keys(data.roles).length)
+   
 if(Object.keys(data.roles).length>2)
     return true;
 else
