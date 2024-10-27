@@ -455,71 +455,70 @@ function gatherTimelineDataForRole(data, role) {
 }
 
 function showPeople(selectedRole) {
-   
-    let x=0;
-    
-    d3.select("#people-thumbnails").selectAll("div").remove(); // Clear previous thumbnails
-    
-    
-    for (i=0; i<2; i++)
-    {
-        
-        
-    const peopleInRole = forPeople[i].filter(person => person.role === selectedRole);
-    
-    const thumbnailsDiv = d3.select("#people-thumbnails");
-    
-    peopleInRole.forEach(person => {
-        
-        // Check if the person name already exists in the thumbnailsDiv
-        if (!thumbnailsDiv.selectAll(".person-thumbnail").filter(function() { return d3.select(this).text() === person.name; }).empty()) {
-            return; // Skip appending if the person name already exists
-        }
+    // Clear previous thumbnails
+    d3.select("#people-thumbnails").selectAll("div").remove();
 
-        const personDiv = thumbnailsDiv.append("div").attr("class", "person-thumbnail");
-      
-
-        // Create an anchor element with the href linking to the full-size image or another resource
-        const link = personDiv.append("a")
-            .attr("href", person.link) // Link to the full-size image or some other resource
-            .attr("target", "_blank"); // Open link in a new tab
-        x+=20;
-        // Check if the person name already exists in the thumbnailsDiv
-        if (!thumbnailsDiv.selectAll("div").filter(function(d) { return d3.select(this).text() === person.name; }).empty()) {
-            return; // Skip appending if the person name already exists
-        }
-
-        // Append the image inside the anchor tag
-        link.append("img")
-            .attr("src", person.thumbnail) // Thumbnail version of the image
-            .attr("alt", person.name)
-            .attr("height", 100) // Optional, you can adjust as necessary
-            .attr('x', x + 20)
-            .style("border", "10px solid") // Add border style
-            .style("border-color", colorScale(i)); // Assign color based on index
-
-    personDiv.append("text")
-        .text(person.name)
-        .attr("class", "person-name")
-        .style("cursor", "pointer");
-
-    personDiv
-    .on("mouseover", function() {
-        d3.select(this)
-        .style('transform', 'scale(1.1)')
-        .style("font-size", "14px"); // Increase font size on mouse over
-    })
-    .on("mouseout", function() {
-        
-        d3.select(this)
-        .style('transform', 'scale(1)')
-        .style("font-size", "initial"); // Reset font size on mouse out
-    });
+    // Create a flex container for women and men thumbnails
+    const thumbnailsContainer = d3.select("#people-thumbnails")
        
-    });
+
+    // Create two separate divs for women and men
+    const womenDiv = thumbnailsContainer.append("div")
+        .attr("id", "women-thumbnails")
+        
+    const menDiv = thumbnailsContainer.append("div")
+        .attr("id", "men-thumbnails")
+        
+        
+
+    // Iterate through gender-specific data
+    for (let i = 0; i < 2; i++) {
+        const peopleInRole = forPeople[i].filter(person => person.role === selectedRole);
+        const thumbnailsDiv = (i === 0) ? womenDiv : menDiv; // Use the appropriate div based on index
+
+        peopleInRole.forEach(person => {
+            // Check if the person name already exists in the thumbnailsDiv
+            if (!thumbnailsDiv.selectAll(".person-thumbnail").filter(function() { return d3.select(this).text() === person.name; }).empty()) {
+                return; // Skip appending if the person name already exists
+            }
+
+            const personDiv = thumbnailsDiv.append("div").attr("class", "person-thumbnail");
+
+            // Create an anchor element with the href linking to the full-size image or another resource
+            const link = personDiv.append("a")
+                .attr("href", person.link) // Link to the full-size image or some other resource
+                .attr("target", "_blank"); // Open link in a new tab
+
+            // Append the image inside the anchor tag
+            link.append("img")
+                .attr("src", person.thumbnail) // Thumbnail version of the image
+                .attr("alt", person.name)
+                .attr("height", 100) // Optional, you can adjust as necessary
+                .style("border", "10px solid") // Add border style
+                .style("border-color", colorScale(i)); // Assign color based on index
+
+            personDiv.append("text")
+                .text(person.name)
+                .attr("class", "person-name")
+                .style("cursor", "pointer");
+
+            personDiv
+                .on("mouseover", function() {
+                    d3.select(this)
+                        .style('transform', 'scale(1.1)')
+                        .style("font-size", "14px"); // Increase font size on mouse over
+                })
+                .on("mouseout", function() {
+                    d3.select(this)
+                        .style('transform', 'scale(1)')
+                        .style("font-size", "initial"); // Reset font size on mouse out
+                });
+        });
     }
-    
 }
+
+
+
 
 function transformDataToHierarchy(data) {
     // Check if data already has a children property, returning it as is
@@ -674,4 +673,4 @@ function createTimeline(data) {
             .text("Count");
 }
 
-});// end of the DOMContentLoaded event listener
+});
