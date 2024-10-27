@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>NPG</title>
-        <link rel="icon" type="image/x-icon" href="assets/favicon.png">
-        <link rel="stylesheet" href="https://use.typekit.net/lcn3jpe.css">
-        <link rel="stylesheet" href="styles.css">
-        <script src="https://d3js.org/d3.v7.min.js"></script>
-        <script src="main.js"></script>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPG</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+    <link rel="stylesheet" href="https://use.typekit.net/lcn3jpe.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="main.js"></script>
+</head>
 <body>
     <header>
         <div class="title-gif">
@@ -21,8 +21,7 @@
         <div class="title">
             <h1>Framing Gender</h1>
             <h2>Why These Sitters Are Remembered in the National Portrait Gallery, by Gender</h2>
-            <p>Explore the “careers” of the sitters featured in the Smithsonian National Portrait Gallery,
-        categorized by gender over time. It draws from a dataset of 14,490 documents.</p>
+            <p>Explore the “careers” of the sitters featured in the Smithsonian National Portrait Gallery, categorized by gender over time. It draws from a dataset of 14,490 documents.</p>
             <p>↓</p>
         </div>
 
@@ -32,45 +31,45 @@
             <img src="assets/men3.gif" class="img-gif">
         </div>
     </header>
-        
+
     <section id="intro">
-        <p>All the Portraits in the NPG  that we use in this visualization include</p>
+        <p>All the Portraits in the NPG that we use in this visualization include</p>
         <div id="sq">
-            <img src="assets/women_size.svg"></img>
-            <img src="assets/men_size.svg"></img>
+            <img src="assets/women_size.svg">
+            <img src="assets/men_size.svg">
         </div>
-        <p>What did these people do, for them to be painted?
-            Here is a look the proportion and count by topic and career over time.</p>
+        <p>What did these people do, for them to be painted? Here is a look at the proportion and count by topic and career over time.</p>
     </section>
 
-    <div id="buttonContainer">
-        <button id="backButton"></button>
-    </div>
+    <section id="main">
+        <div id="buttonContainer">
+            <button id="backButton"></button>
+        </div>
     
+
     <div id="chart">
         <div id="treemap-0"></div>
         <div id="treemap-1"></div> 
     </div>
     <p>☞ Click to see the details ☜</p>
+
     <div id="timeline"></div>
     <div id="people-thumbnails"></div>
+</section>
 
     <section id="outro">
-        <p>While the insights here may not be particularly surprising, as per the <a href="https://www.dol.gov/">U.S. Department of Labor</a>, as of September 2024, 58% of women are a part of the workforce, whereas 68%  of their male counterparts are. This indicates a marked difference from the visualised data, but within this change, we’d like to ask whether gender roles really are the thing of the past, or whether there are hints of the present in this dataset that we have visualised.</p>
+        <p>While the insights here may not be particularly surprising, as per the <a href="https://www.dol.gov/">U.S. Department of Labor</a>, as of September 2024, 58% of women are a part of the workforce, whereas 68% of their male counterparts are. This indicates a marked difference from the visualized data, but within this change, we’d like to ask whether gender roles really are a thing of the past, or if there are hints of the present in this dataset we have visualized.</p>
 
-            <p>In this dataset dated between x and y, men clearly take the cake in military and politics while women, those who did work, seemed focussed on arts and social welfare.</p>
-            
-            <p>Has this changed today? Are all industries equally inviting for women? For the ones which are, are they valued by society in equal terms as the male-dominated ones?</p>
-            
-            <p>If not, why?</p>
+        <p>In this dataset dated between x and y, men clearly take the cake in military and politics while women, those who did work, seemed focused on arts and social welfare.</p>
+
+        <p>Has this changed today? Are all industries equally inviting for women? For the ones which are, are they valued by society in equal terms as the male-dominated ones?</p>
+
+        <p>If not, why?</p>
     </section>
 
-
+    <footer>
+        <label>2024 © Monsicha Srisuantang & Harshita Chakravadhanula</label>
+        <label>Major Studio 1 Fall 24 | MS Data Visualization, Parsons School of Design</label>
+    </footer>
 </body>
-
-<footer>
-    <label>2024 © Monsicha Srisuantang & Harshita Chakravadhanula</label>
-    <label>Major Studio 1 Fall 24 | MS Data Visualization, Parsons School of Design</label>
-</footer>
-
 </html>

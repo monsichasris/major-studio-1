@@ -1,58 +1,61 @@
-body{
+body {
     margin: 0;
     padding: 0;
     font-family: "basic-sans", sans-serif;
     font-weight: 400;
+    display: flex;
     flex-direction: column;
 }
 
-header{
+header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    
+    align-items: center;
 }
 
-.title{
+.title {
     text-align: center;
     margin-top: 25vh;
 }
 
-h1{
+h1 {
     font-family: "salo-variable", sans-serif;
     font-variation-settings: "opsz" 1;
     font-size: 8rem;
     text-transform: uppercase;
     font-style: normal;
     font-weight: 400;
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
-p{
+h2 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+p {
     margin-top: 30px;
     font-size: 18px;
-    padding-left: 40px;
-    padding-right: 40px;
-    padding-top: 0px;
+    padding: 0 40px;
     text-align: center;
 }
 
-.title-gif{
+.title-gif {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     height: 100vh;
     width: 20%;
-
 }
 
 .img-gif {
-    height: 100vh; /* Make the image fill the viewport height */
-    width: auto;   /* Maintain the aspect ratio */
-    object-fit: cover; /* Ensure the image covers the container without stretching */
+    height: 100vh;
+    width: auto;
+    object-fit: cover;
 }
 
-#intro{
+#intro {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -61,7 +64,7 @@ p{
     margin: 80px;
 }
 
-#sq{
+#sq {
     display: flex;
     flex-direction: row;
     gap: 80px;
@@ -70,38 +73,45 @@ p{
     margin: 0;
 }
 
-#buttonContainer{
+#main{
+    height: 100vh;
+    
+}
+
+#buttonContainer {
     display: flex;
     justify-content: center;
-    
+    position: sticky;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
 }
 
 #backButton {
     display: none;
-    transform: translateX(-24px);
     padding: 10px;
     background: transparent;
     color: #000000;
-    border: #000000;
+    border: none;
     font-family: "salo-variable", sans-serif;
     font-size: 40px;
     font-weight: 500;
 }
 
-#chart{
-    padding: 80px;
-    padding-bottom: 8px;
+#chart {
+    padding: 80px 80px 8px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     gap: 80px;
 }
 
-#timeline{
+#timeline {
     margin-bottom: 40px;
 }
 
-.tooltip{
+.tooltip {
     position: absolute;
     visibility: hidden;
     background-color: white;
@@ -111,36 +121,32 @@ p{
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
 }
 
-#outro{
+#outro {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    margin-left: 25%;
-    margin-right: 25%;
+    position: static;
+    margin: 5% 25%;
+    height: 200px;
+    padding: 40px 0;
 }
 
 footer {
-    position: relative;
     display: flex;
     justify-content: space-between;
     background-color: black;
     color: white;
     width: 100%;
     text-align: center;
-    padding: 16px, 8px;
-    bottom: 0;
-    margin-bottom: 0;
+    padding: 16px;
     margin-top: 40px;
 }
 
-label{
-    text-align: center;
-    text-wrap: nowrap;
+label {
     font-size: 14px;
     padding: 10px 16px;
 }
-
 
 #people-thumbnails {
     display: flex;
@@ -156,8 +162,6 @@ label{
     width: 100px;
 }
 
-.person-name{
+.person-name {
     font-size: 12px;
-    padding: 0;
 }
-
