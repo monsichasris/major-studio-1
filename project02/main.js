@@ -159,7 +159,7 @@ backButton.addEventListener("click", function() {
     // Clear the timeline and people thumbnails
     d3.select("#timeline").selectAll("*").remove();
     d3.select("#people-thumbnails").selectAll("*").remove();
-    d3.select(".tooltip").style("visibility", "hidden");
+   
 
     treemapClicked = false; // Reset the flag to enable clicks
     backButton.style.display = "none"; // Hide the back button
@@ -192,9 +192,8 @@ const svg = d3.select(`#treemap-${index}`)
     .attr("width", width)
     .attr("height", height);
 
-// Create a tooltip element
-const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip");
+
+    
 
 // Draw the rectangles for each realm node
 const cell = svg.selectAll("g")
@@ -211,25 +210,23 @@ const cell = svg.selectAll("g")
         .style("cursor", "pointer")
         .on("mouseover", function(event, d) {
             highlightSharedRealms(d.data.name);
-            tooltip.style("visibility", "visible")
-            .text(`${d.data.name}: ${d.data.count}`);
+            
         })
         .on("mousemove", function(event) {
-            tooltip.style("top", (event.pageY - 10) + "px")
-            .style("left", (event.pageX + 10) + "px");
+            
         })
         .on("mouseout", function(event, d) {
             if(!d.data.isChild)
             {
             resetHighlight();
-            tooltip.style("visibility", "hidden");
+            
             }
             
         })
         // on click event show the children data inside the realm treemap
         .on("click", function(event, d) {
             handleClick(event, d);
-            tooltip.style("visibility", "hidden"); // Reset tooltip to hidden after click
+            
         });
         
   // Add labels (realm names) to the rectangles
