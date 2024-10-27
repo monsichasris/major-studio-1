@@ -459,17 +459,11 @@ function showPeople(selectedRole) {
     d3.select("#people-thumbnails").selectAll("div").remove();
 
     // Create a flex container for women and men thumbnails
-    const thumbnailsContainer = d3.select("#people-thumbnails")
-       
+    const thumbnailsContainer = d3.select("#people-thumbnails");
 
     // Create two separate divs for women and men
-    const womenDiv = thumbnailsContainer.append("div")
-        .attr("id", "women-thumbnails")
-        
-    const menDiv = thumbnailsContainer.append("div")
-        .attr("id", "men-thumbnails")
-        
-        
+    const womenDiv = thumbnailsContainer.append("div").attr("id", "women-thumbnails");
+    const menDiv = thumbnailsContainer.append("div").attr("id", "men-thumbnails");
 
     // Iterate through gender-specific data
     for (let i = 0; i < 2; i++) {
@@ -486,11 +480,11 @@ function showPeople(selectedRole) {
 
             // Create an anchor element with the href linking to the full-size image or another resource
             const link = personDiv.append("a")
-                .attr("href", person.link) // Link to the full-size image or some other resource
-                .attr("target", "_blank"); // Open link in a new tab
+                
 
             // Append the image inside the anchor tag
-            link.append("img")
+            
+                .style("cursor", "pointer");link.append("img")
                 .attr("src", person.thumbnail) // Thumbnail version of the image
                 .attr("alt", person.name)
                 .attr("height", 100) // Optional, you can adjust as necessary
@@ -500,8 +494,10 @@ function showPeople(selectedRole) {
             personDiv.append("text")
                 .text(person.name)
                 .attr("class", "person-name")
-                .style("cursor", "pointer");
 
+          console.log(person)
+            
+            
             personDiv
                 .on("mouseover", function() {
                     d3.select(this)
@@ -512,10 +508,59 @@ function showPeople(selectedRole) {
                     d3.select(this)
                         .style('transform', 'scale(1)')
                         .style("font-size", "initial"); // Reset font size on mouse out
+                })
+                .on("click", function() { // Add click event
+                    openModal(person.thumbnail, person.name, person.role, person.link, person.realm, person.date);
                 });
         });
     }
 }
+
+// Function to open the modal
+function openModal(imageSrc, personName, personRole, personLink, personRealm, personDate) {
+    // Clear previous modal content
+    d3.select("#modal").style("display", "flex");
+
+    // Create a clickable image link
+    const modalImageContainer = d3.select("#modal-image-container");
+
+    // Remove existing content to avoid duplication
+    modalImageContainer.selectAll("*").remove();
+
+    // Append a link around the image
+    modalImageContainer.append("a")
+        .attr("href", personLink) // Set the link to the person's link
+        .attr("target", "_blank") // Open link in a new tab
+        .append("img")
+        .attr("src", imageSrc)
+        .attr("alt", personName)
+        .style("max-width", "100%") // Ensure the image fits the modal
+        .style("height", "auto");
+
+    // Update text information
+    d3.select("#modal-image").attr("src", imageSrc);
+    d3.select("#modal-name").text(personName);
+    d3.select("#modal1").text(personRole);
+    d3.select("#modal2").text(personRealm);
+    d3.select("#modal3").text(personDate);
+
+    // Optional: If you want the link to be shown as text, you can still add it
+    d3.select("#modal4")
+        .html(`<a href="${personLink}" target="_blank" style="color: blue; text-decoration: underline;">More Info</a>`);
+}
+
+
+// Close the modal
+d3.select("#close-modal").on("click", function() {
+    d3.select("#modal").style("display", "none");
+});
+
+// Close the modal when clicking outside the modal content
+d3.select("#modal").on("click", function(event) {
+    if (event.target === this) {
+        d3.select("#modal").style("display", "none");
+    }
+});
 
 
 
