@@ -74,18 +74,31 @@ p {
 }
 
 #main{
+<<<<<<< HEAD
     height: 100vh;
     
+=======
+    position: relative;
+    height: 100vh;
+    overflow: auto;
+>>>>>>> 95fea48ee7e85ad992f7c4b3247e572599f19ce9
 }
 
 #buttonContainer {
     display: flex;
     justify-content: center;
+<<<<<<< HEAD
     position: sticky;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
     width: auto;
+=======
+    position: -webkit-sticky; /* For Safari */
+    background-color: white; /* Optional: to ensure it doesn't blend with the background */
+    z-index: 1000; /* Optional: to ensure it stays above other content */
+    top: 20px;
+>>>>>>> 95fea48ee7e85ad992f7c4b3247e572599f19ce9
 }
 
 #backButton {

@@ -235,7 +235,7 @@ const cell = svg.selectAll("g")
             .attr("y", 15)
             .attr("font-size", "12px")
             .attr("fill", "black")
-            .text(d => d.data.name)
+            .text(d => d.data.name.replace("and", "&"))
 
             // Only display the label if the rectangle is large enough
             .style("display", d => {
@@ -260,11 +260,11 @@ function wrapText(selection) {
         while (word = words.pop()) {
             line.push(word);
             tspan.text(line.join(" "));
-            if (tspan.node().getComputedTextLength() > rectWidth) {
+            if (tspan.node().getComputedTextLength() > rectWidth - 8) {
                 line.pop();
                 tspan.text(line.join(" "));
                 line = [word];
-                tspan = text.append("tspan").attr("x", 5).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                tspan = text.append("tspan").attr("x", 5).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word.replace("and", "&"));
             }
         }
     });
