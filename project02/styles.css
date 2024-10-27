@@ -70,10 +70,19 @@ p{
     margin: 0;
 }
 
-#buttonContainer{
+#main{
+    position: relative;
+    height: 100vh;
+    overflow: auto;
+}
+
+#buttonContainer {
     display: flex;
     justify-content: center;
-    
+    position: -webkit-sticky; /* For Safari */
+    background-color: white; /* Optional: to ensure it doesn't blend with the background */
+    z-index: 1000; /* Optional: to ensure it stays above other content */
+    top: 20px;
 }
 
 #backButton {
