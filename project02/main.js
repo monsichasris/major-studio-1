@@ -546,7 +546,7 @@ function openModal(imageSrc, personName, personRole, personLink, personRealm, pe
 
     // Optional: If you want the link to be shown as text, you can still add it
     d3.select("#modal4")
-        .html(`<a href="${personLink}" target="_blank" style="color: blue; text-decoration: underline;">More Info</a>`);
+        .html(`<a href="${personLink}" target="_blank">More Info</a>`);
 }
 
 
