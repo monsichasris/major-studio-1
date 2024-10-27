@@ -2,7 +2,6 @@
 let allRealmData=[{}, {}], index=0, hierarchyData = [], roleData =[], pretimeline_data, forPeople=[[],[]];
 let globalMinYear=0, globalMaxYear=0, globalMaxY = 0;
 let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
-let selectedRole = null;
 
 // Get the back button element from the DOM
 document.addEventListener("DOMContentLoaded", function() {
@@ -220,31 +219,17 @@ const cell = svg.selectAll("g")
             .style("left", (event.pageX + 10) + "px");
         })
         .on("mouseout", function(event, d) {
+            if(!d.data.isChild)
+            {
             resetHighlight();
             tooltip.style("visibility", "hidden");
-        })
-         // on click event show the children data inside the realm treemap
-        .on("click", function(event, d) {
-            if(isRealm(d.data) == false) {
-                selectedRole = (selectedRole === d.data.name) ? null : d.data.name;
-                d3.selectAll(`#treemap-0 rect`)
-                    .attr("fill", rectData => 
-                        rectData.data.name === selectedRole ? colorScale(0) : "#ccc" // Highlight selected, dim others
-                    )
-                    .style("opacity", rectData => 
-                        rectData.data.name === selectedRole ? 1 : 0.3 // Dim non-selected roles
-                    );
-                d3.selectAll(`#treemap-1 rect`)
-                    .attr("fill", rectData => 
-                        rectData.data.name === selectedRole ? colorScale(1) : "#ccc" // Highlight selected, dim others
-                    )
-                    .style("opacity", rectData => 
-                        rectData.data.name === selectedRole ? 1 : 0.3 // Dim non-selected roles
-                    );
-            } else {
-                handleClick(event, d);
-                tooltip.style("visibility", "hidden"); // Reset tooltip to hidden after click
             }
+            
+        })
+        // on click event show the children data inside the realm treemap
+        .on("click", function(event, d) {
+            handleClick(event, d);
+            tooltip.style("visibility", "hidden"); // Reset tooltip to hidden after click
         });
         
   // Add labels (realm names) to the rectangles
@@ -317,8 +302,8 @@ function handleClick(event, d) {
     if (isRealm(d.data)) {
         createTreemap(roleHierarchyData.roleData[0], 0);
         createTreemap(roleHierarchyData.roleData[1], 1);
-        // console.log(roleHierarchyData.name)
-        // highlightSharedRealms(roleHierarchyData.name)
+        console.log(roleHierarchyData.name)
+        highlightSharedRealms(roleHierarchyData.name)
 
         pretimeline_data = [
             allRealmData[0].filter(item => item.realm === roleHierarchyData.name),
@@ -326,28 +311,20 @@ function handleClick(event, d) {
         ];
         const timelineData = gatherTimelineData(pretimeline_data, d.data.name);
         createTimeline(timelineData);
-
-        // Do not reset the highlight when in this condition
-        d3.selectAll("rect")
-        .filter(d => d.data.name !== roleHierarchyData.name)
-        .attr("opacity", "0.2");
-        d3.selectAll("text")
-        .filter(d => d.data.name !== roleHierarchyData.name)
-        .attr("fill", "gray");
-
-        } else {
+    } else {
         
             // console.log()
             pretimeline_data = [
-            allRealmData[0].filter(item => item.role === roleHierarchyData.name),
-            allRealmData[1].filter(item => item.role === roleHierarchyData.name)
+                allRealmData[0].filter(item => item.role === roleHierarchyData.name),
+                allRealmData[1].filter(item => item.role === roleHierarchyData.name)
             ];
             const timelineData = gatherTimelineDataForRole(pretimeline_data, roleHierarchyData.name);
             createTimeline(timelineData);
             showPeople(d.data.name);
 
-            
-        }
+        
+       
+    }
     treemapClicked = true; // Set the flag to disable further clicks
     backButton.innerHTML = `← ${d.data.name}`; // Show the back button with the name of the realm
     backButton.style.display = "block"; // Show the back button
