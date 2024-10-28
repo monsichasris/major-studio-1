@@ -156,11 +156,9 @@ backButton.addEventListener("click", function() {
     createTreemap(mapData(allRealmData[0]), 0);
     createTreemap(mapData(allRealmData[1]), 1);
 
-    // Clear the timeline and people thumbnails
+
     d3.select("#timeline").selectAll("*").remove();
     d3.select("#people-thumbnails").selectAll("*").remove();
-   
-
     treemapClicked = false; // Reset the flag to enable clicks
     backButton.style.display = "none"; // Hide the back button
 });
@@ -169,38 +167,33 @@ function createTreemap(data, index) {
     const width = 600;  // Width of the treemap for each dataset
     const height = 600; // Height of the treemap for each dataset
 
-// Transform the data into a hierarchical structure
-hierarchyData[index] = transformDataToHierarchy(data);
+    // Transform the data into a hierarchical structure
+    hierarchyData[index] = transformDataToHierarchy(data);
 
-// Create the root of the hierarchy
-const root = d3.hierarchy(hierarchyData[index])
-    .sum(d => d.count)
-    .sort((a, b) => b.value - a.value);
+    // Create the root of the hierarchy
+    const root = d3.hierarchy(hierarchyData[index])
+        .sum(d => d.count)
+        .sort((a, b) => b.value - a.value);
 
-// Create the treemap layout
-d3.treemap()
-    .size([width, height])
-    .padding(1)
-    (root);
+    // Create the treemap layout
+    d3.treemap()
+        .size([width, height])
+        .padding(1)
+        (root);
 
-// Remove any existing SVG element in the correct container
-d3.select(`#treemap-${index}`).select("svg").remove();
+    // Remove any existing SVG element in the correct container
+    d3.select(`#treemap-${index}`).select("svg").remove();
 
-// Create the SVG element where the treemap will be drawn
-const svg = d3.select(`#treemap-${index}`)
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
+    const svg = d3.select(`#treemap-${index}`)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
 
-
-    
-
-// Draw the rectangles for each realm node
-const cell = svg.selectAll("g")
-    .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
-    .enter()
-        .append("g")
-    .attr("transform", d => `translate(${d.x0},${d.y0})`)  // Positioning each cell based on layout
+    const cell = svg.selectAll("g")
+        .data(root.leaves())  // Using 'leaves' ensures we only display leaf nodes (realms in this case)
+        .enter()
+            .append("g")
+            .attr("transform", d => `translate(${d.x0},${d.y0})`);  // Positioning each cell based on layout
 
     cell.append("rect")
         .attr("width", d => d.x1 - d.x0)  // Width of the rectangle
@@ -209,44 +202,56 @@ const cell = svg.selectAll("g")
         .attr("stroke", "white")
         .style("cursor", "pointer")
         .on("mouseover", function(event, d) {
+            // Show the name and count in the info area
+            updateHoverInfo(d.data.name);
             highlightSharedRealms(d.data.name);
-            
-        })
-        .on("mousemove", function(event) {
-            
         })
         .on("mouseout", function(event, d) {
-            if(!d.data.isChild)
-            {
             resetHighlight();
-            
-            }
-            
+            // Clear the info area when the mouse leaves
+            clearHoverInfo();
         })
-        // on click event show the children data inside the realm treemap
+        // On click event show the children data inside the realm treemap
         .on("click", function(event, d) {
             handleClick(event, d);
-            
         });
-        
-  // Add labels (realm names) to the rectangles
-    cell.append("text")
-            .attr("x", 5)
-            .attr("y", 15)
-            .attr("font-size", "12px")
-            .attr("fill", "black")
-            .text(d => d.data.name)
 
-            // Only display the label if the rectangle is large enough
-            .style("display", d => {
-                const rectWidth = d.x1 - d.x0;
-                const rectHeight = d.y1 - d.y0;
-                const containerWidth = width;
-                const containerHeight = height;
-                return (rectWidth * rectHeight > 0.01 * containerWidth * containerHeight) ? "block" : "none";
-            }) // Display the name of the realm
-            .call(wrapText); // Wrap the text if it's too long
-} 
+    // Add labels (realm names) to the rectangles
+    cell.append("text")
+        .attr("x", 5)
+        .attr("y", 15)
+        .attr("font-size", "12px")
+        .attr("fill", "black")
+        .text(d => d.data.name)
+        // Only display the label if the rectangle is large enough
+        .style("display", d => {
+            const rectWidth = d.x1 - d.x0;
+            const rectHeight = d.y1 - d.y0;
+            const containerWidth = width;
+            const containerHeight = height;
+            return (rectWidth * rectHeight > 0.01 * containerWidth * containerHeight) ? "block" : "none";
+        }) // Display the name of the realm
+        .call(wrapText); // Wrap the text if it's too long
+        
+}
+
+// Function to update hover info
+function updateHoverInfo(name) {
+    // Find the count for the given name in both datasets
+    const maleCount = maleData.find(person => person.name === name)?.count || 0; // Using optional chaining and default to 0
+    const femaleCount = femaleData.find(person => person.name === name)?.count || 0; // Same as above
+
+    // Update the hover info text
+    d3.select("#hover-info")
+        .text(`Name: ${name}, Male Count: ${maleCount}, Female Count: ${femaleCount}`);
+}
+
+// Function to clear hover info
+function clearHoverInfo() {
+    d3.select("#hover-info")
+        .text("");
+}
+
 
 function wrapText(selection) {
     selection.each(function(d) {

@@ -114,7 +114,7 @@ p {
     margin-bottom: 40px;
 }
 
-.tooltip {
+.hover-info {
     position: absolute;
     visibility: hidden;
     background-color: white;
