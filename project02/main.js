@@ -225,6 +225,21 @@ const cell = svg.selectAll("g")
         })
         // on click event show the children data inside the realm treemap
         .on("click", function(event, d) {
+                    // Highlight the clicked rect
+                    d3.selectAll(`#treemap-0 rect, #treemap-1 rect`)
+                        .attr("stroke", "none"); // Remove stroke from all rects
+
+                    d3.select(this)
+                        .attr("stroke", "black") // Add black stroke to the clicked rect
+                        .attr("stroke-width", 2); // Set stroke width
+
+                    // Highlight the corresponding rect in the other treemap
+                    const clickedName = d.data.name;
+                    d3.selectAll(`#treemap-0 rect, #treemap-1 rect`)
+                        .filter(d => d.data.name === clickedName)
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 2);
+
             handleClick(event, d);
             
         });
@@ -309,15 +324,14 @@ function handleClick(event, d) {
         const timelineData = gatherTimelineData(pretimeline_data, d.data.name);
         createTimeline(timelineData);
     } else {
-        
-            // console.log()
-            pretimeline_data = [
-                allRealmData[0].filter(item => item.role === roleHierarchyData.name),
-                allRealmData[1].filter(item => item.role === roleHierarchyData.name)
-            ];
-            const timelineData = gatherTimelineDataForRole(pretimeline_data, roleHierarchyData.name);
-            createTimeline(timelineData);
-            showPeople(d.data.name);
+        // console.log()
+        pretimeline_data = [
+            allRealmData[0].filter(item => item.role === roleHierarchyData.name),
+            allRealmData[1].filter(item => item.role === roleHierarchyData.name)
+        ];
+        const timelineData = gatherTimelineDataForRole(pretimeline_data, roleHierarchyData.name);
+        createTimeline(timelineData);
+        showPeople(d.data.name);
 
         
        
