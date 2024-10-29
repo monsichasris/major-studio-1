@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://use.typekit.net/lcn3jpe.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> 
     <script src="main.js"></script>
 </head>
 <body>
@@ -17,8 +18,13 @@
             <br>in the National Portrait Gallery, by Gender</h2>
         <p>Explore the “careers” of the sitters featured in the Smithsonian National Portrait Gallery,
             <br>categorized by gender over time. It draws from a dataset of 14,490 documents.</p>
-        <p>↓</p>
+        <!-- Chevron animation -->
+        <div style="display: flex; justify-content: center;">
+            <dotlottie-player src="https://lottie.host/3dbd879a-5308-4ce8-8884-9e6ce4b48f5e/5ZWtVA6HzI.json" background="transparent" speed="1" style="width: 80px; height: 80px;" loop autoplay></dotlottie-player>
+        </div>
     </header>
+    
+    
     <div class="parallax-container"></div>
         <!-- women -->
         <img src="assets/women01.png" class="parallax-img" style="left: 30%; top: 0%;">
