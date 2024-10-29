@@ -237,35 +237,34 @@ const cell = svg.selectAll("g")
                     const clickedName = d.data.name;
                     d3.selectAll(`#treemap-0 rect, #treemap-1 rect`)
                         .filter(d => d.data.name === clickedName)
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 2);
+                        .attr("stroke", "white")
+                        .attr("stroke-width", 5);
 
             handleClick(event, d);
             
         });
         
-  // Add labels (realm names) to the rectangles
+// Add labels (realm names) to the rectangles
     cell.append("text")
-            .attr("x", 5)
-            .attr("y", 15)
-            .attr("font-size", "12px")
-            .attr("fill", "black")
-            .text(d => d.data.name)
-
-            // Only display the label if the rectangle is large enough
-            .style("display", d => {
-                const rectWidth = d.x1 - d.x0;
-                const rectHeight = d.y1 - d.y0;
-                const containerWidth = width;
-                const containerHeight = height;
-                return (rectWidth * rectHeight > 0.01 * containerWidth * containerHeight) ? "block" : "none";
+        .text(d => d.data.name.replace(/and/g, "&"))
+        .attr("x", "2em")
+        .attr("y", "1.2em") // Use rem for y positioning
+        .attr("fill", "black")
+        .attr("font-size", (d, i) => i < 3 ? `${Math.max(10, Math.min(20, Math.sqrt((d.x1 - d.x0) * (d.y1 - d.y0)) / 2))}px` : "12px")
+        // Only display the label if the rectangle is large enough
+        .style("display", d => {
+            const rectWidth = d.x1 - d.x0;
+            const rectHeight = d.y1 - d.y0;
+            const containerWidth = width;
+            const containerHeight = height;
+            return (rectWidth * rectHeight > 0.01 * containerWidth * containerHeight) ? "block" : "none";
             }) // Display the name of the realm
-            .call(wrapText); // Wrap the text if it's too long
-} 
+        .call(wrapText); // Wrap the text if it's too long
+}
 
 function wrapText(selection) {
     selection.each(function(d) {
-        const rectWidth = d.x1 - d.x0;
+        const rectWidth = d.x1-10 - d.x0;
         const text = d3.select(this);
         const words = text.text().split(/\s+/).reverse();
         let word, line = [], lineNumber = 0;
