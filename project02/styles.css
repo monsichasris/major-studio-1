@@ -166,10 +166,10 @@ label {
     flex-direction: row;
     justify-content: space-between;
     justify-content: center;
-    gap: 80px;
+    gap: 40px;
 }
 
-#women-thumbnails {
+#women-thumbnails, #men-thumbnails {
     width: 40%;            
     box-sizing: border-box; 
     display: flex;       
@@ -177,23 +177,20 @@ label {
     flex-wrap: wrap;      
     align-items: flex-start;
     align-content: flex-start;
-}
-
-#men-thumbnails {
-    width: 40%;           
-    box-sizing: border-box; 
-    display: flex;        
-    flex-direction: row;  
-    flex-wrap: wrap;     
-    align-items: flex-start; /* Align items at the top */
+    gap: 10px;
 }
 
 .person-thumbnail {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 120px;
+}
+
+.person-img {
     width: 100px;
-    margin: 10px; 
+    height: 100px;
+    object-fit: cover;
 }
 
 .person-name {
@@ -215,18 +212,30 @@ label {
 #modal-content {
     background-color: white;
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 4px;
     text-align: center;
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+}
+
+#modal-image {
+    height: 500px;
+    max-width: 500px;
+    object-fit: cover;
+}
+
+.modal-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
 }
 
 #close-modal {
-    font-size: 30px;
-    float: right;
-    margin-top: -10px;
-    margin-right: -10px;
-}
-#modal4
-{
-    color: rgb(26, 150, 109);
-    text-decoration: none;
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    text-align: center;
+    line-height: 100%;
+    cursor: pointer;
 }

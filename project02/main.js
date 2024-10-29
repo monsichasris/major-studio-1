@@ -216,10 +216,8 @@ const cell = svg.selectAll("g")
             
         })
         .on("mouseout", function(event, d) {
-            if(!d.data.isChild)
-            {
+            if(!d.data.isChild){
             resetHighlight();
-            
             }
             
         })
@@ -246,7 +244,7 @@ const cell = svg.selectAll("g")
         
 // Add labels (realm names) to the rectangles
     cell.append("text")
-        .text(d => d.data.name.replace(/and/g, "&"))
+        .text(d => d.data.name.replace(/ and /g, " & "))
         .attr("x", "2em")
         .attr("y", "1.2em") // Use rem for y positioning
         .attr("fill", "black")
@@ -495,6 +493,7 @@ function showPeople(selectedRole) {
             // Append the image inside the anchor tag
             
                 .style("cursor", "pointer");link.append("img")
+                .attr("class", "person-img")
                 .attr("src", person.thumbnail) // Thumbnail version of the image
                 .attr("alt", person.name)
                 .attr("height", 100) // Optional, you can adjust as necessary
