@@ -12,33 +12,38 @@
 </head>
 <body>
     <header>
-        <div class="title-gif">
-            <img src="assets/women1.gif" class="img-gif" >
-            <img src="assets/women2.gif" class="img-gif">
-            <img src="assets/women3.gif" class="img-gif">
-        </div>
-
-        <div class="title">
-            <h1>Framing Gender</h1>
-            <h2>Why These Sitters Are Remembered in the National Portrait Gallery, by Gender</h2>
-            <p>Explore the “careers” of the sitters featured in the Smithsonian National Portrait Gallery, categorized by gender over time. It draws from a dataset of 14,490 documents.</p>
-            <p>↓</p>
-        </div>
-
-        <div class="title-gif">
-            <img src="assets/men1.gif" class="img-gif">
-            <img src="assets/men2.gif" class="img-gif">
-            <img src="assets/men3.gif" class="img-gif">
-        </div>
+        <h1>Framing Gender</h1>
+        <h2>Why These Sitters Are Remembered
+            <br>in the National Portrait Gallery, by Gender</h2>
+        <p>Explore the “careers” of the sitters featured in the Smithsonian National Portrait Gallery,
+            <br>categorized by gender over time. It draws from a dataset of 14,490 documents.</p>
+        <p>↓</p>
     </header>
+    <div class="parallax-container"></div>
+        <!-- women -->
+        <img src="assets/women01.png" class="parallax-img" style="left: 30%; top: 0%;">
+        <img src="assets/women02.png" class="parallax-img" style="left: 0%; top: 10%;">
+        <img src="assets/women03.png" class="parallax-img" style="left: 15%; top: 30%;">
+        <img src="assets/women04.png" class="parallax-img" style="left: 10%; top: 60%;">
+        <img src="assets/women05.png" class="parallax-img" style="left: 30%; top: 75%;">
+        <img src="assets/women06.png" class="parallax-img" style="left: 5%; top: 85%;">
+        <!-- men -->
+        <img src="assets/men01.png" class="parallax-img" style="left: 85%; top: 0%;">
+        <img src="assets/men02.png" class="parallax-img" style="left: 65%; top: 7.5%;">
+        <img src="assets/men03.png" class="parallax-img" style="left: 80%; top: 30%;">
+        <img src="assets/men04.png" class="parallax-img" style="left: 85%; top: 60%;">
+        <img src="assets/men05.png" class="parallax-img" style="left: 60%; top: 70%;">
+        <img src="assets/men06.png" class="parallax-img" style="left: 75%; top: 85%;">
+    </div>
+    
 
     <section id="intro">
-        <p>All the Portraits in the NPG that we use in this visualization include</p>
+        <p>All the Portraits in the National Portrait Gallery that we use in this visualization include</p>
         <div id="sq">
             <img src="assets/women_size.svg">
             <img src="assets/men_size.svg">
         </div>
-        <p>What did these people do, for them to be painted? Here is a look at the proportion and count by topic and career over time.</p>
+        <p>What did these people do, for them to be painted? <br>Here is a look at the proportion and count by topic and career over time.</p>
     </section>
 
     <section id="main">
@@ -46,34 +51,31 @@
         <div id="buttonContainer">
             <button id="backButton"></button>
         </div>
-
      
-    <div id="chart">
-        <div id="treemap-0"></div>
-        <div id="treemap-1"></div> 
-    </div>
-   
+        <div id="chart">
+            <div id="treemap-0"></div>
+            <div id="treemap-1"></div> 
+        </div>
 
-    <div id="timeline"></div>
-    <div id="people-thumbnails" style="display: flex;">
-        <div id="women-thumbnails"></div>
-        <div id="men-thumbnails"></div>
-    </div>
-    <!-- Modal Structure -->
-<div id="modal" style="display: none;">
-    <div id="modal-content">
-        <span id="close-modal" style="cursor: pointer;">&times;</span>
-        <img id="modal-image" src="" alt="" style="width: 100%; max-width: 500px;">
-        <h2 id="modal-name"></h2>
-        <h3 id="modal1"></h3>
-        <h3 id="modal2"></h3>
-        <h3 id="modal3"></h3>
-        <h3 id="modal4"></h3>
-    </div>
-</div>
+        <div id="timeline"></div>
+        <div id="people-thumbnails" style="display: flex;">
+            <div id="women-thumbnails"></div>
+            <div id="men-thumbnails"></div>
+        </div>
 
-
-</section>
+        <!-- Modal Structure -->
+        <div id="modal" style="display: none;">
+            <div id="modal-content">
+                <span id="close-modal" style="cursor: pointer;">&times;</span>
+                <img id="modal-image" src="" alt="" style="width: 100%; max-width: 500px;">
+                <h2 id="modal-name"></h2>
+                <h3 id="modal1"></h3>
+                <h3 id="modal2"></h3>
+                <h3 id="modal3"></h3>
+                <h3 id="modal4"></h3>
+            </div>
+        </div>
+    </section>
 
 
     <section id="outro">
