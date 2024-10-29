@@ -162,11 +162,11 @@ label {
 }
 
 #people-thumbnails {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Creates two equal columns */
-    grid-auto-rows: 50px;                 /* Sets a fixed height for grid items */
-    gap: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     justify-content: center;
+    gap: 80px;
 }
 
 #women-thumbnails {
@@ -176,9 +176,7 @@ label {
     flex-direction: row;  
     flex-wrap: wrap;      
     align-items: flex-start;
-    
-
-    
+    align-content: flex-start;
 }
 
 #men-thumbnails {
@@ -188,7 +186,6 @@ label {
     flex-direction: row;  
     flex-wrap: wrap;     
     align-items: flex-start; /* Align items at the top */
-   
 }
 
 .person-thumbnail {
