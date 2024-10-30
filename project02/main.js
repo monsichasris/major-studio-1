@@ -235,8 +235,8 @@ const cell = svg.selectAll("g")
                     const clickedName = d.data.name;
                     d3.selectAll(`#treemap-0 rect, #treemap-1 rect`)
                         .filter(d => d.data.name === clickedName)
-                        .attr("stroke", "white")
-                        .attr("stroke-width", 5);
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 2);
 
             handleClick(event, d);
             
@@ -248,7 +248,7 @@ const cell = svg.selectAll("g")
         .attr("x", "2em")
         .attr("y", "1.2em") // Use rem for y positioning
         .attr("fill", "black")
-        .attr("font-size", (d, i) => i < 3 ? `${Math.max(10, Math.min(20, Math.sqrt((d.x1 - d.x0) * (d.y1 - d.y0)) / 2))}px` : "12px")
+        .attr("font-size", (d, i) => i < 5 ? `${Math.max(10, Math.min(20, Math.sqrt((d.x1 - d.x0) * (d.y1 - d.y0)) / 2))}px` : "12px")
         // Only display the label if the rectangle is large enough
         .style("display", d => {
             const rectWidth = d.x1 - d.x0;
@@ -723,6 +723,25 @@ function createTimeline(data) {
             .attr("x", -height / 2)
             .style("font-size", "12px")
             .text("Count");
+            // Create the tooltip element
+            const tooltip = d3.select("body").append("div")
+                .attr("id", "tooltip")
+                .attr("class", "tooltip")
+                .style("visibility", "hidden");
+
+            // Add event listeners to show and hide the tooltip
+            svg.selectAll(".layer rect")
+                .on("mouseover", function(event, d) {
+                    tooltip.style("visibility", "visible")
+                        .html(`<strong>${d.data.decade}</strong><br>Men: ${d.data.dataset1}<br>Women: ${d.data.dataset0} `);
+                })
+                .on("mousemove", function(event) {
+                    tooltip.style("top", (event.pageY - 10) + "px")
+                        .style("left", (event.pageX + 10) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.style("visibility", "hidden");
+                });
 }
 
 });

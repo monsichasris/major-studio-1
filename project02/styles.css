@@ -64,8 +64,8 @@ a:hover {
     position: absolute;
     width: 150px;
     height: auto;
-    transition: transform 0.3s ease-out;
-    animation: moveSlowly 30s infinite alternate;
+    transition: transform 0.5s ease-out;
+    animation: moveSlowly 10s infinite alternate;
 }
 
 @keyframes moveSlowly {
@@ -73,10 +73,10 @@ a:hover {
         transform: translate(0, 0);
     }
     50% {
-        transform: translate(5px, 30px); /* Adjust the values as needed */
+        transform: translate(5px, 10px); /* Adjust the values as needed */
     }
     100% {
-        transform: translate(0px, 15px);
+        transform: translate(0px, 5px);
     }
 }
 
