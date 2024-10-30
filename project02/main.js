@@ -163,6 +163,7 @@ backButton.addEventListener("click", function() {
 
     treemapClicked = false; // Reset the flag to enable clicks
     backButton.style.display = "none"; // Hide the back button
+    document.getElementById("click-guide").style.display = "block"; // Show the click guide
 });
 
 function createTreemap(data, index) {
@@ -239,6 +240,7 @@ const cell = svg.selectAll("g")
                         .attr("stroke-width", 2);
 
             handleClick(event, d);
+            document.getElementById("click-guide").style.display = "none";
             
         });
         
