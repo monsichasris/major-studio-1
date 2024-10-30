@@ -236,8 +236,8 @@ const cell = svg.selectAll("g")
                     const clickedName = d.data.name;
                     d3.selectAll(`#treemap-0 rect, #treemap-1 rect`)
                         .filter(d => d.data.name === clickedName)
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 2);
+                        .attr("stroke", "white")
+                        .attr("stroke-width", 10)
 
             handleClick(event, d);
             document.getElementById("click-guide").style.display = "none";
