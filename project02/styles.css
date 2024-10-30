@@ -41,6 +41,18 @@ p {
     text-align: center;
 }
 
+a {
+    text-decoration: none;
+    color: #000000;
+}
+
+a:hover {
+    color: #000000;
+    text-decoration: underline;
+    font-style: italic;
+    cursor: pointer;
+}
+
 .parallax-container{
     position: relative;
     width: 100%;
@@ -88,7 +100,7 @@ p {
 
 
 
-#buttonContainer {
+#button-container {
     background-color: white;
     display: flex;
     justify-content: center;
@@ -97,6 +109,11 @@ p {
     left: 50%;
     width: auto;
     z-index: 100;
+    transition: box-shadow 0.3s ease; 
+}
+
+#button-container.sticky{
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
 #backButton {
@@ -193,9 +210,6 @@ label {
     object-fit: cover;
 }
 
-.person-name {
-    font-size: 14px;
-}
 #modal {
     position: fixed;
     top: 0;

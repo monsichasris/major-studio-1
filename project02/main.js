@@ -491,7 +491,6 @@ function showPeople(selectedRole) {
                 
 
             // Append the image inside the anchor tag
-            
                 .style("cursor", "pointer");link.append("img")
                 .attr("class", "person-img")
                 .attr("src", person.thumbnail) // Thumbnail version of the image
@@ -502,7 +501,7 @@ function showPeople(selectedRole) {
 
             personDiv.append("text")
                 .text(person.name)
-                .attr("class", "person-name")
+                .style("display", "none"); // Hide the text
 
           console.log(person)
             
@@ -545,17 +544,16 @@ function openModal(imageSrc, personName, personRole, personLink, personRealm, pe
         .attr("alt", personName)
         .style("max-width", "100%") // Ensure the image fits the modal
         .style("height", "auto");
-
-    // Update text information
-    d3.select("#modal-image").attr("src", imageSrc);
-    d3.select("#modal-name").text(personName);
-    d3.select("#modal1").text(personRole);
-    d3.select("#modal2").text(personRealm);
-    d3.select("#modal3").text(personDate);
+        // Update text information
+        d3.select("#modal-image").attr("src", imageSrc);
+        d3.select("#modal-name").text(personName);
+        d3.select("#modal-role").text(personRole);
+        d3.select("#modal-realm").text(personRealm);
+        d3.select("#modal-decade").text(personDate);
 
     // Optional: If you want the link to be shown as text, you can still add it
-    d3.select("#modal4")
-        .html(`<a href="${personLink}" target="_blank">More Info</a>`);
+    d3.select("#modal-link")
+        .html(`<a href="${personLink}" target="_blank">☞ More Info</a>`);
 }
 
 
@@ -727,4 +725,24 @@ function createTimeline(data) {
             .text("Count");
 }
 
+});
+
+// sticky button-container
+document.addEventListener("DOMContentLoaded", function() {
+    const buttonContainer = document.getElementById("button-container");
+    const stickyOffset = buttonContainer.offsetTop;
+
+    function checkSticky() {
+        if (window.scrollY > stickyOffset) {
+            buttonContainer.classList.add("sticky");
+        } else {
+            buttonContainer.classList.remove("sticky");
+        }
+    }
+
+    // Check sticky state on scroll
+    window.addEventListener("scroll", checkSticky);
+
+    // Initial check in case the page is already scrolled
+    checkSticky();
 });
