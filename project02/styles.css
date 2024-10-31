@@ -34,6 +34,14 @@ h3 {
     margin: 0;
 }
 
+h4 {
+    font-size: 13px;
+    font-weight: 150;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
 p {
     margin-top: 30px;
     font-size: 18px;
@@ -116,6 +124,7 @@ a:hover {
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
+
 #backButton {
     display: none;
     padding: 10px;
@@ -133,6 +142,19 @@ a:hover {
     flex-direction: row;
     justify-content: space-between;
     gap: 80px;
+}
+#display-info {
+    display: flex;
+    flex-direction: column; /* Stack text vertically */
+    align-items: center; /* Center the content horizontally */
+    justify-content: center; /* Center content vertically */
+    margin: 20px auto; /* Center the container itself */
+    text-align: center; /* Center-align text within the container */
+    width: 15%; 
+    padding: 10px;
+    border: 0.1px solid #000000;
+    background-color: #ffffff;
+    border-radius: 5px;
 }
 
 #timeline {

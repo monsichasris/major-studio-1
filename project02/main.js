@@ -2,8 +2,16 @@
 let allRealmData=[{}, {}], index=0, hierarchyData = [], roleData =[], pretimeline_data, forPeople=[[],[]];
 let globalMinYear=0, globalMaxYear=0, globalMaxY = 0;
 let sitter_count, datum, current_usable_object, people_data = [], realm_data, role_data;
+function isRealm(data)
+{
+   
+if(Object.keys(data.roles).length>2)
+    return true;
+else
+    return false;
+}
 
-// Get the back button element from the DOM
+
 document.addEventListener("DOMContentLoaded", function() {
     const backButton = document.getElementById("backButton");
     if (!backButton) {
@@ -11,9 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
-    let treemapClicked = false; // Global flag to track if the treemap has been clicked
-
-// Load and analyze both men's and women's data simultaneously
+    let treemapClicked = false; 
 Promise.all([
     d3.json('data/data_women.json'),
     d3.json('data/data_men.json')
@@ -32,15 +38,10 @@ Promise.all([
 }).catch(function(error) {
     console.error('Error loading the JSON data:', error);
 });
-
-
 function analyseData(data, index) {
     people_data=[]
-    // going through each portrait
-    
-    for (let i = 0; i < data.length; i++) {
+     for (let i = 0; i < data.length; i++) {
         datum = data[i];
-        //going through each sitter in an individual datum
         for (let j = 0; j < datum.sitter.length; j++) {
             sitter_count= d3.rollup(
                 datum.sitter,
@@ -48,12 +49,9 @@ function analyseData(data, index) {
                 d => d.substring(0, datum.sitter[j].indexOf(':')));
              
             if(sitter_count.size==1){
-                //this is checking for portraits that have only one sitter to ensure that its indivuual portraits and not group
-                //its adding it until it finds a different name. it should add it if it only has one name
             let name = datum.sitter[j].substring(0, datum.sitter[j].indexOf(':'))
             let realm = datum.sitter[j].substring(datum.sitter[j].indexOf(':') + 2, datum.sitter[j].indexOf('\\'));
             let role = datum.sitter[j].substring(datum.sitter[j].lastIndexOf('\\') + 1, datum.sitter[j].length);
-                //we only want it if it has a date
             if(datum.date){ 
             current_usable_object = 
             {
@@ -66,16 +64,13 @@ function analyseData(data, index) {
                 "thumbnail": datum.thumbnail,
 
             }
-            
             people_data.push(current_usable_object);
-            
             };
 
         }
             
     } 
 } 
-// Calculate the global minimum and maximum years in the dataset
      const allYears = people_data.flatMap(entry => {
         const dates = entry.date; // Assuming entry.date contains all the years associated with the entry
         return dates.map(date => {
@@ -84,12 +79,9 @@ function analyseData(data, index) {
         });
     });
 
-       // Assuming the analyseData function processes the data and fills allYears
-    // Now, we can determine globalMinYear and globalMaxYear
     globalMinYear = Infinity;
     globalMaxYear = -Infinity;
 
-    // Iterate over all years to find min and max
     for (let year of allYears) {
         if (year < globalMinYear) globalMinYear = year;
         if (year > globalMaxYear) globalMaxYear = year;
@@ -210,8 +202,9 @@ const cell = svg.selectAll("g")
         .attr("stroke", "white")
         .style("cursor", "pointer")
         .on("mouseover", function(event, d) {
-            highlightSharedRealms(d.data.name);
-            
+           
+            displayCount(d.data)
+            highlightSharedRealms(d.data.name); 
         })
         .on("mousemove", function(event) {
             
@@ -219,6 +212,7 @@ const cell = svg.selectAll("g")
         .on("mouseout", function(event, d) {
             if(!d.data.isChild){
             resetHighlight();
+            removeDisplay();
             }
             
         })
@@ -238,6 +232,8 @@ const cell = svg.selectAll("g")
                         .filter(d => d.data.name === clickedName)
                         .attr("stroke", "white")
                         .attr("stroke-width", 10)
+                    
+                    displayCount(d.data)
 
             handleClick(event, d);
             document.getElementById("click-guide").style.display = "none";
@@ -295,21 +291,16 @@ function handleClick(event, d) {
     const roleHierarchyData = {
         name: d.data.name,
         roleData: {
-            0: childFromHierarchy0.roles, // Using property names without quotes
+            0: childFromHierarchy0.roles, 
             1: childFromHierarchy1.roles
         },
-        // Assuming roleData is defined elsewhere, or you need to define it
         children: Object.entries(roleData).map(([role, count]) => ({
             name: role,
             count: count,
             isChild: true
         }))
     };
-   
 
-
-    
-    // For the timelines
     if (isRealm(d.data)) {
         createTreemap(roleHierarchyData.roleData[0], 0);
         createTreemap(roleHierarchyData.roleData[1], 1);
@@ -323,7 +314,6 @@ function handleClick(event, d) {
         const timelineData = gatherTimelineData(pretimeline_data, d.data.name);
         createTimeline(timelineData);
     } else {
-        // console.log()
         pretimeline_data = [
             allRealmData[0].filter(item => item.role === roleHierarchyData.name),
             allRealmData[1].filter(item => item.role === roleHierarchyData.name)
@@ -335,9 +325,9 @@ function handleClick(event, d) {
         
        
     }
-    treemapClicked = true; // Set the flag to disable further clicks
-    backButton.innerHTML = `← ${d.data.name}`; // Show the back button with the name of the realm
-    backButton.style.display = "block"; // Show the back button
+    treemapClicked = true; 
+    backButton.innerHTML = `← ${d.data.name}`;
+    backButton.style.display = "block"; 
     
 }
 
@@ -526,7 +516,7 @@ function showPeople(selectedRole) {
     }
 }
 
-// Function to open the modal
+
 function openModal(imageSrc, personName, personRole, personLink, personRealm, personDate) {
     // Clear previous modal content
     d3.select("#modal").style("display", "flex");
@@ -552,19 +542,14 @@ function openModal(imageSrc, personName, personRole, personLink, personRealm, pe
         d3.select("#modal-role").text(personRole);
         d3.select("#modal-realm").text(personRealm);
         d3.select("#modal-decade").text(personDate);
-
-    // Optional: If you want the link to be shown as text, you can still add it
     d3.select("#modal-link")
         .html(`<a href="${personLink}" target="_blank">☞ More Info</a>`);
 }
 
-
-// Close the modal
 d3.select("#close-modal").on("click", function() {
     d3.select("#modal").style("display", "none");
 });
 
-// Close the modal when clicking outside the modal content
 d3.select("#modal").on("click", function(event) {
     if (event.target === this) {
         d3.select("#modal").style("display", "none");
@@ -572,36 +557,27 @@ d3.select("#modal").on("click", function(event) {
 });
 
 
-
-
 function transformDataToHierarchy(data) {
-    // Check if data already has a children property, returning it as is
     if (data.children) {
         return data;
     }
 
-    // Initialize the hierarchyData with a root name
     const hierarchyData = {
         name: "root",
         children: []
     };
 
-  
-
-    // Transform each role-count pair into the desired hierarchy structure
     Object.entries(data).forEach(([role, count]) => {
         const realmNode = {
             name: role,
             count: count,
-            roles: { [role]: count }, // Keep the role structure if necessary
-            children: [] // Initialize an empty children array if needed later
+            roles: { [role]: count }, 
+            children: [] 
         };
-
-        // Push the realmNode to the children of hierarchyData
         hierarchyData.children.push(realmNode);
     });
 
-    return hierarchyData; // Return the transformed hierarchy
+    return hierarchyData; 
 }
 
 function highlightSharedRealms(realmName) {
@@ -620,45 +596,32 @@ function resetHighlight() {
     .attr("fill", "black");
 }
 
-function isRealm(data)
-{
-   
-if(Object.keys(data.roles).length>2)
-    return true;
-else
-    return false;
-}
+
 
 function createTimeline(data) {
-    // Remove previous timeline if it exists
     d3.select("#timeline").select("svg").remove(); 
-
-    // Height for the timeline
     const margin = { top: 10, right: 100, bottom: 30, left: 100 };
-
-    // Set up the SVG for the timeline
     const svg = d3.select("#timeline")
         .append("svg")
         .attr("width", width- margin.right)
         .attr("height", height);
 
-    // Helper function to group by decades
+
     function getDecade(year) {
         return Math.floor(year / 10) * 10;
     }
 
-    // Extract all unique decades from the datasets
+
     let allDecades = new Set();
     
     data.forEach(dataset => {
         dataset.forEach(entry => {
-            allDecades.add(getDecade(+entry.year));  // Add the decade to the Set
+            allDecades.add(getDecade(+entry.year)); 
         });
     });
 
-    allDecades = Array.from(allDecades).sort();  // Convert to array and sort
+    allDecades = Array.from(allDecades).sort(); 
 
-    // Normalize the datasets by filling missing decades with count = 0
     const normalizedData = allDecades.map(decade => {
         let result = { decade: +decade };
         data.forEach((dataset, index) => {
@@ -668,27 +631,20 @@ function createTimeline(data) {
         return result;
     });
 
-    // Set up the x-scale to represent decades
     const x = d3.scaleBand()
-        .domain(allDecades)  // Use decades as x-axis labels
+        .domain(allDecades)  
         .range([margin.left, width - margin.right])
-        .padding(0.1);  // Add some padding between bars
+        .padding(0.1);  
 
-    // Set up the y-scale for the count values (stack height)
     const y = d3.scaleLinear()
         .domain([0, d3.max(normalizedData, d => d3.sum(Object.values(d).slice(1)))])  // Sum counts for y-axis
         .range([height - margin.bottom, margin.top]);
 
-    
-
-    // D3 stack generator for the normalized data
     const stack = d3.stack()
         .keys(d3.range(data.length).map(i => `dataset${i}`));  // Stack by `dataset0`, `dataset1`, etc.
 
-    // Stack the data based on decades
     const series = stack(normalizedData);
 
-        // Add the stacked bars to the timeline
         svg.selectAll(".layer")
             .data(series)
             .enter().append("g")
@@ -702,7 +658,6 @@ function createTimeline(data) {
             .attr("height", d => y(d[0]) - y(d[1]))  // Height based on the difference in stack levels
             .attr("width", x.bandwidth());  // Width of the bar
 
-        // Add x-axis to show decade labels
         svg.append("g")
             .attr("transform", `translate(0,${height - margin.bottom})`)
             .call(d3.axisBottom(x).tickFormat(d => d).tickSize(0))  // Format the x-axis with decade labels
@@ -713,7 +668,7 @@ function createTimeline(data) {
             .attr("text-anchor", "middle")
             .style("font-size", "12px")
             .text("Decade");
-        // Add y-axis to show counts
+        
         svg.append("g")
             .attr("transform", `translate(${margin.left},0)`)
             .call(d3.axisLeft(y).ticks(6))  // Limit the number of ticks to 6
@@ -725,13 +680,12 @@ function createTimeline(data) {
             .attr("x", -height / 2)
             .style("font-size", "12px")
             .text("Count");
-            // Create the tooltip element
+            
             const tooltip = d3.select("body").append("div")
                 .attr("id", "tooltip")
                 .attr("class", "tooltip")
                 .style("visibility", "hidden");
 
-            // Add event listeners to show and hide the tooltip
             svg.selectAll(".layer rect")
                 .on("mouseover", function(event, d) {
                     tooltip.style("visibility", "visible")
@@ -745,10 +699,8 @@ function createTimeline(data) {
                     tooltip.style("visibility", "hidden");
                 });
 }
-
 });
 
-// sticky button-container
 document.addEventListener("DOMContentLoaded", function() {
     const buttonContainer = document.getElementById("button-container");
     const stickyOffset = buttonContainer.offsetTop;
@@ -767,3 +719,86 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial check in case the page is already scrolled
     checkSticky();
 });
+
+
+function displayCount(data) {
+    // Check if this data item is a realm
+    console.log(isRealm(data))
+    
+    // Set up the container for display
+    const displayContainer = document.getElementById("display-info");
+    if (!displayContainer) {
+        console.error("Display container not found in the DOM.");
+        return;
+    }
+
+    if (isRealm(data)) {
+        // We are dealing with a realm, so display counts for the entire realm
+        const realmName = data.name;
+
+        // Fetch male and female data for realms
+        const maleData = allRealmData[1];
+        const femaleData = allRealmData[0];
+
+        let maleCount = 0;
+        let femaleCount = 0;
+
+        maleData.forEach(item => {
+            if (item.realm === realmName) {
+                maleCount++;
+            }
+        });
+
+        femaleData.forEach(item => {
+            if (item.realm === realmName) {
+                femaleCount++;
+            }
+        });
+
+        // Display realm name and counts
+        displayContainer.innerHTML = `
+            <h3>Realm: ${realmName}</h3>
+            <h4>Female Count: ${femaleCount}</h4>
+            <h4>Male Count: ${maleCount}</h4>
+        `;
+    } else {
+        console.log("In role")
+        console.log(roleData);
+        console.log(hierarchyData);
+
+        // Extract the role name
+        const roleName = data.name;
+      
+        // Initialize counts for male and female roles
+        let maleRoleCount = 0;
+        let femaleRoleCount = 0;
+
+        // Search for the role in female data within hierarchyData[0]
+        const femaleRole = hierarchyData[0].children.find(item => item.name === roleName);
+        if (femaleRole) {
+            femaleRoleCount = femaleRole.count;
+        }
+
+        // Search for the role in male data within hierarchyData[1]
+        const maleRole = hierarchyData[1].children.find(item => item.name === roleName);
+        if (maleRole) {
+            maleRoleCount = maleRole.count;
+        }
+
+        // Display role name and counts
+        displayContainer.innerHTML = `
+            <h3>Role: ${roleName}</h3>
+            <h4>Female Count: ${femaleRoleCount}</h4>
+            <h4>Male Count: ${maleRoleCount}</h4>
+        `;
+    }
+}
+function removeDisplay() {
+    const displayContainer = document.getElementById("display-info");
+    if (displayContainer) {
+        displayContainer.innerHTML = ""; // Clear the display content
+    } else {
+        console.error("Display container not found in the DOM.");
+    }
+}
+
