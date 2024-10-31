@@ -30,16 +30,21 @@ h2 {
 }
 
 h3 {
-    font-size: 1rem;
+    font-size: 20px;
     margin: 0;
 }
 
 h4 {
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 150;
     padding: 0;
     margin: 0;
     text-align: center;
+}
+h5 {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 0;
 }
 
 p {
@@ -156,6 +161,7 @@ a:hover {
     border: 0.1px solid #ffffff;
     background-color: #ffffff;
     border-radius: 5px;
+    
 }
 
 #timeline {
@@ -164,6 +170,8 @@ a:hover {
 
 .tooltip {
     position: absolute;
+    font-size: 16px;
+    font-weight: 200;
     visibility: hidden;
     background-color: white;
     border: 1px solid #ccc;
