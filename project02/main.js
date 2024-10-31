@@ -472,7 +472,7 @@ function showPeople(selectedRole) {
 
         peopleInRole.forEach(person => {
             // Check if the person name already exists in the thumbnailsDiv
-            if (!thumbnailsDiv.selectAll(".person-thumbnail").filter(function() { return d3.select(this).text() === person.name; }).empty()) {
+            if (!thumbnailsDiv.selectAll(".person-thumbnail").filter(function() { return d3.select(this).text() === person.thumbnail; }).empty()) {
                 return; // Skip appending if the person name already exists
             }
 
