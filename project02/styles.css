@@ -144,7 +144,8 @@ a:hover {
     gap: 80px;
 }
 #display-info {
-    display: flex;
+    
+    display: none; /* Hide initially, will be shown by showDisplay() */
     flex-direction: column; /* Stack text vertically */
     align-items: center; /* Center the content horizontally */
     justify-content: center; /* Center content vertically */
@@ -152,7 +153,7 @@ a:hover {
     text-align: center; /* Center-align text within the container */
     width: 15%; 
     padding: 10px;
-    border: 0.1px solid #000000;
+    border: 0.1px solid #ffffff;
     background-color: #ffffff;
     border-radius: 5px;
 }

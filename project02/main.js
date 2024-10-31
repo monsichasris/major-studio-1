@@ -202,7 +202,7 @@ const cell = svg.selectAll("g")
         .attr("stroke", "white")
         .style("cursor", "pointer")
         .on("mouseover", function(event, d) {
-           
+            showDisplay()
             displayCount(d.data)
             highlightSharedRealms(d.data.name); 
         })
@@ -232,7 +232,7 @@ const cell = svg.selectAll("g")
                         .filter(d => d.data.name === clickedName)
                         .attr("stroke", "white")
                         .attr("stroke-width", 10)
-                    
+                    showDisplay()
                     displayCount(d.data)
 
             handleClick(event, d);
@@ -757,9 +757,9 @@ function displayCount(data) {
 
         // Display realm name and counts
         displayContainer.innerHTML = `
-            <h3>Realm: ${realmName}</h3>
-            <h4>Female Count: ${femaleCount}</h4>
-            <h4>Male Count: ${maleCount}</h4>
+            <h3>${realmName}</h3>
+            <h4>Women: ${femaleCount}</h4>
+            <h4>Men: ${maleCount}</h4>
         `;
     } else {
         console.log("In role")
@@ -787,18 +787,28 @@ function displayCount(data) {
 
         // Display role name and counts
         displayContainer.innerHTML = `
-            <h3>Role: ${roleName}</h3>
-            <h4>Female Count: ${femaleRoleCount}</h4>
-            <h4>Male Count: ${maleRoleCount}</h4>
+            <h3>${roleName}</h3>
+            <h4>Women:  ${femaleRoleCount}</h4>
+            <h4>Men:  ${maleRoleCount}</h4>
         `;
     }
 }
 function removeDisplay() {
     const displayContainer = document.getElementById("display-info");
     if (displayContainer) {
+        displayContainer.style.display = "none"; // Hide the display container
         displayContainer.innerHTML = ""; // Clear the display content
     } else {
         console.error("Display container not found in the DOM.");
     }
 }
+
+// Call this function when you need to show the display-info container
+function showDisplay() {
+    const displayContainer = document.getElementById("display-info");
+    if (displayContainer) {
+        displayContainer.style.display = "flex"; // Make it visible again
+    }
+}
+
 
