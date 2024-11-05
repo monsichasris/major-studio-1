@@ -12,7 +12,7 @@ d3.json('africa.geo.json')
     }
     // https://www.mapbox.com/mapbox-gl-js/api/#accesstoken
     // TODO: add personal mapbox access token
-    mapboxgl.accessToken = 'pk.yourAccessToken'
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic3Jpc20xNjEiLCJhIjoiY20zNHF3NWJrMDJmejJqcHZrNHVoYnJiMSJ9.L6X4RgrJIpwAe6zF6at7Sw'
 
     // https://www.mapbox.com/mapbox-gl-js/api/#map
     let map = new mapboxgl.Map({
@@ -28,6 +28,7 @@ d3.json('africa.geo.json')
     //add svg
     let svg = d3.select(container).append('svg')
 
+    // synce map box and d3
     function projectPoint (lon, lat) {
         let point = map.project(new mapboxgl.LngLat(lon, lat))
         this.stream.point(point.x, point.y)

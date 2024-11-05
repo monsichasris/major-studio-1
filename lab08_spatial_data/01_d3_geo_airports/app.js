@@ -15,7 +15,7 @@ function height(projection, outline) {
 
 /*** our draw function ***/
 function drawMap(world, data) {
-  const land = topojson.feature(world, world.objects.land);
+  const land = topojson.feature(world, world.objects.land); //topojson.feature converts the world object into a geojson object
   const graticule = d3.geoGraticule10();
   const outline = { type: "Sphere" };
   const projection = d3.geoNaturalEarth1();
@@ -25,7 +25,7 @@ function drawMap(world, data) {
     .append("svg")
     .attr("viewBox", [0, 0, width, height(projection, outline)]);
 
-  const defs = svg.append("defs");
+  const defs = svg.append("defs"); //defination of svg elements
 
   defs.append("path")
       .attr("id", "outline")
@@ -63,7 +63,7 @@ function drawMap(world, data) {
     .join("circle")
     .attr("transform", d => `translate(${projection([d.longitude, d.latitude])})`)
     .attr("r", 1.5)
-    .append("title")
+    .append("title") //tooltip
     .text(d => d.name);
 }
 

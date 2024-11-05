@@ -1,13 +1,13 @@
 //   Register to get your Mapbox access token https://docs.mapbox.com/help/glossary/access-token/
 //   Code from https://docs.mapbox.com/help/tutorials/custom-markers-gl-js/ 
 
-mapboxgl.accessToken = 'pk.yourTokenHere'; // replace with your own access token
+mapboxgl.accessToken = 'pk.eyJ1Ijoic3Jpc20xNjEiLCJhIjoiY20zNHF3NWJrMDJmejJqcHZrNHVoYnJiMSJ9.L6X4RgrJIpwAe6zF6at7Sw'; // replace with your own access token
 
 var map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/light-v10',
-  center: [-96, 37.8],
-  zoom: 1
+  center: [-73.99089863594902, 40.7358447752252], // lat, long switch position (Union Square, NY)
+  zoom: 15
 });
 
 /*** load data ***/
