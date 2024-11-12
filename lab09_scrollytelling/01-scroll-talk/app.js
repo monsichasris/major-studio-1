@@ -17,6 +17,7 @@ d3.json("./jabberwocky.json").then(data => {
 
   // https://vallandingham.me/scroller.html#detecting-the-active-section
   function position() {
+    // update every pixel when scrolling
     var pos = window.scrollY - 10;
     var sectionIndex = d3.bisect(sectionPositions, pos);
     sectionIndex = Math.min(section.size() - 1, sectionIndex);
