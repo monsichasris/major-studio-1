@@ -8,9 +8,9 @@ const apiKey = "OBP6w8aw6IMti0Ip1efxd3z10OzeDyxqXVcRSCOK";
 const searchBaseURL = "https://api.si.edu/openaccess/api/v1.0/search";
 
 // constructing the initial search query
-// const search = `unit_code:"CHNDM" AND online_visual_material:true AND object_type:"Greeting cards"`;
-const search = `data_source:"Cooper Hewitt, Smithsonian Design Museum" AND online_visual_material:true AND object_type:"Greeting cards"`;
-//https://collections.si.edu/search/results.htm?q=&fq=online_visual_material%3Atrue&fq=data_source%3A"Cooper+Hewitt%2C+Smithsonian+Design+Museum"&fq=object_type%3A"Greeting+cards"
+// const search = `data_source:"Cooper Hewitt, Smithsonian Design Museum" AND online_media_type: "Images" AND objectType:"Greeting card"`;
+const search = `unit_code:"CHNDM" AND online_media_type:"Images" AND object_type:"Greeting cards"`;
+// const search = `unit_code:"CHNDM" AND online_visual_material:true AND content:"Greeting card"`;
 
 // array ole.log(data)that we will write into
 let myArray = [];
