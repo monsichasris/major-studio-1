@@ -77,20 +77,19 @@ function groupOccasionColor() {
       // Display the occasion name
       occasionContainer.append('h2').text(key);
 
-      // Display the number of cards in each occasion
-      occasionContainer.append('text').text('Number of cards: ' + value.length);
-
       // Display color of cards in each occasion in row
       const grid = occasionContainer.append('div').attr('class', 'row');
       value.forEach((card, index) => {
-          Vibrant.from(card.img_preview).getPalette(function(err, palette) {
-            const div = grid.append('div').attr('class', 'swatch');
-            div.style.backgroundColor = palette.Vibrant.getHex();
-            
+          const imgPath = `assets/download_cards/cardImgDownload${card.id}.jpg`;
+          Vibrant.from(imgPath).getPalette(function(err, palette) {
+        const div = grid.append('div').attr('class', 'swatch');
+        div.style.backgroundColor = palette.Vibrant.getHex();
           });
       });
   });
 }
+
+
 
 // Sample of vibrant
 // Vibrant.from('images/VanGogh-OliveTrees.jpg').getPalette(function(err, palette) {
