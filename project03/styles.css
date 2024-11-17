@@ -49,7 +49,7 @@ h1 {
 article {
     position: relative;
     padding: 0;
-    max-width: 20rem;
+    max-width: 50%;
     margin: 0 auto;
 }
 
@@ -76,8 +76,16 @@ figure p {
     font-size: 8rem;
 }
 
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+}
+
 .step p {
     text-align: center;
+    padding: 1rem;
+    background-color: #F9F3EE;
     padding: 1rem;
 }
 
