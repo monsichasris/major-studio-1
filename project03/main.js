@@ -5,6 +5,7 @@ d3.json('data/greeting-cards.json').then(data => {
     previewImg();
     groupOccasion();
     groupOccasionColor();
+    groupOccasionElement()
   });
 
 // Display all images preview grid on screen
@@ -38,15 +39,15 @@ function previewImg() {
 // Group data by occasion
 function groupOccasion() {
   const occasions = d3.group(cards, d => d.occasion);
-  console.log(occasions);
+  // console.log(occasions);
   occasions.forEach((value, key) => {
-      console.log(key, value);
+      // console.log(key, value);
 
       // Create a div for each occasion
       const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
       
       // Display the occasion name
-      occasionContainer.append('h2').text(key);
+      occasionContainer.append('h3').text(key);
 
 
       // Display the number of cards in each occasion
@@ -75,52 +76,75 @@ function groupOccasionColor() {
     const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
     
     // Display the occasion name
-    occasionContainer.append('h2').text(key);
+    occasionContainer.append('h3').text(key);
 
     // Display color of cards in each occasion in row
     const grid = occasionContainer.append('div').attr('class', 'row');
-    value.forEach((card, index) => {
+
+    // Extract colors and sort by hue
+    const colorPromises = value.map(card => {
       const imgPath = `assets/download_cards/cardImgDownload/${card.id}.jpg`;
-      Vibrant.from(imgPath).getPalette(function(err, palette) {
-        if (err) {
-          console.error('Error extracting palette:', err);
-          return;
-        }
-        if (palette && palette.Vibrant) {
-          const swatchContainer = grid.append('div').attr('class', 'swatch-container');
-          const div = swatchContainer.append('div').attr('class', 'swatch');
-          div.style('background-color', palette.Vibrant.getHex());
-          swatchContainer.append('img')
-            .attr('src', card.img_preview)
-            .attr('width', 8)
-            .attr('height', 16);
-        } else {
-          console.warn('Vibrant swatch not found for image:', imgPath);
-          // Provide a fallback color
-          const swatchContainer = grid.append('div').attr('class', 'swatch-container');
-          const div = swatchContainer.append('div').attr('class', 'swatch');
-          div.style('background-color', '#cccccc'); // Fallback color
-          swatchContainer.append('img')
-            .attr('src', card.img_preview)
-            .attr('width', 8)
-            .attr('height', 16);
-        }
+      return Vibrant.from(imgPath).getPalette().then(palette => {
+      let swatchColor = null;
+      if (palette && palette.Vibrant) {
+        swatchColor = palette.Vibrant.getHex();
+      } else if (palette && palette.DarkVibrant) {
+        swatchColor = palette.DarkVibrant.getHex();
+      } else if (palette && palette.LightVibrant) {
+        swatchColor = palette.LightVibrant.getHex();
+      } else if (palette && palette.LightMuted) {
+        swatchColor = palette.LightMuted.getHex();
+      } else if (palette && palette.DarkMuted) {
+        swatchColor = palette.DarkMuted.getHex();
+      }
+      return { card, swatchColor };
+      });
+    });
+
+    Promise.all(colorPromises).then(results => {
+      results.sort((a, b) => {
+      const colorA = d3.hsl(a.swatchColor);
+      const colorB = d3.hsl(b.swatchColor);
+      return colorA.h - colorB.h;
+      });
+
+      results.forEach(({ card, swatchColor }) => {
+      const swatchContainer = grid.append('div').attr('class', 'swatch-container');
+      const div = swatchContainer.append('div').attr('class', 'swatch');
+      div.style('background-color', swatchColor);
+      swatchContainer.append('img')
+        .attr('src', card.img_preview)
+        .attr('width', 8)
+        .attr('height', 16);
       });
     });
   });
 }
 
+function groupOccasionElement() {
+  const occasions = d3.group(
+    cards,
+    d => d.occasion,
+    d => d.elements[0]
+  );
+  console.log(occasions);
+  occasions.forEach((value, key) => {
+    const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
+    occasionContainer.append('h3').text(key);
+    occasionContainer.append('text').text('Number of cards: ' + value.length);
 
+    const occasionRow = occasionContainer.append('div').attr('class', 'row');
+    value.forEach((elementValue, elementKey) => {
+    const elementContainer = occasionRow.append('div').attr('class', 'element');
+    elementContainer.append('text').text(elementKey);
 
-// Sample of vibrant
-// Vibrant.from('images/VanGogh-OliveTrees.jpg').getPalette(function(err, palette) {
-//   for (let swatch in palette) {
-//     console.log(swatch, palette[swatch].getHex());
-    
-//     const div = document.createElement("div");
-//     div.className = 'swatch';
-//     div.style.backgroundColor = palette[swatch].getHex();
-//     let element = document.getElementById("palette_container");
-//     element.appendChild(div);
-//   }
-// });
+    const elementGrid = elementContainer.append('div').attr('class', 'row');
+    elementValue.forEach((card, index) => {
+      const img = elementGrid.append('img')
+        .attr('src', card.img_preview)
+        .attr('width', 8)
+        .attr('height', 48);
+      });
+    });
+  });
+}
