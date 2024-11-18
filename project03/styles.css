@@ -109,6 +109,13 @@ figure {
 }
 
 
+.swatch {
+    width: 8px;
+    max-width: 40px;
+    height: 48px;
+}
+
+
 footer {
     position: relative;
     display: flex;

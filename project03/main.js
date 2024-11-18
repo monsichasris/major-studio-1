@@ -66,26 +66,47 @@ function groupOccasion() {
   );
 }
 
-// Group data by occasion but show color form vibrant.js instead of images
+// Group data by occasion but show color from vibrant.js instead of images
 function groupOccasionColor() {
   const occasions = d3.group(cards, d => d.occasion);
   occasions.forEach((value, key) => {
 
-      // Create a div for each occasion
-      const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
-      
-      // Display the occasion name
-      occasionContainer.append('h2').text(key);
+    // Create a div for each occasion
+    const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
+    
+    // Display the occasion name
+    occasionContainer.append('h2').text(key);
 
-      // Display color of cards in each occasion in row
-      const grid = occasionContainer.append('div').attr('class', 'row');
-      value.forEach((card, index) => {
-          const imgPath = `assets/download_cards/cardImgDownload${card.id}.jpg`;
-          Vibrant.from(imgPath).getPalette(function(err, palette) {
-        const div = grid.append('div').attr('class', 'swatch');
-        div.style.backgroundColor = palette.Vibrant.getHex();
-          });
+    // Display color of cards in each occasion in row
+    const grid = occasionContainer.append('div').attr('class', 'row');
+    value.forEach((card, index) => {
+      const imgPath = `assets/download_cards/cardImgDownload/${card.id}.jpg`;
+      Vibrant.from(imgPath).getPalette(function(err, palette) {
+        if (err) {
+          console.error('Error extracting palette:', err);
+          return;
+        }
+        if (palette && palette.Vibrant) {
+          const swatchContainer = grid.append('div').attr('class', 'swatch-container');
+          const div = swatchContainer.append('div').attr('class', 'swatch');
+          div.style('background-color', palette.Vibrant.getHex());
+          swatchContainer.append('img')
+            .attr('src', card.img_preview)
+            .attr('width', 8)
+            .attr('height', 16);
+        } else {
+          console.warn('Vibrant swatch not found for image:', imgPath);
+          // Provide a fallback color
+          const swatchContainer = grid.append('div').attr('class', 'swatch-container');
+          const div = swatchContainer.append('div').attr('class', 'swatch');
+          div.style('background-color', '#cccccc'); // Fallback color
+          swatchContainer.append('img')
+            .attr('src', card.img_preview)
+            .attr('width', 8)
+            .attr('height', 16);
+        }
       });
+    });
   });
 }
 
