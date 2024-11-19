@@ -1,0 +1,96 @@
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="importmap">
+      {
+        "imports": {
+          "@material/web/": "https://esm.run/@material/web/"
+        }
+      }
+    </script>
+    <script type="module">
+        import '@material/web/all.js';
+        import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
+
+        document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+
+        // log checkbox state
+        document.querySelector('md-checkbox').addEventListener('change', () => {
+            console.log('Checkbox checked:', document.querySelector('md-checkbox').checked);
+        });
+
+        // log radio button state
+        document.querySelectorAll('md-radio').forEach(radio => {
+            radio.addEventListener('change', () => {
+                console.log('Radio checked:', radio.checked);
+            });
+        });
+
+        // log text field value
+        document.querySelector('md-outlined-text-field').addEventListener('change', () => {
+            console.log('Text field value:', document.querySelector('md-outlined-text-field').value);
+        });
+
+        // console log slider values
+        document.querySelectorAll('md-slider').forEach(slider => {
+                slider.addEventListener('change', () => {
+                console.log(slider.value);
+                console.log(slider.getAttribute('value-start'), slider.getAttribute('value-end'));
+            });
+        });
+
+        // log switch state
+        document.querySelector('md-switch').addEventListener('change', () => {
+            console.log('Switch checked:', document.querySelector('md-switch').checked);
+        });
+    </script>
+  </head>
+  <body>
+    <h1 class="md-typescale-display-medium">Hello Material!</h1>
+    <form>
+      <p class="md-typescale-body-medium">Basic form elements</p>
+      <md-checkbox></md-checkbox>
+      <div>
+        <md-radio name="group"></md-radio>
+        <md-radio name="group"></md-radio>
+        <md-radio name="group"></md-radio>
+      </div>
+      <md-outlined-text-field label="Favorite color" value="Purple"></md-outlined-text-field>
+      <md-outlined-button type="reset">Reset</md-outlined-button>
+      <p class="md-typescale-body-medium">Slider element</p>
+      <div>  
+        <md-slider></md-slider>
+        <md-slider ticks value="50"></md-slider>
+        <md-slider range value-start="25" value-end="75"></md-slider>
+      </div>
+      <div>
+        <p class="md-typescale-body-medium">Switch element</p>
+        <md-switch aria-label="Lights"></md-switch>
+      </div>
+    </form>
+    <div>
+        <a href="https://github.com/material-components/material-web/tree/main/docs/components">
+            <md-text-button trailing-icon>
+                Component documentation
+                <svg slot="icon" viewBox="0 0 48 48"><path d="M9 42q-1.2 0-2.1-.9Q6 40.2 6 39V9q0-1.2.9-2.1Q7.8 6 9 6h13.95v3H9v30h30V25.05h3V39q0 1.2-.9 2.1-.9.9-2.1.9Zm10.1-10.95L17 28.9 36.9 9H25.95V6H42v16.05h-3v-10.9Z"/></svg>
+            </md-text-button>
+        </a>
+    </div>
+  
+    <style>
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    /* Customizing Material Design Web Components */
+    /* :root {
+        --md-ref-typeface-brand: 'Roboto';
+        --md-ref-typeface-plain: 'Open Sans';
+    }
+    :root {
+        --md-sys-color-primary: forestgreen;
+        --md-sys-color-secondary: darkgreen;
+    } */
+    </style>
+  </body>
