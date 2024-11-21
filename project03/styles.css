@@ -64,10 +64,6 @@ img{
     position: relative;
 }
 
-#chart {
-    padding: 40px;
-}
-
 #result {
     display: flex;
     flex-direction: column;
@@ -89,11 +85,11 @@ figure {
     height: 100vh;
     top: 0;
     margin: 0;
-    /* -webkit-transform: translate3d(0, 0, 0);
-    -moz-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0); */
-    background-color: #F9F3EE;
-    z-index: 0;
+    overflow: hidden;
+}
+
+#chart-container{
+    padding: 80px;
 }
 
 .grid {

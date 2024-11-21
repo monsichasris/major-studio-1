@@ -36,10 +36,10 @@ function setupScrollama() {
   // Generic window resize listener event
   function handleResize() {
     // update height of step elements
-    const stepH = Math.floor(window.innerHeight * 0.75);
+    const stepH = Math.floor(window.innerHeight);
     d3.selectAll(".step").style("height", stepH + "px");
 
-    const figureHeight = window.innerHeight / 2;
+    const figureHeight = window.innerHeight;
 
     d3.select("figure")
       .style("height", figureHeight + "px")
@@ -171,14 +171,15 @@ const debouncedOnRadioChange = debounce(onRadioChange, 300);
 // this function sets up everything we can before data loads
 function initializeLayout() {
 
-  const chartSection = d3.select('#chart');
+  const chartSection = d3.select('figure');
   const chart = chartSection.append('div').attr('id', 'chart-container');
   
 }
 
 // Display all images preview grid on screen
 function previewImg() {
-  const grid = d3.select('#chart-container').append('div').attr('class', 'grid');
+
+  const grid = d3.select('#chart-container').style('padding', '0').append('div').attr('class', 'grid');
 
   // Shuffle the cards array to display images in random order
   const shuffledCards = d3.shuffle(state.data);
@@ -201,7 +202,6 @@ function previewImg() {
           img.style('opacity', 1);
       }, delay);
   });
-
 }
 
 function sortOccasions(occasions) {
@@ -218,7 +218,7 @@ function groupOccasion() {
   const sortedOccasions = sortOccasions(occasions);
 
   sortedOccasions.forEach(([key, value]) => {
-    const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
+    const occasionContainer = d3.select('#chart-container').style('padding','40px').append('div').attr('class', 'occasion');
     occasionContainer.append('h3').text(key);
     occasionContainer.append('text').text('Number of cards: ' + value.length);
     const grid = occasionContainer.append('div').attr('class', 'row');
