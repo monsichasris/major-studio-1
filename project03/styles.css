@@ -26,6 +26,7 @@ h1{
 
 h2 {
     font-size: 6rem;
+    margin: 0;
 }
 
 h3{
@@ -148,6 +149,9 @@ button:hover {
     color: #F9F3EE;
 }
 
+#envelope {
+    padding-top: 80px;
+}
 
 footer {
     position: relative;
