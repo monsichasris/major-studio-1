@@ -21,6 +21,9 @@ async function dataLoad() {
 
     // Call the initial grouping function based on the selected value
     onRadioChange({ target: { value: state.groupBy.selected } });
+
+    // Set up the scrollama
+    setupScrollama();
   }
 
 // whenever state changes, update the state variable, then redraw the viz
@@ -28,6 +31,86 @@ function setState(nextState) {
   // using Object.assign keeps the state *immutable*
   state = Object.assign({}, state, nextState);
 }
+
+// Function to set up scrollama
+function setupScrollama() {
+  // Initialize the scrollama
+  const scroller = scrollama();
+
+  // Generic window resize listener event
+  function handleResize() {
+    // 1. update height of step elements
+    const stepH = Math.floor(window.innerHeight * 0.75);
+    d3.selectAll(".step").style("height", stepH + "px");
+
+    const figureHeight = window.innerHeight / 2;
+    const figureMarginTop = (window.innerHeight - figureHeight) / 2;
+
+    d3.select("figure")
+      .style("height", figureHeight + "px")
+      .style("top", figureMarginTop + "px");
+
+    // 3. tell scrollama to update new element dimensions
+    scroller.resize();
+  }
+
+  // Scrollama event handlers
+  function handleStepEnter(response) {
+    console.log(response);
+    // response = { element, direction, index }
+
+    // Get the step data attribute
+    const step = response.element.getAttribute("data-step");
+    // const selectedValue = response.target.value;
+    // state.groupBy.selected = selectedValue;
+  
+    // Clear the existing chart content
+    d3.select('#chart-container').selectAll('*').remove();
+
+    // Call the appropriate function based on the step
+    if (step === "1") {
+      state.groupBy.selected = "preview";
+      previewImg();
+    } else if (step === "2") {
+      state.groupBy.selected = "occasion";
+      groupOccasion();
+    } else if (step === "3") {
+      state.groupBy.selected = "elements";
+      groupOccasionElement();
+    } else if (step === "4") {
+      state.groupBy.selected = "colors";
+      groupOccasionColor();
+    } else if (step === "5") {
+      state.groupBy.selected = "all";
+      groupAll();
+    }
+
+    // // Add color to current step only
+    // d3.selectAll(".step").classed("is-active", function (d, i) {
+    //   return i === response.index;
+    // });
+
+    // Update graphic based on step
+    // d3.select("#chart").select("#chart-container").text(`Step ${response.index + 1}`);
+  }
+
+  // 1. force a resize on load to ensure proper dimensions are sent to scrollama
+  handleResize();
+
+  // 2. setup the scroller passing options this will also initialize trigger observations
+  // 3. bind scrollama event handlers (this can be chained like below)
+  scroller
+    .setup({
+      step: "#scrolly article .step",
+      offset: 0.33,
+      debug: false
+    })
+    .onStepEnter(handleStepEnter);
+
+  // Setup resize event
+  window.addEventListener("resize", handleResize);
+}
+	
 
 async function extractAndSortColors(cards) {
   const imgPaths = cards.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
