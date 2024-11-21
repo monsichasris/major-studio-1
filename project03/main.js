@@ -7,7 +7,7 @@ let state = {
 }
 
 async function dataLoad() {
-    // we can set up our layout before we have data
+    // set up layout
     initializeLayout();
     const data = await d3.json("data/greeting-cards.json");
     
@@ -19,9 +19,6 @@ async function dataLoad() {
       })),
     });
 
-    // Call the initial grouping function based on the selected value
-    onRadioChange({ target: { value: state.groupBy.selected } });
-
     // Set up the scrollama
     setupScrollama();
   }
@@ -32,37 +29,31 @@ function setState(nextState) {
   state = Object.assign({}, state, nextState);
 }
 
-// Function to set up scrollama
 function setupScrollama() {
   // Initialize the scrollama
   const scroller = scrollama();
 
   // Generic window resize listener event
   function handleResize() {
-    // 1. update height of step elements
+    // update height of step elements
     const stepH = Math.floor(window.innerHeight * 0.75);
     d3.selectAll(".step").style("height", stepH + "px");
 
     const figureHeight = window.innerHeight / 2;
-    const figureMarginTop = (window.innerHeight - figureHeight) / 2;
 
     d3.select("figure")
       .style("height", figureHeight + "px")
-      .style("top", figureMarginTop + "px");
 
-    // 3. tell scrollama to update new element dimensions
+    // tell scrollama to update new element dimensions
     scroller.resize();
   }
 
   // Scrollama event handlers
   function handleStepEnter(response) {
     console.log(response);
-    // response = { element, direction, index }
 
     // Get the step data attribute
     const step = response.element.getAttribute("data-step");
-    // const selectedValue = response.target.value;
-    // state.groupBy.selected = selectedValue;
   
     // Clear the existing chart content
     d3.select('#chart-container').selectAll('*').remove();
@@ -96,7 +87,6 @@ function setupScrollama() {
 
   // 1. force a resize on load to ensure proper dimensions are sent to scrollama
   handleResize();
-
   // 2. setup the scroller passing options this will also initialize trigger observations
   // 3. bind scrollama event handlers (this can be chained like below)
   scroller
@@ -182,32 +172,8 @@ const debouncedOnRadioChange = debounce(onRadioChange, 300);
 function initializeLayout() {
 
   const chartSection = d3.select('#chart');
-  const rightMenu = chartSection.append('div').attr('class', 'right-menu').style('position', 'relative');
   const chart = chartSection.append('div').attr('id', 'chart-container');
   
-  // Add radio buttons to the right menu
-  const form = document.createElement('form');
-  form.innerHTML = state.groupBy.menu
-    .map(
-      d =>
-        `<input type="radio" name="groupby" value="${d}" ${
-          state.groupBy.selected === d ? "checked" : ""
-        }>${d}<br>`
-    )
-    .join("");
-  form.addEventListener("change", debouncedOnRadioChange);
-  rightMenu.node().appendChild(form);
-
-  // Add a legend to the right menu
-  const legend = document.createElement('div');
-  legend.className = 'legend';
-  rightMenu.node().appendChild(legend);
-
-  // Set up initial styles
-  chart.style.flex = '1';
-  rightMenu.style.width = '200px';
-  rightMenu.style.padding = '1em';
-  rightMenu.style.backgroundColor = '#f1f1f1';
 }
 
 // Display all images preview grid on screen
@@ -238,30 +204,41 @@ function previewImg() {
 
 }
 
-// Group data by occasion
-function groupOccasion() {
-  const occasions = d3.group(state.data, d => d.occasion);
-  occasions.forEach((value, key) => {
-      const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
-      occasionContainer.append('h3').text(key);
-      occasionContainer.append('text').text('Number of cards: ' + value.length);
-      const grid = occasionContainer.append('div').attr('class', 'row');
-      value.forEach((card, index) => {
-          grid.append('img')
-              .attr('src', card.img_preview)
-              .attr('width', 5)
-              .attr('height', 48);
-      });
+function sortOccasions(occasions) {
+  return Array.from(occasions).sort((a, b) => {
+    if (a[0] === "Other") return 1;
+    if (b[0] === "Other") return -1;
+    return b[1].length - a[1].length;
   });
 }
 
-// Example groupOccasionElement function
+// Group data by occasion
+function groupOccasion() {
+  const occasions = d3.group(state.data, d => d.occasion);
+  const sortedOccasions = sortOccasions(occasions);
+
+  sortedOccasions.forEach(([key, value]) => {
+    const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
+    occasionContainer.append('h3').text(key);
+    occasionContainer.append('text').text('Number of cards: ' + value.length);
+    const grid = occasionContainer.append('div').attr('class', 'row');
+    value.forEach((card, index) => {
+      grid.append('img')
+        .attr('src', card.img_preview)
+        .attr('width', 5)
+        .attr('height', 48);
+    });
+  });
+}
+
+// Group data by occasion and elements
 function groupOccasionElement() {
   const occasions = d3.group(state.data, d => d.occasion);
-  occasions.forEach((value, key) => {
+  const sortedOccasions = sortOccasions(occasions);
+
+  sortedOccasions.forEach(([key, value]) => {
     const elements = value.map(card => card.elements).flat();
     const uniqueElements = [...new Set(elements)];
-    console.log(uniqueElements);
     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
     occasionContainer.append('h3').text(key);
     const grid = occasionContainer.append('div').attr('class', 'row');
@@ -285,7 +262,9 @@ function groupOccasionElement() {
 // Group data by occasion but show color from vibrant.js instead of images
 async function groupOccasionColor() {
   const occasions = d3.group(state.data, d => d.occasion);
-  for (const [key, value] of occasions) {
+  const sortedOccasions = sortOccasions(occasions);
+
+  for (const [key, value] of sortedOccasions) {
     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
     occasionContainer.append('h3').text(key);
     const grid = occasionContainer.append('div').attr('class', 'row');
@@ -300,7 +279,9 @@ async function groupOccasionColor() {
 // Group all data by occasion and elements
 async function groupAll() {
   const occasions = d3.group(state.data, d => d.occasion);
-  for (const [key, value] of occasions) {
+  const sortedOccasions = sortOccasions(occasions);
+
+  for (const [key, value] of sortedOccasions) {
     const elements = value.map(card => card.elements).flat();
     const uniqueElements = [...new Set(elements)];
     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
