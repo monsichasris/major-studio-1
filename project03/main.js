@@ -1,18 +1,10 @@
 let state = {
   data: [],
   groupBy: {
-    menu: ["preview", "occasion", "colors", "elements"],
+    menu: ["preview", "occasion", "colors", "elements", "all"],
     selected: "preview",
   }
 }
-
-// // load the data
-// d3.json('data/greeting-cards.json').then(data => { 
-//     cards = data;
-//     console.log(cards);
-//     previewImg();
-//   });
-
 
 async function dataLoad() {
     // we can set up our layout before we have data
@@ -53,6 +45,8 @@ function onRadioChange(event) {
       groupOccasionElement();
   } else if (selectedValue === 'preview') {
       previewImg();
+  } else if (selectedValue === 'all') {
+      groupAll();
   }
 }
 
@@ -140,52 +134,41 @@ function groupOccasionColor() {
       const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
       occasionContainer.append('h3').text(key);
       const grid = occasionContainer.append('div').attr('class', 'row');
-      value.forEach((card, index) => {
-          const imgPath = `assets/download_cards/cardImgDownload/${card.id}.jpg`;
-          Vibrant.from(imgPath).getPalette(function(err, palette) {
-              if (err) {
-                  console.error('Error extracting palette:', err);
-                  return;
-              }
+      const imgPaths = value.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
+      const colorPromises = imgPaths.map(imgPath => Vibrant
+        .from(imgPath)
+        .getPalette()
+        .catch(err => {
+          console.error('Error extracting palette:', err);
+          return null;
+      }));
+
+      Promise.all(colorPromises).then(palettes => {
+          const results = palettes.map((palette, index) => {
+              const card = value[index];
               if (palette && palette.Vibrant) {
-                  const div = grid.append('div').attr('class', 'swatch');
-                  div.style('background-color', palette.Vibrant.getHex());
+                  return { color: d3.hsl(palette.Vibrant.getHex()), card };
+              } else if (palette && palette.DarkVibrant) {
+                  return { color: d3.hsl(palette.DarkVibrant.getHex()), card };
+              } else if (palette && palette.LightVibrant) {
+                  return { color: d3.hsl(palette.LightVibrant.getHex()), card };
+              } else if (palette && palette.DarkMuted) {
+                  return { color: d3.hsl(palette.DarkMuted.getHex()), card };
+              } else if (palette && palette.LightMuted) {
+                  return { color: d3.hsl(palette.LightMuted.getHex()), card };
               } else {
-                  console.warn('Vibrant swatch not found for image:', imgPath);
-                  const div = grid.append('div').attr('class', 'swatch');
-                  div.style('background-color', '#cccccc'); // Fallback color
+                  return { color: d3.hsl('#cccccc'), card }; // Fallback color
               }
+          });
+
+          results.sort((a, b) => ((a.color.h + 300) % 360) - ((b.color.h + 300) % 360));
+          results.forEach(({ color }) => {
+              grid.append('div').attr('class', 'swatch').style('background-color', color.toString());
           });
       });
   });
 }
 
-// function groupOccasionElement() {
-//   const occasions = d3.group(
-//     cards,
-//     d => d.occasion,
-//     d => d.elements[0]
-//   );
-//   console.log(occasions);
-//   occasions.forEach((value, key) => {
-//     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
-//     occasionContainer.append('h3').text(key);
-
-//     const occasionRow = occasionContainer.append('div').attr('class', 'row');
-//     value.forEach((elementValue, elementKey) => {
-//     const elementContainer = occasionRow.append('div').attr('class', 'element');
-//     elementContainer.append('text').text(elementKey);
-
-//     const elementGrid = elementContainer.append('div').attr('class', 'row');
-//     elementValue.forEach((card, index) => {
-//       const img = elementGrid.append('img')
-//         .attr('src', card.img_preview)
-//         .attr('width', 5)
-//         .attr('height', 48);
-//       });
-//     });
-//   });
-// }
 
 // Example groupOccasionElement function
 function groupOccasionElement() {
@@ -214,22 +197,58 @@ function groupOccasionElement() {
   });
 }
 
+function groupAll() {
+  const occasions = d3.group(state.data, d => d.occasion);
+  occasions.forEach((value, key) => {
+    const elements = value.map(card => card.elements).flat();
+    const uniqueElements = [...new Set(elements)];
+    const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
+    occasionContainer.append('h3').text(key);
+    const grid = occasionContainer.append('div').attr('class', 'row');
 
-// function groupOccasionElement() {
-//   const occasions = d3.group(state.data, d => d.occasion);
-//   occasions.forEach((value, key) => {
-//       const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
-//       occasionContainer.append('h2').text(key);
-//       const grid = occasionContainer.append('div').attr('class', 'row');
-//       value.forEach((card, index) => {
-//           grid.append('div')
-//               .attr('class', 'element')
-//               .text(card.elements.join(', '));
-//       });
-//   });
-// }
+    uniqueElements.forEach(element => {
+      const elementContainer = grid.append('div').attr('class', 'element');
+      elementContainer.append('text').text(element);
+      const elementImgContainer = elementContainer.append('div').attr('class', 'row');
 
-// dataLoad();
+      const imgPaths = value.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
+      const colorPromises = imgPaths.map(imgPath => Vibrant
+        .from(imgPath)
+        .getPalette()
+        .catch(err => {
+          console.error('Error extracting palette:', err);
+          return null;
+        })
+      );
+
+      Promise.all(colorPromises).then(palettes => {
+        const results = palettes.map((palette, index) => {
+          const card = value[index];
+          if (palette && palette.Vibrant) {
+            return { color: d3.hsl(palette.Vibrant.getHex()), card };
+          } else if (palette && palette.DarkVibrant) {
+            return { color: d3.hsl(palette.DarkVibrant.getHex()), card };
+          } else if (palette && palette.LightVibrant) {
+            return { color: d3.hsl(palette.LightVibrant.getHex()), card };
+          } else if (palette && palette.DarkMuted) {
+            return { color: d3.hsl(palette.DarkMuted.getHex()), card };
+          } else {
+            return { color: d3.hsl('#cccccc'), card }; // Fallback color
+          }
+        });
+
+        // Sort colors by hue
+        results.sort((a, b) => ((a.color.h + 360) % 360) - ((b.color.h + 360) % 360));
+        results.forEach(({ color, card }) => {
+          if (card.elements.includes(element)) {
+            elementImgContainer.append('div').attr('class', 'swatch').style('background-color', color.toString());
+          }
+        });
+      });
+    });
+  });
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
   dataLoad();
