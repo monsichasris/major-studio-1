@@ -29,6 +29,40 @@ function setState(nextState) {
   state = Object.assign({}, state, nextState);
 }
 
+async function extractAndSortColors(cards) {
+  const imgPaths = cards.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
+  const colorPromises = imgPaths.map(imgPath => Vibrant
+    .from(imgPath)
+    .getPalette()
+    .catch(err => {
+      console.error('Error extracting palette:', err);
+      return null;
+    })
+  );
+
+  const palettes = await Promise.all(colorPromises);
+  const results = palettes.map((palette, index) => {
+    const card = cards[index];
+    if (palette && palette.Vibrant) {
+      return { color: d3.hsl(palette.Vibrant.getHex()), card };
+    } else if (palette && palette.DarkVibrant) {
+      return { color: d3.hsl(palette.DarkVibrant.getHex()), card };
+    } else if (palette && palette.LightVibrant) {
+      return { color: d3.hsl(palette.LightVibrant.getHex()), card };
+    } else if (palette && palette.DarkMuted) {
+      return { color: d3.hsl(palette.DarkMuted.getHex()), card };
+    } else if (palette && palette.LightMuted) {
+      return { color: d3.hsl(palette.LightMuted.getHex()), card };
+    } else {
+      return { color: d3.hsl('#cccccc'), card }; // Fallback color
+    }
+  });
+
+  // Sort colors by hue
+  results.sort((a, b) => ((a.color.h + 360) % 360) - ((b.color.h + 360) % 360));
+  return results;
+}
+
 function onRadioChange(event) {
   const selectedValue = event.target.value;
   state.groupBy.selected = selectedValue;
@@ -50,6 +84,17 @@ function onRadioChange(event) {
   }
 }
 
+//ensures that the function is not called too frequently
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+const debouncedOnRadioChange = debounce(onRadioChange, 300);
+
 // this function sets up everything we can before data loads
 function initializeLayout() {
 
@@ -67,7 +112,7 @@ function initializeLayout() {
         }>${d}<br>`
     )
     .join("");
-  form.addEventListener("change", onRadioChange);
+  form.addEventListener("change", debouncedOnRadioChange);
   rightMenu.node().appendChild(form);
 
   // Add a legend to the right menu
@@ -127,49 +172,6 @@ function groupOccasion() {
   });
 }
 
-// Group data by occasion but show color from vibrant.js instead of images
-function groupOccasionColor() {
-  const occasions = d3.group(state.data, d => d.occasion);
-  occasions.forEach((value, key) => {
-      const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
-      occasionContainer.append('h3').text(key);
-      const grid = occasionContainer.append('div').attr('class', 'row');
-      const imgPaths = value.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
-      const colorPromises = imgPaths.map(imgPath => Vibrant
-        .from(imgPath)
-        .getPalette()
-        .catch(err => {
-          console.error('Error extracting palette:', err);
-          return null;
-      }));
-
-      Promise.all(colorPromises).then(palettes => {
-          const results = palettes.map((palette, index) => {
-              const card = value[index];
-              if (palette && palette.Vibrant) {
-                  return { color: d3.hsl(palette.Vibrant.getHex()), card };
-              } else if (palette && palette.DarkVibrant) {
-                  return { color: d3.hsl(palette.DarkVibrant.getHex()), card };
-              } else if (palette && palette.LightVibrant) {
-                  return { color: d3.hsl(palette.LightVibrant.getHex()), card };
-              } else if (palette && palette.DarkMuted) {
-                  return { color: d3.hsl(palette.DarkMuted.getHex()), card };
-              } else if (palette && palette.LightMuted) {
-                  return { color: d3.hsl(palette.LightMuted.getHex()), card };
-              } else {
-                  return { color: d3.hsl('#cccccc'), card }; // Fallback color
-              }
-          });
-
-          results.sort((a, b) => ((a.color.h + 300) % 360) - ((b.color.h + 300) % 360));
-          results.forEach(({ color }) => {
-              grid.append('div').attr('class', 'swatch').style('background-color', color.toString());
-          });
-      });
-  });
-}
-
-
 // Example groupOccasionElement function
 function groupOccasionElement() {
   const occasions = d3.group(state.data, d => d.occasion);
@@ -197,58 +199,44 @@ function groupOccasionElement() {
   });
 }
 
-function groupAll() {
+// Group data by occasion but show color from vibrant.js instead of images
+async function groupOccasionColor() {
   const occasions = d3.group(state.data, d => d.occasion);
-  occasions.forEach((value, key) => {
+  for (const [key, value] of occasions) {
+    const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
+    occasionContainer.append('h3').text(key);
+    const grid = occasionContainer.append('div').attr('class', 'row');
+
+    const results = await extractAndSortColors(value);
+    results.forEach(({ color }) => {
+      grid.append('div').attr('class', 'swatch').style('background-color', color.toString());
+    });
+  }
+}
+
+// Group all data by occasion and elements
+async function groupAll() {
+  const occasions = d3.group(state.data, d => d.occasion);
+  for (const [key, value] of occasions) {
     const elements = value.map(card => card.elements).flat();
     const uniqueElements = [...new Set(elements)];
     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
     occasionContainer.append('h3').text(key);
     const grid = occasionContainer.append('div').attr('class', 'row');
 
-    uniqueElements.forEach(element => {
+    for (const element of uniqueElements) {
       const elementContainer = grid.append('div').attr('class', 'element');
       elementContainer.append('text').text(element);
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
 
-      const imgPaths = value.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
-      const colorPromises = imgPaths.map(imgPath => Vibrant
-        .from(imgPath)
-        .getPalette()
-        .catch(err => {
-          console.error('Error extracting palette:', err);
-          return null;
-        })
-      );
-
-      Promise.all(colorPromises).then(palettes => {
-        const results = palettes.map((palette, index) => {
-          const card = value[index];
-          if (palette && palette.Vibrant) {
-            return { color: d3.hsl(palette.Vibrant.getHex()), card };
-          } else if (palette && palette.DarkVibrant) {
-            return { color: d3.hsl(palette.DarkVibrant.getHex()), card };
-          } else if (palette && palette.LightVibrant) {
-            return { color: d3.hsl(palette.LightVibrant.getHex()), card };
-          } else if (palette && palette.DarkMuted) {
-            return { color: d3.hsl(palette.DarkMuted.getHex()), card };
-          } else {
-            return { color: d3.hsl('#cccccc'), card }; // Fallback color
-          }
-        });
-
-        // Sort colors by hue
-        results.sort((a, b) => ((a.color.h + 360) % 360) - ((b.color.h + 360) % 360));
-        results.forEach(({ color, card }) => {
-          if (card.elements.includes(element)) {
-            elementImgContainer.append('div').attr('class', 'swatch').style('background-color', color.toString());
-          }
-        });
+      const elementCards = value.filter(card => card.elements.includes(element));
+      const results = await extractAndSortColors(elementCards);
+      results.forEach(({ color }) => {
+        elementImgContainer.append('div').attr('class', 'swatch').style('background-color', color.toString());
       });
-    });
-  });
+    }
+  }
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
   dataLoad();

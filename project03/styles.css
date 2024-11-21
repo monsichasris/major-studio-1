@@ -162,3 +162,7 @@ footer {
     background-color: #182619;
     color: #F9F3EE;
 }
+
+.vibrant-canvas {
+    display: none;
+}
