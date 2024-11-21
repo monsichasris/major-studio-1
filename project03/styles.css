@@ -108,25 +108,27 @@ figure {
     gap: -1rem;
 }
 
+.element {
+    display: flex;
+    flex-direction: column;
+    padding-right: 8px;
+    /* gap: 8px; */
+}
+
+.step{
+    padding: 200px 0;
+}
+
 .step p {
     text-align: center;
     padding: 1rem;
     background-color: #F9F3EE;
-    padding: 1rem;
 }
 
 .occasion {
     display: flex;
     flex-direction: column;
     padding: 16px;
-}
-
-.element {
-    display: flex;
-    flex-direction: row;
-    padding: 16px;
-    align-items: center;
-    gap: 8px;
 }
 
 

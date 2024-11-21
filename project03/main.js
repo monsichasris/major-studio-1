@@ -1,19 +1,99 @@
-// load the data
-d3.json('data/greeting-cards.json').then(data => { 
-    cards = data;
-    console.log(cards);
-    previewImg();
-    groupOccasion();
-    groupOccasionColor();
-    groupOccasionElement()
-  });
+let state = {
+  data: [],
+  groupBy: {
+    menu: ["preview", "occasion", "colors", "elements"],
+    selected: "preview",
+  }
+}
+
+// // load the data
+// d3.json('data/greeting-cards.json').then(data => { 
+//     cards = data;
+//     console.log(cards);
+//     previewImg();
+//   });
+
+
+async function dataLoad() {
+    // we can set up our layout before we have data
+    initializeLayout();
+    const data = await d3.json("data/greeting-cards.json");
+    
+    // copy the data into the state variable, add a unique ID for each object and add the filters
+    setState({
+      data: data.map((d, i) => ({
+        ...d,
+        id: d.id, // each object should have a unique ID
+      })),
+    });
+
+    // Call the initial grouping function based on the selected value
+    onRadioChange({ target: { value: state.groupBy.selected } });
+  }
+
+// whenever state changes, update the state variable, then redraw the viz
+function setState(nextState) {
+  // using Object.assign keeps the state *immutable*
+  state = Object.assign({}, state, nextState);
+}
+
+function onRadioChange(event) {
+  const selectedValue = event.target.value;
+  state.groupBy.selected = selectedValue;
+
+  // Clear the existing chart content
+  d3.select('#chart-container').selectAll('*').remove();
+
+  // Call the appropriate function based on the selected value
+  if (selectedValue === 'occasion') {
+      groupOccasion();
+  } else if (selectedValue === 'colors') {
+      groupOccasionColor();
+  } else if (selectedValue === 'elements') {
+      groupOccasionElement();
+  } else if (selectedValue === 'preview') {
+      previewImg();
+  }
+}
+
+// this function sets up everything we can before data loads
+function initializeLayout() {
+
+  const chartSection = d3.select('#chart');
+  const rightMenu = chartSection.append('div').attr('class', 'right-menu').style('position', 'relative');
+  const chart = chartSection.append('div').attr('id', 'chart-container');
+  
+  // Add radio buttons to the right menu
+  const form = document.createElement('form');
+  form.innerHTML = state.groupBy.menu
+    .map(
+      d =>
+        `<input type="radio" name="groupby" value="${d}" ${
+          state.groupBy.selected === d ? "checked" : ""
+        }>${d}<br>`
+    )
+    .join("");
+  form.addEventListener("change", onRadioChange);
+  rightMenu.node().appendChild(form);
+
+  // Add a legend to the right menu
+  const legend = document.createElement('div');
+  legend.className = 'legend';
+  rightMenu.node().appendChild(legend);
+
+  // Set up initial styles
+  chart.style.flex = '1';
+  rightMenu.style.width = '200px';
+  rightMenu.style.padding = '1em';
+  rightMenu.style.backgroundColor = '#f1f1f1';
+}
 
 // Display all images preview grid on screen
 function previewImg() {
-  const grid = d3.select('figure').append('div').attr('class', 'grid');
+  const grid = d3.select('#chart-container').append('div').attr('class', 'grid');
 
   // Shuffle the cards array to display images in random order
-  const shuffledCards = d3.shuffle(cards);
+  const shuffledCards = d3.shuffle(state.data);
 
   shuffledCards.forEach((card, index) => {
       const img = grid.append('img')
@@ -38,113 +118,119 @@ function previewImg() {
 
 // Group data by occasion
 function groupOccasion() {
-  const occasions = d3.group(cards, d => d.occasion);
-  // console.log(occasions);
+  const occasions = d3.group(state.data, d => d.occasion);
   occasions.forEach((value, key) => {
-      // console.log(key, value);
-
-      // Create a div for each occasion
-      const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
-      
-      // Display the occasion name
+      const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
       occasionContainer.append('h3').text(key);
-
-
-      // Display the number of cards in each occasion
       occasionContainer.append('text').text('Number of cards: ' + value.length);
-
-
-      // Display images of cards in each occasion in row
       const grid = occasionContainer.append('div').attr('class', 'row');
       value.forEach((card, index) => {
-          const img = grid.append('img')
-          .attr('src', card.img_preview)
-          .attr('width', 8)
-          .attr('height', 48);
+          grid.append('img')
+              .attr('src', card.img_preview)
+              .attr('width', 5)
+              .attr('height', 48);
       });
-
-    }
-  );
+  });
 }
 
 // Group data by occasion but show color from vibrant.js instead of images
 function groupOccasionColor() {
-  const occasions = d3.group(cards, d => d.occasion);
+  const occasions = d3.group(state.data, d => d.occasion);
   occasions.forEach((value, key) => {
+      const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
+      occasionContainer.append('h3').text(key);
+      const grid = occasionContainer.append('div').attr('class', 'row');
+      value.forEach((card, index) => {
+          const imgPath = `assets/download_cards/cardImgDownload/${card.id}.jpg`;
+          Vibrant.from(imgPath).getPalette(function(err, palette) {
+              if (err) {
+                  console.error('Error extracting palette:', err);
+                  return;
+              }
+              if (palette && palette.Vibrant) {
+                  const div = grid.append('div').attr('class', 'swatch');
+                  div.style('background-color', palette.Vibrant.getHex());
+              } else {
+                  console.warn('Vibrant swatch not found for image:', imgPath);
+                  const div = grid.append('div').attr('class', 'swatch');
+                  div.style('background-color', '#cccccc'); // Fallback color
+              }
+          });
+      });
+  });
+}
 
-    // Create a div for each occasion
-    const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
-    
-    // Display the occasion name
+// function groupOccasionElement() {
+//   const occasions = d3.group(
+//     cards,
+//     d => d.occasion,
+//     d => d.elements[0]
+//   );
+//   console.log(occasions);
+//   occasions.forEach((value, key) => {
+//     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
+//     occasionContainer.append('h3').text(key);
+
+//     const occasionRow = occasionContainer.append('div').attr('class', 'row');
+//     value.forEach((elementValue, elementKey) => {
+//     const elementContainer = occasionRow.append('div').attr('class', 'element');
+//     elementContainer.append('text').text(elementKey);
+
+//     const elementGrid = elementContainer.append('div').attr('class', 'row');
+//     elementValue.forEach((card, index) => {
+//       const img = elementGrid.append('img')
+//         .attr('src', card.img_preview)
+//         .attr('width', 5)
+//         .attr('height', 48);
+//       });
+//     });
+//   });
+// }
+
+// Example groupOccasionElement function
+function groupOccasionElement() {
+  const occasions = d3.group(state.data, d => d.occasion);
+  occasions.forEach((value, key) => {
+    const elements = value.map(card => card.elements).flat();
+    const uniqueElements = [...new Set(elements)];
+    console.log(uniqueElements);
+    const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
     occasionContainer.append('h3').text(key);
-
-    // Display color of cards in each occasion in row
     const grid = occasionContainer.append('div').attr('class', 'row');
 
-    // Extract colors and sort by hue
-    const colorPromises = value.map(card => {
-      const imgPath = `assets/download_cards/cardImgDownload/${card.id}.jpg`;
-      return Vibrant.from(imgPath).getPalette().then(palette => {
-      let swatchColor = null;
-      if (palette && palette.Vibrant) {
-        swatchColor = palette.Vibrant.getHex();
-      } else if (palette && palette.DarkVibrant) {
-        swatchColor = palette.DarkVibrant.getHex();
-      } else if (palette && palette.LightVibrant) {
-        swatchColor = palette.LightVibrant.getHex();
-      } else if (palette && palette.LightMuted) {
-        swatchColor = palette.LightMuted.getHex();
-      } else if (palette && palette.DarkMuted) {
-        swatchColor = palette.DarkMuted.getHex();
-      }
-      return { card, swatchColor };
-      });
-    });
-
-    Promise.all(colorPromises).then(results => {
-      results.sort((a, b) => {
-      const colorA = d3.hsl(a.swatchColor);
-      const colorB = d3.hsl(b.swatchColor);
-      return colorA.h - colorB.h;
-      });
-
-      results.forEach(({ card, swatchColor }) => {
-      const swatchContainer = grid.append('div').attr('class', 'swatch-container');
-      const div = swatchContainer.append('div').attr('class', 'swatch');
-      div.style('background-color', swatchColor);
-      swatchContainer.append('img')
-        .attr('src', card.img_preview)
-        .attr('width', 8)
-        .attr('height', 16);
+    uniqueElements.forEach(element => {
+      const elementContainer = grid.append('div').attr('class', 'element');
+      elementContainer.append('text').text(element);
+      const elementImgContainer = elementContainer.append('div').attr('class', 'row');
+      value.forEach(card => {
+        if (card.elements.includes(element)) {
+          elementImgContainer.append('img')
+            .attr('src', card.img_preview)
+            .attr('width', 5)
+            .attr('height', 48);
+        }
       });
     });
   });
 }
 
-function groupOccasionElement() {
-  const occasions = d3.group(
-    cards,
-    d => d.occasion,
-    d => d.elements[0]
-  );
-  console.log(occasions);
-  occasions.forEach((value, key) => {
-    const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
-    occasionContainer.append('h3').text(key);
-    occasionContainer.append('text').text('Number of cards: ' + value.length);
 
-    const occasionRow = occasionContainer.append('div').attr('class', 'row');
-    value.forEach((elementValue, elementKey) => {
-    const elementContainer = occasionRow.append('div').attr('class', 'element');
-    elementContainer.append('text').text(elementKey);
+// function groupOccasionElement() {
+//   const occasions = d3.group(state.data, d => d.occasion);
+//   occasions.forEach((value, key) => {
+//       const occasionContainer = d3.select('#chart').append('div').attr('class', 'occasion');
+//       occasionContainer.append('h2').text(key);
+//       const grid = occasionContainer.append('div').attr('class', 'row');
+//       value.forEach((card, index) => {
+//           grid.append('div')
+//               .attr('class', 'element')
+//               .text(card.elements.join(', '));
+//       });
+//   });
+// }
 
-    const elementGrid = elementContainer.append('div').attr('class', 'row');
-    elementValue.forEach((card, index) => {
-      const img = elementGrid.append('img')
-        .attr('src', card.img_preview)
-        .attr('width', 8)
-        .attr('height', 48);
-      });
-    });
-  });
-}
+// dataLoad();
+
+document.addEventListener("DOMContentLoaded", () => {
+  dataLoad();
+});
