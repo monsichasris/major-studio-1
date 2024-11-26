@@ -89,10 +89,6 @@ figure {
     overflow: hidden;
 }
 
-#chart-container{
-    padding: 80px;
-}
-
 .grid {
     display: flex;
     flex-wrap: wrap;
@@ -122,15 +118,21 @@ figure {
     background-color: #F9F3EE;
 }
 
-.occasion {
+.group-title{
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    width: 150px;
+}
+
+.occasion {
+    display: flex;
+    flex-direction: row;
+    padding: 4px;
 }
 
 
 .swatch {
-    width: 8px;
+    width: 5px;
     max-width: 40px;
     height: 48px;
 }

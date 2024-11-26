@@ -54,6 +54,7 @@ function setupScrollama() {
 
     // Get the step data attribute
     const step = response.element.getAttribute("data-step");
+    state.groupBy.selected = step;
   
     // Clear the existing chart content
     d3.select('#chart-container').selectAll('*').remove();
@@ -63,32 +64,24 @@ function setupScrollama() {
       state.groupBy.selected = "preview";
       previewImg();
     } else if (step === "2") {
-      state.groupBy.selected = "occasion";
+      state.groupBy.selected = "occasion";;
       groupOccasion();
     } else if (step === "3") {
-      state.groupBy.selected = "elements";
-      groupOccasionElement();
-    } else if (step === "4") {
       state.groupBy.selected = "colors";
       groupOccasionColor();
+    } else if (step === "4") {
+      state.groupBy.selected = "elements";
+      groupOccasionElement();
     } else if (step === "5") {
       state.groupBy.selected = "all";
       groupAll();
     }
-
-    // // Add color to current step only
-    // d3.selectAll(".step").classed("is-active", function (d, i) {
-    //   return i === response.index;
-    // });
-
-    // Update graphic based on step
-    // d3.select("#chart").select("#chart-container").text(`Step ${response.index + 1}`);
   }
 
   // 1. force a resize on load to ensure proper dimensions are sent to scrollama
-  handleResize();
   // 2. setup the scroller passing options this will also initialize trigger observations
   // 3. bind scrollama event handlers (this can be chained like below)
+  handleResize();
   scroller
     .setup({
       step: "#scrolly article .step",
@@ -101,7 +94,6 @@ function setupScrollama() {
   window.addEventListener("resize", handleResize);
 }
 	
-
 async function extractAndSortColors(cards) {
   const imgPaths = cards.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
   const colorPromises = imgPaths.map(imgPath => Vibrant
@@ -136,27 +128,6 @@ async function extractAndSortColors(cards) {
   return results;
 }
 
-function onRadioChange(event) {
-  const selectedValue = event.target.value;
-  state.groupBy.selected = selectedValue;
-
-  // Clear the existing chart content
-  d3.select('#chart-container').selectAll('*').remove();
-
-  // Call the appropriate function based on the selected value
-  if (selectedValue === 'occasion') {
-      groupOccasion();
-  } else if (selectedValue === 'colors') {
-      groupOccasionColor();
-  } else if (selectedValue === 'elements') {
-      groupOccasionElement();
-  } else if (selectedValue === 'preview') {
-      previewImg();
-  } else if (selectedValue === 'all') {
-      groupAll();
-  }
-}
-
 //ensures that the function is not called too frequently
 function debounce(func, wait) {
   let timeout;
@@ -166,20 +137,23 @@ function debounce(func, wait) {
   };
 }
 
-const debouncedOnRadioChange = debounce(onRadioChange, 300);
 
-// this function sets up everything we can before data loads
+// sets up before data loads
 function initializeLayout() {
 
-  const chartSection = d3.select('figure');
-  const chart = chartSection.append('div').attr('id', 'chart-container');
+d3.select('figure')
+    .append('div')
+    .attr('id', 'chart-container');
   
 }
 
 // Display all images preview grid on screen
 function previewImg() {
 
-  const grid = d3.select('#chart-container').style('padding', '0').append('div').attr('class', 'grid');
+  const grid = d3.select('#chart-container')
+    .style('padding', '0')
+    .append('div')
+    .attr('class', 'grid');
 
   // Shuffle the cards array to display images in random order
   const shuffledCards = d3.shuffle(state.data);
@@ -187,8 +161,8 @@ function previewImg() {
   shuffledCards.forEach((card, index) => {
       const img = grid.append('img')
           .attr('src', card.img_preview)
-          .attr('width', 48)
-          .attr('height', 48)
+          .attr('width', 72)
+          .attr('height', 72)
           .attr('z-index', 0)
           .style('opacity', 0)
           .style('transition', 'opacity 10s');
@@ -204,6 +178,7 @@ function previewImg() {
   });
 }
 
+// Sort occasions by number of cards and put "Other" at the end
 function sortOccasions(occasions) {
   return Array.from(occasions).sort((a, b) => {
     if (a[0] === "Other") return 1;
@@ -212,23 +187,48 @@ function sortOccasions(occasions) {
   });
 }
 
-// Group data by occasion
 function groupOccasion() {
   const occasions = d3.group(state.data, d => d.occasion);
   const sortedOccasions = sortOccasions(occasions);
 
   sortedOccasions.forEach(([key, value]) => {
-    const occasionContainer = d3.select('#chart-container').style('padding','40px').append('div').attr('class', 'occasion');
-    occasionContainer.append('h3').text(key);
-    occasionContainer.append('text').text('Number of cards: ' + value.length);
-    const grid = occasionContainer.append('div').attr('class', 'row');
+    const occasionContainer = d3.select('#chart-container').style('padding','40px')
+    .append('div')
+    .attr('class', 'occasion');
+
+    const groupTitle = occasionContainer.append('div').attr('class', 'group-title');
+      groupTitle.append('h3').text(key);
+      groupTitle.append('text').text(value.length + ' cards');
+
+    const cards = occasionContainer.append('div').attr('class', 'row');
     value.forEach((card, index) => {
-      grid.append('img')
+      cards.append('img')
         .attr('src', card.img_preview)
         .attr('width', 5)
         .attr('height', 48);
     });
   });
+}
+
+// Group data by occasion but show color from vibrant.js instead of images
+async function groupOccasionColor() {
+  const occasions = d3.group(state.data, d => d.occasion);
+  const sortedOccasions = sortOccasions(occasions);
+
+  for (const [key, value] of sortedOccasions) {
+    const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
+
+    const groupTitle = occasionContainer.append('div').attr('class', 'group-title');
+    groupTitle.append('h3').text(key);
+    groupTitle.append('text').text(value.length + ' cards');
+
+    const cards = occasionContainer.append('div').attr('class', 'row');
+
+    const results = await extractAndSortColors(value);
+    results.forEach(({ color }) => {
+      cards.append('div').attr('class', 'swatch').style('background-color', color.toString());
+    });
+  }
 }
 
 // Group data by occasion and elements
@@ -239,12 +239,17 @@ function groupOccasionElement() {
   sortedOccasions.forEach(([key, value]) => {
     const elements = value.map(card => card.elements).flat();
     const uniqueElements = [...new Set(elements)];
+
     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
-    occasionContainer.append('h3').text(key);
-    const grid = occasionContainer.append('div').attr('class', 'row');
+
+    const groupTitle = occasionContainer.append('div').attr('class', 'group-title');
+    groupTitle.append('h3').text(key);
+    groupTitle.append('text').text(value.length + ' cards');
+
+    const cards = occasionContainer.append('div').attr('class', 'row');
 
     uniqueElements.forEach(element => {
-      const elementContainer = grid.append('div').attr('class', 'element');
+      const elementContainer = cards.append('div').attr('class', 'element');
       elementContainer.append('text').text(element);
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
       value.forEach(card => {
@@ -259,23 +264,6 @@ function groupOccasionElement() {
   });
 }
 
-// Group data by occasion but show color from vibrant.js instead of images
-async function groupOccasionColor() {
-  const occasions = d3.group(state.data, d => d.occasion);
-  const sortedOccasions = sortOccasions(occasions);
-
-  for (const [key, value] of sortedOccasions) {
-    const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
-    occasionContainer.append('h3').text(key);
-    const grid = occasionContainer.append('div').attr('class', 'row');
-
-    const results = await extractAndSortColors(value);
-    results.forEach(({ color }) => {
-      grid.append('div').attr('class', 'swatch').style('background-color', color.toString());
-    });
-  }
-}
-
 // Group all data by occasion and elements
 async function groupAll() {
   const occasions = d3.group(state.data, d => d.occasion);
@@ -285,11 +273,15 @@ async function groupAll() {
     const elements = value.map(card => card.elements).flat();
     const uniqueElements = [...new Set(elements)];
     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
-    occasionContainer.append('h3').text(key);
-    const grid = occasionContainer.append('div').attr('class', 'row');
+
+    const groupTitle = occasionContainer.append('div').attr('class', 'group-title');
+    groupTitle.append('h3').text(key);
+    groupTitle.append('text').text(value.length + ' cards');
+
+    const cards = occasionContainer.append('div').attr('class', 'row');
 
     for (const element of uniqueElements) {
-      const elementContainer = grid.append('div').attr('class', 'element');
+      const elementContainer = cards.append('div').attr('class', 'element');
       elementContainer.append('text').text(element);
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
 
