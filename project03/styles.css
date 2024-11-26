@@ -103,9 +103,7 @@ figure {
 
 .element {
     display: flex;
-    flex-direction: column;
-    padding-right: 8px;
-    /* gap: 8px; */
+    flex-direction: row;
 }
 
 .step{
@@ -122,17 +120,25 @@ figure {
     display: flex;
     flex-direction: column;
     width: 150px;
+    min-width: 150px;
 }
 
 .occasion {
     display: flex;
     flex-direction: row;
+    justify-content: flex-start;
     padding: 4px;
 }
 
 
 .swatch {
     width: 5px;
+    max-width: 40px;
+    height: 48px;
+}
+
+.swatch2 {
+    width: 2.4px;
     max-width: 40px;
     height: 48px;
 }

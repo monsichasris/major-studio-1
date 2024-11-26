@@ -246,17 +246,25 @@ function groupOccasionElement() {
     groupTitle.append('h3').text(key);
     groupTitle.append('text').text(value.length + ' cards');
 
-    const cards = occasionContainer.append('div').attr('class', 'row');
+    const cards = occasionContainer.append('div')
+      .attr('class', 'row')
+      .style('display', 'flex')
+      .style('flex-wrap', 'wrap');
 
     uniqueElements.forEach(element => {
       const elementContainer = cards.append('div').attr('class', 'element');
-      elementContainer.append('text').text(element);
+      elementContainer.append('text')
+        .text(element)
+        .style('font-size', '10px')
+        .style('transform', 'rotate(-90deg) translate(0, 1.5rem)')
+        .style('margin', '0')
+        .style('alignment-baseline', 'baseline');
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
       value.forEach(card => {
         if (card.elements.includes(element)) {
           elementImgContainer.append('img')
             .attr('src', card.img_preview)
-            .attr('width', 5)
+            .attr('width', 2.4)
             .attr('height', 48);
         }
       });
@@ -282,13 +290,20 @@ async function groupAll() {
 
     for (const element of uniqueElements) {
       const elementContainer = cards.append('div').attr('class', 'element');
-      elementContainer.append('text').text(element);
+      elementContainer.append('text')
+      .text(element)
+      .style('font-size', '10px')
+      .style('transform', 'rotate(-90deg) translate(0, 1.5rem)')
+      .style('margin', '0')
+      .style('alignment-baseline', 'baseline');
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
 
       const elementCards = value.filter(card => card.elements.includes(element));
       const results = await extractAndSortColors(elementCards);
       results.forEach(({ color }) => {
-        elementImgContainer.append('div').attr('class', 'swatch').style('background-color', color.toString());
+        elementImgContainer.append('div')
+        .attr('class', 'swatch2')
+        .style('background-color', color.toString());
       });
     }
   }
