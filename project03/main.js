@@ -137,7 +137,6 @@ function debounce(func, wait) {
   };
 }
 
-
 // sets up before data loads
 function initializeLayout() {
 
@@ -202,10 +201,19 @@ function groupOccasion() {
 
     const cards = occasionContainer.append('div').attr('class', 'row');
     value.forEach((card, index) => {
-      cards.append('img')
-        .attr('src', card.img_preview)
-        .attr('width', 5)
-        .attr('height', 48);
+      const img = cards.append('img')
+      .attr('src', card.img_preview)
+      .attr('width', 5)
+      .attr('height', 48)
+      .style('transition', 'width 0.3s ease');
+
+      img.on('mouseover', function() {
+      d3.select(this).attr('width', 80);
+      });
+
+      img.on('mouseout', function() {
+      d3.select(this).attr('width', 5);
+      });
     });
   });
 }
@@ -264,7 +272,7 @@ function groupOccasionElement() {
         if (card.elements.includes(element)) {
           elementImgContainer.append('img')
             .attr('src', card.img_preview)
-            .attr('width', 2.4)
+            .attr('width', 2.3)
             .attr('height', 48);
         }
       });
