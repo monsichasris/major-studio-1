@@ -162,7 +162,7 @@ function previewImg() {
           .attr('src', card.img_preview)
           .attr('width', 72)
           .attr('height', 72)
-          .attr('z-index', 0)
+          .attr('z-index', -100)
           .style('opacity', 0)
           .style('transition', 'opacity 10s');
 
@@ -214,6 +214,10 @@ function groupOccasion() {
       img.on('mouseout', function() {
       d3.select(this).attr('width', 5);
       });
+
+      img.on('click', function() {
+        showCardModal(card);
+      });
     });
   });
 }
@@ -233,8 +237,31 @@ async function groupOccasionColor() {
     const cards = occasionContainer.append('div').attr('class', 'row');
 
     const results = await extractAndSortColors(value);
-    results.forEach(({ color }) => {
-      cards.append('div').attr('class', 'swatch').style('background-color', color.toString());
+    results.forEach(({ color, card }) => {
+      const swatch = cards.append('div')
+      .attr('class', 'swatch')
+      .style('background-color', color.toString())
+      .style('width', '4px')
+      .style('height', '48px')
+      .style('display', 'inline-block')
+      .style('transition', 'width 0.3s ease');
+
+      swatch.on('mouseover', function() {
+      d3.select(this)
+        .style('width', '80px')
+        .style('background-image', `url(${card.img_preview})`)
+        .style('background-size', 'cover');
+      });
+
+      swatch.on('mouseout', function() {
+      d3.select(this)
+        .style('width', '4px')
+        .style('background-image', 'none');
+      });
+
+      swatch.on('click', function() {
+        showCardModal(card);
+      });
     });
   }
 }
@@ -270,10 +297,23 @@ function groupOccasionElement() {
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
       value.forEach(card => {
         if (card.elements.includes(element)) {
-          elementImgContainer.append('img')
+          const img = elementImgContainer.append('img')
             .attr('src', card.img_preview)
             .attr('width', 2.3)
-            .attr('height', 48);
+            .attr('height', 48)
+            .style('transition', 'width 0.3s ease');
+
+          img.on('mouseover', function() {
+            d3.select(this).attr('width', 80);
+          });
+
+          img.on('mouseout', function() {
+            d3.select(this).attr('width', 2.3);
+          });
+
+          img.on('click', function() {
+            showCardModal(card);
+          });
         }
       });
     });
@@ -308,11 +348,81 @@ async function groupAll() {
 
       const elementCards = value.filter(card => card.elements.includes(element));
       const results = await extractAndSortColors(elementCards);
-      results.forEach(({ color }) => {
-        elementImgContainer.append('div')
-        .attr('class', 'swatch2')
-        .style('background-color', color.toString());
+      results.forEach(({ color, card }) => {
+        const swatch = elementImgContainer.append('div')
+          .attr('class', 'swatch2')
+          .style('background-color', color.toString())
+          .style('width', '4px')
+          .style('height', '48px')
+          .style('display', 'inline-block')
+          .style('transition', 'width 0.3s ease');
+
+        swatch.on('mouseover', function() {
+          d3.select(this)
+        .style('width', '80px')
+        .style('background-image', `url(${card.img_preview})`)
+        .style('background-size', 'cover');
+        });
+
+        swatch.on('mouseout', function() {
+          d3.select(this)
+        .style('width', '4px')
+        .style('background-image', 'none');
+        });
+
+        swatch.on('click', function() {
+          showCardModal(card);
+        });
+
       });
+    }
+  }
+}
+
+// Function to show the cards in popup modal when clicked on the image
+function showCardModal(card) {
+  // Remove any existing modal
+  d3.select('.modal').remove();
+
+  // Create the modal
+  const modal = d3.select('body').append('div').attr('class', 'modal');
+  modal.html(`
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <img src="${card.img_preview}" width="300">
+      <h3>${card.occasion}</h3>
+      <p>${card.elements.join(', ')}</p>
+    </div>
+  `);
+  modal.style('display', 'block');
+  
+  // // Add color swatches using Vibrant.js
+  // Vibrant.from(card.img_preview).getPalette().then(palette => {
+  //   const swatches = modal.select('.modal-content').append('div').attr('class', 'swatches');
+  //   Object.values(palette).forEach(swatch => {
+  //     if (swatch) {
+  //       swatches.append('div')
+  //         .style('background-color', swatch.getHex())
+  //         .style('width', '20px')
+  //         .style('height', '20px')
+  //         .style('display', 'inline-block')
+  //         .style('margin', '2px');
+  //     }
+  //   });
+  // }).catch(err => {
+  //   console.error('Error extracting palette:', err);
+  // });
+
+  // Close the modal when the close button is clicked
+  const span = document.querySelector('.close');
+  span.onclick = function() {
+    modal.style('display', 'none');
+  }
+
+  // Close the modal when clicking outside of the modal content
+  window.onclick = function(event) {
+    if (event.target == modal.node()) {
+      modal.style('display', 'none');
     }
   }
 }
