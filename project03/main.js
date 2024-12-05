@@ -498,7 +498,7 @@ function showCardModal(card) {
   modal.html(`
     <div class="modal-content">
       <span class="close">&times;</span>
-      <img src="${card.img_preview}" width="300">
+      <img src="${card.img_large}" width="300">
       <h3>${card.occasion}</h3>
       <p>${card.elements.join(', ')}</p>
     </div>
@@ -547,6 +547,7 @@ async function filterCard() {
   d3.select('#occasion-filter').selectAll('*').remove();
   d3.select('#element-filter').selectAll('*').remove();
   d3.select('#color-filter').selectAll('*').remove();
+  d3.select('#reset').selectAll('*').remove();
   
 
   const occasionFilterContainer = d3.select('#occasion-filter').append('div').attr('class', 'filter-container');
@@ -562,10 +563,15 @@ async function filterCard() {
       .attr('class', 'occasion-button')
       .text(occasion)
       .on('click', function() {
+      if (selectedOccasion === occasion) {
+        selectedOccasion = null;
+        d3.select(this).style('background-color', null);
+      } else {
         selectedOccasion = occasion;
-        updateResults();
         d3.selectAll('.occasion-button').style('background-color', null);
         d3.select(this).style('background-color', '#d3d3d3');
+      }
+      updateResults();
       });
   });
 
@@ -575,10 +581,15 @@ async function filterCard() {
       .attr('class', 'element-button')
       .text(element)
       .on('click', function() {
-        selectedElement = element;
+        if (selectedElement === element) {
+          selectedElement = null;
+          d3.select(this).style('background-color', null);
+        } else {
+          selectedElement = element;
+          d3.selectAll('.element-button').style('background-color', null);
+          d3.select(this).style('background-color', '#d3d3d3');
+        }
         updateResults();
-        d3.selectAll('.element-button').style('background-color', null);
-        d3.select(this).style('background-color', '#d3d3d3');
       });
   });
 
@@ -609,12 +620,32 @@ async function filterCard() {
       .attr('class', 'color-button')
       .text(color)
       .on('click', function() {
+      if (selectedColor === color) {
+        selectedColor = null;
+        d3.select(this).style('background-color', null);
+      } else {
         selectedColor = color;
-        updateResults();
         d3.selectAll('.color-button').style('background-color', null);
         d3.select(this).style('background-color', '#d3d3d3');
+      }
+      updateResults();
       });
   });
+
+  // Add a clear button to reset filters
+  d3.select('#reset').append('button')
+    .attr('class', 'clear-button')
+    .text('Reset')
+    .on('click', function() {
+      selectedOccasion = null;
+      selectedElement = null;
+      selectedColor = null;
+      d3.selectAll('#result img').remove();
+      d3.selectAll('.occasion-button, .element-button, .color-button').style('background-color', null);
+    });
+
+// Call addClearButton function when any filter button is clicked
+d3.selectAll('.occasion-button, .element-button, .color-button').on('click', addClearButton);
 }
 
 // Function to update results based on selected filters
@@ -641,13 +672,34 @@ function updateResults() {
 
   // Display the filtered cards
   const container = d3.select('#result').append('div').attr('class', 'filtered-cards');
-  const grid = container.append('div');
-  filteredCards.forEach(card => {
-    grid.append('img')
-      .attr('src', card.img_preview)
-      .attr('height', 100);
-  });
+  if (filteredCards.length > 0) {
+    filteredCards.forEach(card => {
+      const img = container.append('img')
+        .attr('src', card.img_preview)
+        .attr('height', 200)
+        .style('box-shadow', '0 4px 8px rgba(0, 0, 0, 0.2)');
+        img.on('click', function() {
+          showCardModal(card);
+        });
+        img.on('mouseover', function() {
+          d3.select(this).attr('width', 300);
+        });
+        img.on('mouseout', function() {
+            d3.select(this).attr('width', imgWidth);
+        });
+
+      // Calculate width to fit all images in the container
+      const containerWidth = d3.select('#result').node().getBoundingClientRect().width;
+      const numImages = filteredCards.length;
+      const imgWidth = containerWidth / numImages;
+      img.attr('width', imgWidth);
+    });
+  } else {
+    container.append('p').text('No cards match the selected filters.');
+  }
+
 }
+
 
 
 
