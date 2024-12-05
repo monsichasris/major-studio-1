@@ -208,7 +208,10 @@ function groupOccasion() {
       .style('transition', 'width 0.3s ease');
 
       img.on('mouseover', function() {
-      d3.select(this).attr('width', 80);
+        const originalWidth = this.naturalWidth;
+        const originalHeight = this.naturalHeight;
+        const newWidth = (48 / originalHeight) * originalWidth;
+        d3.select(this).attr('width', newWidth);
       });
 
       img.on('mouseout', function() {
@@ -219,6 +222,8 @@ function groupOccasion() {
         showCardModal(card);
       });
     });
+
+    scaleUpCard()
   });
 }
 
@@ -241,7 +246,7 @@ async function groupOccasionColor() {
       const swatch = cards.append('div')
       .attr('class', 'swatch')
       .style('background-color', color.toString())
-      .style('width', '4px')
+      .style('width', '5px')
       .style('height', '48px')
       .style('display', 'inline-block')
       .style('transition', 'width 0.3s ease');
@@ -255,7 +260,7 @@ async function groupOccasionColor() {
 
       swatch.on('mouseout', function() {
       d3.select(this)
-        .style('width', '4px')
+        .style('width', '5px')
         .style('background-image', 'none');
       });
 
@@ -263,6 +268,8 @@ async function groupOccasionColor() {
         showCardModal(card);
       });
     });
+
+    scaleUpCard()
   }
 }
 
@@ -281,25 +288,28 @@ function groupOccasionElement() {
     groupTitle.append('h3').text(key);
     groupTitle.append('text').text(value.length + ' cards');
 
-    const cards = occasionContainer.append('div')
-      .attr('class', 'row')
-      .style('display', 'flex')
-      .style('flex-wrap', 'wrap');
+    const cards = occasionContainer.append('div').attr('class', 'row');
 
     uniqueElements.forEach(element => {
       const elementContainer = cards.append('div').attr('class', 'element');
-      elementContainer.append('text')
-        .text(element)
-        .style('font-size', '10px')
-        .style('transform', 'rotate(-90deg) translate(0, 1.5rem)')
-        .style('margin', '0')
-        .style('alignment-baseline', 'baseline');
+      
+      elementContainer.append('svg')
+      .style('width', '24px')
+      .style('height', '48px')
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .style('font-size', '10px')
+      .attr('x', -24)
+      .attr('y', 20)
+      .attr('transform', 'rotate(-90)')
+      .text(element);
+
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
       value.forEach(card => {
         if (card.elements.includes(element)) {
           const img = elementImgContainer.append('img')
             .attr('src', card.img_preview)
-            .attr('width', 2.3)
+            .attr('width', 2.5)
             .attr('height', 48)
             .style('transition', 'width 0.3s ease');
 
@@ -315,6 +325,8 @@ function groupOccasionElement() {
             showCardModal(card);
           });
         }
+
+        scaleUpCard()
       });
     });
   });
@@ -338,12 +350,18 @@ async function groupAll() {
 
     for (const element of uniqueElements) {
       const elementContainer = cards.append('div').attr('class', 'element');
-      elementContainer.append('text')
-      .text(element)
+      
+      elementContainer.append('svg')
+      .style('width', '24px')
+      .style('height', '48px')
+      .append('text')
+      .attr('text-anchor', 'middle')
       .style('font-size', '10px')
-      .style('transform', 'rotate(-90deg) translate(0, 1.5rem)')
-      .style('margin', '0')
-      .style('alignment-baseline', 'baseline');
+      .attr('x', -24)
+      .attr('y', 20)
+      .attr('transform', 'rotate(-90)')
+      .text(element);
+
       const elementImgContainer = elementContainer.append('div').attr('class', 'row');
 
       const elementCards = value.filter(card => card.elements.includes(element));
@@ -352,7 +370,7 @@ async function groupAll() {
         const swatch = elementImgContainer.append('div')
           .attr('class', 'swatch2')
           .style('background-color', color.toString())
-          .style('width', '4px')
+          .style('width', '2.5px')
           .style('height', '48px')
           .style('display', 'inline-block')
           .style('transition', 'width 0.3s ease');
@@ -366,7 +384,7 @@ async function groupAll() {
 
         swatch.on('mouseout', function() {
           d3.select(this)
-        .style('width', '4px')
+        .style('width', '2.5px')
         .style('background-image', 'none');
         });
 
@@ -374,9 +392,80 @@ async function groupAll() {
           showCardModal(card);
         });
 
+        scaleUpCard()
+
       });
     }
   }
+}
+
+// Function to scale cards size up when click on occasion
+function scaleUpCard() {
+  d3.selectAll('.occasion')
+
+    .on('click', function() {
+      d3.select(this)
+        .style('height', '200px')
+        .style('overflow', 'auto')
+        .style('display', 'flex')
+        .style('align-items', 'center');
+      d3.select(this).select('.group-title h3')
+      .style('font-size', '24px');
+      d3.select(this).select('.row')
+      .style('transform', 'scale(4)')
+      .style('transform-origin', 'center left');
+      
+      // Add a close button
+      const closeButton = d3.select(this).append('div')
+      .attr('class', 'close-button')
+      .text('╳')
+      .style('position', 'absolute')
+      .style('top', '10px')
+      .style('right', '10px')
+      .style('padding', '5px')
+      .style('cursor', 'pointer')
+      .style('z-index', '1000');
+
+      closeButton.on('click', function() {
+        d3.select(this.parentNode)
+          .style('height', null)
+          .style('overflow', 'hidden')
+          .style('display', 'block')
+          .style('align-items', 'flex-start');
+        d3.select(this.parentNode).select('.group-title h3')
+          .style('font-size', '16px');
+        d3.select(this.parentNode).select('.row')
+          .style('transform', 'scale(1)');
+        d3.select(this).remove();
+      });
+
+      // Close the scaled-up card when clicking anywhere on the screen
+      d3.select('body').on('click', function(event) {
+        if (!event.target.closest('.occasion')) {
+          d3.select(this)
+          .style('height', null)
+          d3.selectAll('.occasion .group-title h3')
+        .style('font-size', '16px');
+          d3.selectAll('.occasion .row')
+        .style('transform', 'scale(1)');
+          d3.selectAll('.close-button').remove();
+        } else {
+          const clickedOccasion = event.target.closest('.occasion');
+          d3.selectAll('.occasion').each(function() {
+        if (this !== clickedOccasion) {
+          d3.select(this)
+          .style('height', null)
+          d3.select(this).select('.group-title h3')
+            .style('font-size', '16px');
+          d3.select(this).select('.row')
+            .style('transform', 'scale(1)');
+          d3.select(this).select('.close-button').remove();
+        }
+          });
+        }
+      });
+    })
+    
 }
 
 // Function to show the cards in popup modal when clicked on the image
@@ -426,6 +515,8 @@ function showCardModal(card) {
     }
   }
 }
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   dataLoad();
