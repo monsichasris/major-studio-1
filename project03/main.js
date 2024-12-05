@@ -543,6 +543,12 @@ let colorResults = [];
 
 // Combine filters to select both occasion and element
 async function filterCard() {
+  // Clear existing filter containers
+  d3.select('#occasion-filter').selectAll('*').remove();
+  d3.select('#element-filter').selectAll('*').remove();
+  d3.select('#color-filter').selectAll('*').remove();
+  
+
   const occasionFilterContainer = d3.select('#occasion-filter').append('div').attr('class', 'filter-container');
   const elementFilterContainer = d3.select('#element-filter').append('div').attr('class', 'filter-container');
   const colorFilterContainer = d3.select('#color-filter').append('div').attr('class', 'filter-container');
