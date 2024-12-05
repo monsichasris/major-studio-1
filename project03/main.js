@@ -1,12 +1,12 @@
 let state = {
   data: [],
   groupBy: {
-    menu: ["preview", "occasion", "colors", "elements", "all"],
+    menu: ["preview", "occasion", "colors", "elements", "all", "id"],
     selected: "preview",
   }
 }
 
-async function dataLoad() {
+async function loadData() {
     // set up layout
     initializeLayout();
     const data = await d3.json("data/greeting-cards.json");
@@ -19,11 +19,8 @@ async function dataLoad() {
       })),
     });
 
-    // Set up the scrollama
     setupScrollama();
-    // addFilterButtons();
-    // addElementFilterButtons();
-    addCombinedFilterButtons();
+    filterCard()
   }
 
 
@@ -112,18 +109,27 @@ async function extractAndSortColors(cards) {
   const palettes = await Promise.all(colorPromises);
   const results = palettes.map((palette, index) => {
     const card = cards[index];
+    let colorGroup = 'unknown';
     if (palette && palette.Vibrant) {
-      return { color: d3.hsl(palette.Vibrant.getHex()), card };
-    } else if (palette && palette.DarkVibrant) {
-      return { color: d3.hsl(palette.DarkVibrant.getHex()), card };
-    } else if (palette && palette.LightVibrant) {
-      return { color: d3.hsl(palette.LightVibrant.getHex()), card };
-    } else if (palette && palette.DarkMuted) {
-      return { color: d3.hsl(palette.DarkMuted.getHex()), card };
-    } else if (palette && palette.LightMuted) {
-      return { color: d3.hsl(palette.LightMuted.getHex()), card };
+      const color = d3.hsl(palette.Vibrant.getHex());
+      if (color.h >= 330 || color.h < 30) {
+        colorGroup = 'red';
+      } else if (color.h >= 30 && color.h < 90) {
+        colorGroup = 'orange';
+      } else if (color.h >= 90 && color.h < 150) {
+        colorGroup = 'yellow';
+      } else if (color.h >= 150 && color.h < 210) {
+        colorGroup = 'green';
+      } else if (color.h >= 210 && color.h < 270) {
+        colorGroup = 'cyan';
+      } else if (color.h >= 270 && color.h < 330) {
+        colorGroup = 'blue';
+      } else {
+        colorGroup = 'purple';
+      }
+      return { color, card, colorGroup };
     } else {
-      return { color: d3.hsl('#cccccc'), card }; // Fallback color
+      return { color: d3.hsl('#cccccc'), card, colorGroup: 'unknown' }; // Fallback color
     }
   });
 
@@ -530,90 +536,21 @@ function showCardModal(card) {
   }
 }
 
-
-// Add filter buttons
-// function addFilterButtons() {
-//   const filterContainer = d3.select('#occasion-filter').append('div').attr('class', 'filter-container');
-
-//   const occasions = d3.group(state.data, d => d.occasion);
-//   console.log(occasions);
-
-//   occasions.forEach((value, key) => {
-//     // Create a button for each occasion
-//     const button = filterContainer.append('button')
-//       .attr('class', 'filter-button')
-//       .text(key)
-//       .on('click', () => {
-//         // Remove the last selected occasion's cards
-//         d3.select('#result').selectAll('.occasion').remove();
-
-//         // Display the cards for the selected occasion
-//         const occasionContainer = d3.select('#result').append('div').attr('class', 'occasion');
-//         const grid = occasionContainer.append('div');
-//         value.forEach((card, index) => {
-//           grid.append('img')
-//             .attr('src', card.img_preview)
-//             .attr('height', 100);
-//         });
-//       });
-//   });
-// }
-
-// function addElementFilterButtons() {
-//   const filterContainer = d3.select('#element-filter').append('div').attr('class', 'filter-container');
-
-//   const elements = new Set(state.data.flatMap(card => card.elements));
-//   console.log(elements);
-
-//   elements.forEach(element => {
-//     // Create a button for each element
-//     const button = filterContainer.append('button')
-//       .attr('class', 'filter-button')
-//       .text(element)
-//       .on('click', () => {
-//         // Remove the last selected element's cards
-//         d3.select('#result').selectAll('.element').remove();
-
-//         // Display the cards for the selected element
-//         const elementContainer = d3.select('#result').append('div').attr('class', 'element');
-//         const grid = elementContainer.append('div');
-//         state.data.forEach((card, index) => {
-//           if (card.elements.includes(element)) {
-//             grid.append('img')
-//               .attr('src', card.img_preview)
-//               .attr('height', 100);
-//           }
-//         });
-//       });
-//   });
-// }
+let selectedOccasion = null;
+let selectedElement = null;
+let selectedColor = null;
+let colorResults = [];
 
 // Combine filters to select both occasion and element
-function addCombinedFilterButtons() {
+async function filterCard() {
   const occasionFilterContainer = d3.select('#occasion-filter').append('div').attr('class', 'filter-container');
   const elementFilterContainer = d3.select('#element-filter').append('div').attr('class', 'filter-container');
+  const colorFilterContainer = d3.select('#color-filter').append('div').attr('class', 'filter-container');
 
   const occasions = d3.group(state.data, d => d.occasion);
   const elements = new Set(state.data.flatMap(card => card.elements));
 
-  let selectedOccasion = null;
-  let selectedElement = null;
-
-  function updateResults() {
-    if (selectedOccasion && selectedElement) {
-      d3.select('#result').selectAll('.combined').remove();
-
-      const combinedContainer = d3.select('#result').append('div').attr('class', 'combined');
-      const grid = combinedContainer.append('div');
-      state.data.forEach((card, index) => {
-        if (card.occasion === selectedOccasion && card.elements.includes(selectedElement)) {
-          grid.append('img')
-            .attr('src', card.img_preview)
-            .attr('height', 100);
-        }
-      });
-    }
-  }
+  // Create buttons for each occasion
   occasions.forEach((value, occasion) => {
     occasionFilterContainer.append('button')
       .attr('class', 'occasion-button')
@@ -621,11 +558,12 @@ function addCombinedFilterButtons() {
       .on('click', function() {
         selectedOccasion = occasion;
         updateResults();
-        d3.selectAll('.occasion-button').style('background-color', null); // Reset all button colors
-        d3.select(this).style('background-color', '#d3d3d3'); // Change color of clicked button
+        d3.selectAll('.occasion-button').style('background-color', null);
+        d3.select(this).style('background-color', '#d3d3d3');
       });
   });
 
+  // Create buttons for each element
   elements.forEach(element => {
     elementFilterContainer.append('button')
       .attr('class', 'element-button')
@@ -633,9 +571,75 @@ function addCombinedFilterButtons() {
       .on('click', function() {
         selectedElement = element;
         updateResults();
-        d3.selectAll('.element-button').style('background-color', null); // Reset all button colors
-        d3.select(this).style('background-color', '#d3d3d3'); // Change color of clicked button
+        d3.selectAll('.element-button').style('background-color', null);
+        d3.select(this).style('background-color', '#d3d3d3');
       });
+  });
+
+  // Extract colors and create color filter buttons
+  colorResults = await extractAndSortColors(state.data);
+
+  const colorGroups = {
+    red: [],
+    orange: [],
+    yellow: [],
+    green: [],
+    cyan: [],
+    blue: [],
+    purple: [],
+    unknown: [],
+  };
+
+  // Group cards by color
+  colorResults.forEach(({ card, colorGroup }) => {
+    if (colorGroups[colorGroup]) {
+      colorGroups[colorGroup].push(card);
+    }
+  });
+
+  // Create buttons for each color group
+  Object.keys(colorGroups).forEach(color => {
+    colorFilterContainer.append('button')
+      .attr('class', 'color-button')
+      .text(color)
+      .on('click', function() {
+        selectedColor = color;
+        updateResults();
+        d3.selectAll('.color-button').style('background-color', null);
+        d3.select(this).style('background-color', '#d3d3d3');
+      });
+  });
+}
+
+// Function to update results based on selected filters
+function updateResults() {
+  // Clear the existing chart content
+  d3.select('#result').selectAll('*').remove();
+
+  // Filter cards based on selected filters
+  let filteredCards = state.data;
+  if (selectedOccasion) {
+    filteredCards = filteredCards.filter(card => card.occasion === selectedOccasion);
+  }
+  if (selectedElement) {
+    filteredCards = filteredCards.filter(card => card.elements.includes(selectedElement));
+  }
+  if (selectedColor) {
+    filteredCards = filteredCards.filter(card => {
+      const result = colorResults.find(r => r.card.id === card.id);
+      return result && result.colorGroup === selectedColor;
+    });
+  }
+
+  console.log('Filtered Cards:', filteredCards); // Debugging
+
+  // Display the filtered cards
+  const container = d3.select('#result').append('div').attr('class', 'filtered-cards');
+  const grid = container.append('div');
+  filteredCards.forEach(card => {
+    grid.append('img')
+      .attr('src', card.img_preview)
+      .attr('height', 100);
   });
 }
 
@@ -644,8 +648,6 @@ function addCombinedFilterButtons() {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  dataLoad();
-  // addFilterButtons();
-  // addElementFilterButtons()
-  addCombinedFilterButtons();
+  loadData();
+  filterCard();
 });
