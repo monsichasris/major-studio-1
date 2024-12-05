@@ -21,7 +21,11 @@ async function dataLoad() {
 
     // Set up the scrollama
     setupScrollama();
+    // addFilterButtons();
+    // addElementFilterButtons();
+    addCombinedFilterButtons();
   }
+
 
 // whenever state changes, update the state variable, then redraw the viz
 function setState(nextState) {
@@ -186,6 +190,11 @@ function sortOccasions(occasions) {
   });
 }
 
+
+
+
+
+//------------------------------Main Charts------------------------------//
 function groupOccasion() {
   const occasions = d3.group(state.data, d => d.occasion);
   const sortedOccasions = sortOccasions(occasions);
@@ -398,6 +407,11 @@ async function groupAll() {
     }
   }
 }
+//------------------------------Main Charts------------------------------//
+
+
+
+
 
 // Function to scale cards size up when click on occasion
 function scaleUpCard() {
@@ -517,7 +531,121 @@ function showCardModal(card) {
 }
 
 
+// Add filter buttons
+// function addFilterButtons() {
+//   const filterContainer = d3.select('#occasion-filter').append('div').attr('class', 'filter-container');
+
+//   const occasions = d3.group(state.data, d => d.occasion);
+//   console.log(occasions);
+
+//   occasions.forEach((value, key) => {
+//     // Create a button for each occasion
+//     const button = filterContainer.append('button')
+//       .attr('class', 'filter-button')
+//       .text(key)
+//       .on('click', () => {
+//         // Remove the last selected occasion's cards
+//         d3.select('#result').selectAll('.occasion').remove();
+
+//         // Display the cards for the selected occasion
+//         const occasionContainer = d3.select('#result').append('div').attr('class', 'occasion');
+//         const grid = occasionContainer.append('div');
+//         value.forEach((card, index) => {
+//           grid.append('img')
+//             .attr('src', card.img_preview)
+//             .attr('height', 100);
+//         });
+//       });
+//   });
+// }
+
+// function addElementFilterButtons() {
+//   const filterContainer = d3.select('#element-filter').append('div').attr('class', 'filter-container');
+
+//   const elements = new Set(state.data.flatMap(card => card.elements));
+//   console.log(elements);
+
+//   elements.forEach(element => {
+//     // Create a button for each element
+//     const button = filterContainer.append('button')
+//       .attr('class', 'filter-button')
+//       .text(element)
+//       .on('click', () => {
+//         // Remove the last selected element's cards
+//         d3.select('#result').selectAll('.element').remove();
+
+//         // Display the cards for the selected element
+//         const elementContainer = d3.select('#result').append('div').attr('class', 'element');
+//         const grid = elementContainer.append('div');
+//         state.data.forEach((card, index) => {
+//           if (card.elements.includes(element)) {
+//             grid.append('img')
+//               .attr('src', card.img_preview)
+//               .attr('height', 100);
+//           }
+//         });
+//       });
+//   });
+// }
+
+// Combine filters to select both occasion and element
+function addCombinedFilterButtons() {
+  const occasionFilterContainer = d3.select('#occasion-filter').append('div').attr('class', 'filter-container');
+  const elementFilterContainer = d3.select('#element-filter').append('div').attr('class', 'filter-container');
+
+  const occasions = d3.group(state.data, d => d.occasion);
+  const elements = new Set(state.data.flatMap(card => card.elements));
+
+  let selectedOccasion = null;
+  let selectedElement = null;
+
+  function updateResults() {
+    if (selectedOccasion && selectedElement) {
+      d3.select('#result').selectAll('.combined').remove();
+
+      const combinedContainer = d3.select('#result').append('div').attr('class', 'combined');
+      const grid = combinedContainer.append('div');
+      state.data.forEach((card, index) => {
+        if (card.occasion === selectedOccasion && card.elements.includes(selectedElement)) {
+          grid.append('img')
+            .attr('src', card.img_preview)
+            .attr('height', 100);
+        }
+      });
+    }
+  }
+  occasions.forEach((value, occasion) => {
+    occasionFilterContainer.append('button')
+      .attr('class', 'occasion-button')
+      .text(occasion)
+      .on('click', function() {
+        selectedOccasion = occasion;
+        updateResults();
+        d3.selectAll('.occasion-button').style('background-color', null); // Reset all button colors
+        d3.select(this).style('background-color', '#d3d3d3'); // Change color of clicked button
+      });
+  });
+
+  elements.forEach(element => {
+    elementFilterContainer.append('button')
+      .attr('class', 'element-button')
+      .text(element)
+      .on('click', function() {
+        selectedElement = element;
+        updateResults();
+        d3.selectAll('.element-button').style('background-color', null); // Reset all button colors
+        d3.select(this).style('background-color', '#d3d3d3'); // Change color of clicked button
+      });
+  });
+}
+
+
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   dataLoad();
+  // addFilterButtons();
+  // addElementFilterButtons()
+  addCombinedFilterButtons();
 });
