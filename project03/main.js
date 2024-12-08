@@ -111,8 +111,17 @@ async function extractAndSortColors(cards) {
   const results = palettes.map((palette, index) => {
     const card = cards[index];
     let colorGroup = 'unknown';
-    if (palette && palette.Vibrant) {
-      const color = d3.hsl(palette.Vibrant.getHex());
+    let color = d3.hsl('#cccccc'); // Fallback color
+
+    if (palette) {
+      if (palette.Vibrant) {
+        color = d3.hsl(palette.Vibrant.getHex());
+      } else if (palette.DarkVibrant) {
+        color = d3.hsl(palette.DarkVibrant.getHex());
+      } else if (palette.LightVibrant) {
+        color = d3.hsl(palette.LightVibrant.getHex());
+      }
+
       if (color.h >= 330 || color.h < 30) {
         colorGroup = 'red';
       } else if (color.h >= 30 && color.h < 90) {
@@ -128,14 +137,16 @@ async function extractAndSortColors(cards) {
       } else {
         colorGroup = 'purple';
       }
-      return { color, card, colorGroup };
     } else {
-      return { color: d3.hsl('#cccccc'), card, colorGroup: 'monotone' }; // Fallback color
+      colorGroup = 'monotone';
     }
+
+    return { color, card, colorGroup };
   });
 
-  // Sort colors by hue
-  results.sort((a, b) => ((a.color.h + 360) % 360) - ((b.color.h + 360) % 360));
+  // Sort colors by colorGroup with a custom order
+  const colorOrder = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'monotone'];
+  results.sort((a, b) => colorOrder.indexOf(a.colorGroup) - colorOrder.indexOf(b.colorGroup));
   return results;
 }
 
