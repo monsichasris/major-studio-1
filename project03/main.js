@@ -23,13 +23,13 @@ async function loadData() {
     filterCard()
   }
 
-
 // whenever state changes, update the state variable, then redraw the viz
 function setState(nextState) {
   // using Object.assign keeps the state *immutable*
   state = Object.assign({}, state, nextState);
 }
 
+// set up the scrollama layout
 function setupScrollama() {
   // Initialize the scrollama
   const scroller = scrollama();
@@ -94,7 +94,8 @@ function setupScrollama() {
   // Setup resize event
   window.addEventListener("resize", handleResize);
 }
-	
+
+// extract colors from images using Vibrant.js and sort them by hue
 async function extractAndSortColors(cards) {
   const imgPaths = cards.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
   const colorPromises = imgPaths.map(imgPath => Vibrant
@@ -129,7 +130,7 @@ async function extractAndSortColors(cards) {
       }
       return { color, card, colorGroup };
     } else {
-      return { color: d3.hsl('#cccccc'), card, colorGroup: 'unknown' }; // Fallback color
+      return { color: d3.hsl('#cccccc'), card, colorGroup: 'monotone' }; // Fallback color
     }
   });
 
@@ -156,7 +157,7 @@ d3.select('figure')
   
 }
 
-// Display all images preview grid on screen
+// display all images preview grid on screen
 function previewImg() {
 
   const grid = d3.select('#chart-container')
@@ -295,7 +296,8 @@ function groupOccasionElement() {
 
   sortedOccasions.forEach(([key, value]) => {
     const elements = value.map(card => card.elements).flat();
-    const uniqueElements = [...new Set(elements)];
+    const elementCounts = d3.rollup(elements, v => v.length, d => d);
+    const sortedElements = Array.from(elementCounts).sort((a, b) => b[1] - a[1]);
 
     const occasionContainer = d3.select('#chart-container').append('div').attr('class', 'occasion');
 
@@ -305,7 +307,7 @@ function groupOccasionElement() {
 
     const cards = occasionContainer.append('div').attr('class', 'row');
 
-    uniqueElements.forEach(element => {
+    sortedElements.forEach(([element]) => {
       const elementContainer = cards.append('div').attr('class', 'element');
       
       elementContainer.append('svg')
@@ -333,7 +335,7 @@ function groupOccasionElement() {
           });
 
           img.on('mouseout', function() {
-            d3.select(this).attr('width', 2.3);
+            d3.select(this).attr('width', 2.5);
           });
 
           img.on('click', function() {
