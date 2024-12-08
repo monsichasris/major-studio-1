@@ -17,11 +17,30 @@
     <main>
         <section id="intro">
             <img src="assets/cooper-hewitt-logo.webp" width="80px" alt="Cooper Hewitt">
-            <div id="card">
-                <header>
-                <h1>The Greeting Cards</h1>
+            <div class="card" id="card-cover">
+                <img src="assets/card-shadow.svg" style="position: absolute; transform: translateX(400px);">
+                <div style="border: 1px solid black; height: 100%;">
+                <header style="transform: translate(-4%,-8%);">
+                <h2 style="transform: translate(64%, 72%);">The</h2>
+                <h1>Greeting</h1>
+                <h1 style="transform: translate(8%, -8%);">Cards</h1>
+                <h2 style="transform: translate(120%, -2%); rotate: -30deg; color: rgb(254, 76, 11);">Unfolded</h2>
                 </header>
+                </div>
             </div>
+            <div class="card" id="card-inside"></div>
+            <script>
+                document.getElementById('card-inside').addEventListener('click', function() {
+                    document.getElementById('card-cover').style.visibility = 'hidden';
+                    this.style.transition = 'transform 1s ease-in-out';
+                    this.style.transform = 'scale(2)';
+                    this.addEventListener('transitionend', function() {
+                        document.getElementById('scrolly').scrollIntoView({ behavior: 'smooth' });
+                    }, { once: true });
+                });
+            </script>
+            <p style="color: white;">✣ Click the Card to Open ✣</p>
+              
         </section>
         <section id="scrolly">
             <figure></figure>

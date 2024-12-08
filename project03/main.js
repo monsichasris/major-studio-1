@@ -644,8 +644,8 @@ async function filterCard() {
       d3.selectAll('.occasion-button, .element-button, .color-button').style('background-color', null);
     });
 
-// Call addClearButton function when any filter button is clicked
-d3.selectAll('.occasion-button, .element-button, .color-button').on('click', addClearButton);
+// // Call addClearButton function when any filter button is clicked
+// d3.selectAll('.occasion-button, .element-button, .color-button').on('click', addClearButton);
 }
 
 // Function to update results based on selected filters
