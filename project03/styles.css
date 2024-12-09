@@ -287,19 +287,30 @@ footer {
   }
   
   .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
+    background-color: #F9F3EE;
+    margin: 12% auto;
     width: 80%;
-    max-width: 500px;
+    max-width: 800px;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .modal-text {
+    padding: 24px 40px;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
   }
   
   .close {
     color: #aaa;
-    float: right;
-    font-size: 28px;
+    float: center;
+    font-size: 16px;
     font-weight: bold;
+    width: 40px;
+    padding: 12px;
   }
   
   .close:hover,

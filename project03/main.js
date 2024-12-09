@@ -500,7 +500,7 @@ function scaleUpCard() {
 }
 
 // Function to show the cards in popup modal when clicked on the image
-function showCardModal(card) {
+async function showCardModal(card) {
   // Remove any existing modal
   d3.select('.modal').remove();
 
@@ -508,30 +508,44 @@ function showCardModal(card) {
   const modal = d3.select('body').append('div').attr('class', 'modal');
   modal.html(`
     <div class="modal-content">
-      <span class="close">&times;</span>
-      <img src="${card.img_large}" width="300">
-      <h3>${card.occasion}</h3>
-      <p>${card.elements.join(', ')}</p>
+      <img src="${card.img_large}" width="400">
+      <div class="modal-text">
+        <div>
+          <span>Ocassion:</span>
+          <h2 style="transform: scale(0.8); text-align: left;">${card.occasion}</h2>
+        </div>
+        <div>
+          <span>Element:</span>
+          <h3>${card.elements.join(', ')}</h3>
+        </div>
+        <div>
+          <span>Vibrant Color:</span>
+          <div class="color-palette"></div>
+        </div>
+      </div>
+      <span class="close">╳</span>
     </div>
   `);
   modal.style('display', 'block');
-  
-  // // Add color swatches using Vibrant.js
-  // Vibrant.from(card.img_preview).getPalette().then(palette => {
-  //   const swatches = modal.select('.modal-content').append('div').attr('class', 'swatches');
-  //   Object.values(palette).forEach(swatch => {
-  //     if (swatch) {
-  //       swatches.append('div')
-  //         .style('background-color', swatch.getHex())
-  //         .style('width', '20px')
-  //         .style('height', '20px')
-  //         .style('display', 'inline-block')
-  //         .style('margin', '2px');
-  //     }
-  //   });
-  // }).catch(err => {
-  //   console.error('Error extracting palette:', err);
-  // });
+
+  // Extract and display colors
+  const results = await extractAndSortColors([card]);
+  const colorPalette = d3.select('.color-palette');
+  results.forEach(({ color, colorGroup }) => {
+    const colorDiv = colorPalette.append('div')
+      .style('background-color', color.toString())
+      .style('width', '300px')
+      .style('height', '24px')
+      .style('display', 'inline-block')
+      .attr('title', colorGroup);
+
+    // colorDiv.append('p')
+    //   .text(colorGroup)
+    //   .style('color', '#fff')
+    //   .style('text-align', 'center')
+    //   .style('margin', '0')
+    //   .style('font-size', '12px');
+  });
 
   // Close the modal when the close button is clicked
   const span = document.querySelector('.close');
