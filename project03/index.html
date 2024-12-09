@@ -102,9 +102,20 @@
                 Select a choice to see the results that match your preferences.
             </p>
             <div id="filter">
-                <div id="occasion-filter"></div>
-                <div id="element-filter"></div>
-                <div id="color-filter"></div>
+                <div class="filter-row">
+                    <h3>Occasions</h3>
+                    <div id="occasion-filter"></div>
+                </div>
+
+                <div class="filter-row">
+                    <h3>Elements</h3>
+                    <div id="element-filter"></div>
+                </div>
+                
+                <div class="filter-row">
+                    <h3>Colors</h3>
+                    <div id="color-filter"></div>
+                </div>
                 
             </div>
 
@@ -118,7 +129,7 @@
             <h3><u>Methodology</u></h3>
             <p>The data for this project comes from the Cooper Hewitt Smithsonian Design Museum API. The cards were categorized manually based on their titles, description texts, or the text that appears on the cards. Colors were analyzed using Vibrant.js, so some results may not be entirely accurate.</p>
             <div>
-            <button>Back to top</button>
+            <button>↑ Back to top</button>
             <script>
                 document.querySelector('button').addEventListener('click', function() {
                     document.getElementById('intro').scrollIntoView({ behavior: 'smooth' });

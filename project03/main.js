@@ -580,7 +580,10 @@ async function filterCard() {
       } else {
         selectedOccasion = occasion;
         d3.selectAll('.occasion-button').style('background-color', null);
-        d3.select(this).style('background-color', '#d3d3d3');
+        d3.selectAll('.occasion-button').style('color', 'rgba(35, 55, 36, 0.5)');
+        d3.selectAll('.occasion-button').style('border', '1px solid rgba(35, 55, 36, 0.25)');
+        d3.select(this).style('background-color', '#182619');
+        d3.select(this).style('color', 'white');
       }
       updateResults();
       });
@@ -598,7 +601,10 @@ async function filterCard() {
         } else {
           selectedElement = element;
           d3.selectAll('.element-button').style('background-color', null);
-          d3.select(this).style('background-color', '#d3d3d3');
+          d3.selectAll('.element-button').style('color', 'rgba(35, 55, 36, 0.5)');
+          d3.selectAll('.element-button').style('border', '1px solid rgba(35, 55, 36, 0.25)');
+          d3.select(this).style('background-color', '#182619');
+          d3.select(this).style('color', 'white');
         }
         updateResults();
       });
@@ -637,7 +643,10 @@ async function filterCard() {
       } else {
         selectedColor = color;
         d3.selectAll('.color-button').style('background-color', null);
-        d3.select(this).style('background-color', '#d3d3d3');
+        d3.selectAll('.color-button').style('color', 'rgba(35, 55, 36, 0.5)');
+        d3.selectAll('.color-button').style('border', '1px solid rgba(35, 55, 36, 0.25)');
+        d3.select(this).style('background-color', '#182619');
+        d3.select(this).style('color', 'white');
       }
       updateResults();
       });
@@ -645,18 +654,18 @@ async function filterCard() {
 
   // Add a clear button to reset filters
   d3.select('#reset').append('button')
-    .attr('class', 'clear-button')
-    .text('Reset')
+    .text('↩︎ Reset')
     .on('click', function() {
       selectedOccasion = null;
       selectedElement = null;
       selectedColor = null;
       d3.selectAll('#result img').remove();
-      d3.selectAll('.occasion-button, .element-button, .color-button').style('background-color', null);
+      d3.selectAll('.filtered-cards p').remove();
+      d3.selectAll('.occasion-button, .element-button, .color-button')
+        .style('background-color', null)
+        .style('color', '#182619')
+        .style('border', '1px solid #182619');
     });
-
-// // Call addClearButton function when any filter button is clicked
-// d3.selectAll('.occasion-button, .element-button, .color-button').on('click', addClearButton);
 }
 
 // Function to update results based on selected filters

@@ -42,6 +42,7 @@ h2 {
 
 h3 {
     margin: 0;
+    font-weight: 600;
     line-height: 100%;
 }
 
@@ -180,24 +181,40 @@ figure {
 }
 
 button{
-    padding: 8px;
+    padding: 8px 12px;
     margin: 8px;
     background-color: transparent;
     color: #182619;
     border-color: #182619;
     cursor: pointer;
+    border: none;
 }
 
 button:hover {
-    background-color: #182619;
-    color: #F9F3EE;
+    background-color: rgba(35, 55, 36, 0.1);
+    border-radius: 24px;
 }
 
 button.occasion-button, button.element-button, button.color-button {
-    border: none;
     margin: 0;
-    border-radius: 24px;
+    border-radius: 2px;
     border: 1px solid #182619;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.filter-row {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
 }
 
 #filter {
@@ -205,7 +222,8 @@ button.occasion-button, button.element-button, button.color-button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 24px;
+    padding-top: 24px;
 }
 
 .filtered-cards {
@@ -222,7 +240,7 @@ button.occasion-button, button.element-button, button.color-button {
     align-items: center;
     text-align: center;
     height: 100vh;
-    padding: 80px;
+    padding: 40px;
 }
 
 #result {
