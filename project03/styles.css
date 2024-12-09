@@ -29,7 +29,7 @@ h1,h2 {
 
 }
 
-h1{
+h1 {
     font-size: 12rem;
     margin: 0;
     line-height: 100%;
@@ -40,12 +40,12 @@ h2 {
     margin: 0;
 }
 
-h3{
+h3 {
     margin: 0;
     line-height: 100%;
 }
 
-img{
+img {
     object-fit: cover;
 }
 
@@ -74,6 +74,7 @@ img{
 #card-inside {
     z-index: 0;
     position: absolute;
+    cursor: pointer;
 }
 
 
@@ -131,7 +132,7 @@ figure {
 }
 
 .step {
-    width: 40%;
+    width: 30%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -141,6 +142,7 @@ figure {
 .step p {
     text-align: center;
     padding: 1rem;
+    background-color: #F9F3EE;
 }
 
 .group-title {

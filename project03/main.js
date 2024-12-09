@@ -20,7 +20,7 @@ async function loadData() {
     });
 
     setupScrollama();
-    filterCard()
+    filterCard();
   }
 
 // whenever state changes, update the state variable, then redraw the viz
@@ -111,41 +111,32 @@ async function extractAndSortColors(cards) {
   const results = palettes.map((palette, index) => {
     const card = cards[index];
     let colorGroup = 'unknown';
-    let color = d3.hsl('#cccccc'); // Fallback color
-
-    if (palette) {
-      if (palette.Vibrant) {
-        color = d3.hsl(palette.Vibrant.getHex());
-      } else if (palette.DarkVibrant) {
-        color = d3.hsl(palette.DarkVibrant.getHex());
-      } else if (palette.LightVibrant) {
-        color = d3.hsl(palette.LightVibrant.getHex());
-      }
-
+    if (palette && (palette.Vibrant || palette.DarkVibrant || palette.LightVibrant)) {
+      const vibrantColor = palette.Vibrant || palette.DarkVibrant || palette.LightVibrant;
+      const color = d3.hsl(vibrantColor.getHex());
       if (color.h >= 330 || color.h < 30) {
-        colorGroup = 'red';
+      colorGroup = 'red';
       } else if (color.h >= 30 && color.h < 90) {
-        colorGroup = 'orange';
+      colorGroup = 'orange';
       } else if (color.h >= 90 && color.h < 150) {
-        colorGroup = 'yellow';
+      colorGroup = 'yellow';
       } else if (color.h >= 150 && color.h < 210) {
-        colorGroup = 'green';
+      colorGroup = 'green';
       } else if (color.h >= 210 && color.h < 270) {
-        colorGroup = 'cyan';
+      colorGroup = 'cyan';
       } else if (color.h >= 270 && color.h < 330) {
-        colorGroup = 'blue';
+      colorGroup = 'blue';
       } else {
-        colorGroup = 'purple';
+      colorGroup = 'purple';
       }
+      return { color, card, colorGroup };
     } else {
-      colorGroup = 'monotone';
+      return { color: d3.hsl('#cccccc'), card, colorGroup: 'monotone' }; // Fallback color
     }
+    });
 
-    return { color, card, colorGroup };
-  });
-
-  // Sort colors by colorGroup with a custom order
-  const colorOrder = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'monotone'];
+  // Sort colors by color group
+  const colorOrder = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'monotone', 'unknown'];
   results.sort((a, b) => colorOrder.indexOf(a.colorGroup) - colorOrder.indexOf(b.colorGroup));
   return results;
 }
@@ -167,35 +158,42 @@ d3.select('figure')
     .attr('id', 'chart-container');
   
 }
-
 // display all images preview grid on screen
 function previewImg() {
-
   const grid = d3.select('#chart-container')
     .style('padding', '0')
-    .append('div')
-    .attr('class', 'grid');
+    .append('div');
 
   // Shuffle the cards array to display images in random order
   const shuffledCards = d3.shuffle(state.data);
 
   shuffledCards.forEach((card, index) => {
-      const img = grid.append('img')
-          .attr('src', card.img_preview)
-          .attr('width', 72)
-          .attr('height', 72)
-          .attr('z-index', -100)
-          .style('opacity', 0)
-          .style('transition', 'opacity 10s');
+    const img = grid.append('img')
+      .attr('src', card.img_preview)
+      .attr('width', 72)
+      .attr('height', 72)
+      .style('position', 'absolute');
 
-      // Randomly decide if the image should hold 0 opacity longer
-      const holdOpacity = Math.random() < 0.98;
-      const delay = holdOpacity ? Math.random() * 10000 : Math.random() * 100;
+    const getRandomPosition = () => {
+      let x, y;
+      do {
+        x = Math.random() * (window.innerWidth);
+        y = Math.random() * (window.innerHeight);
+      } while (x > (window.innerWidth / 2 - 300) && x < (window.innerWidth / 2 + 300) &&
+               y > (window.innerHeight / 2 - 200) && y < (window.innerHeight / 2 + 200));
+      return { x: x - 36, y: y - 36 }; // Adjust position to center of the image
+    };
 
-      // Transition to 100% opacity one by one
-      setTimeout(() => {
-          img.style('opacity', 1);
-      }, delay);
+    const { x: randomX, y: randomY } = getRandomPosition();
+    img.style('transform', `translate(${randomX}px, ${randomY}px)`);
+
+    // Move the image to a new random position every 10 seconds
+    setInterval(() => {
+      newRandom = Math.random(-20,20);
+      img.transition()
+        .duration(1000)
+        .style('transform', `translate(${randomX+newRandom}px, ${randomY+newRandom}px)`);
+    });
   });
 }
 

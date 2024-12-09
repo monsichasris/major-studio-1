@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="https://use.typekit.net/had3kgg.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    
 </head>
+
 <body>
     <script src="main.js"></script>
     <script src="library/scrollama.min.js"></script>
@@ -28,7 +28,7 @@
                 </header>
                 </div>
             </div>
-            <div class="card" id="card-inside"></div>
+            <div class="card" id="card-inside">✣ Click to see the story ✣</div>
             <script>
                 document.getElementById('card-inside').addEventListener('click', function() {
                     document.getElementById('card-cover').style.visibility = 'hidden';
@@ -36,21 +36,36 @@
                     this.style.transform = 'scale(2)';
                     this.addEventListener('transitionend', function() {
                         document.getElementById('scrolly').scrollIntoView({ behavior: 'smooth' });
+                        this.style.transition = 'transform 1s ease-in-out';
                     }, { once: true });
                 });
+            window.addEventListener('scroll', function() {
+                if (window.scrollY === 0) {
+                    document.getElementById('card-cover').style.visibility = 'visible';
+                    document.getElementById('card-inside').style.transform = 'scale(1)';
+                }
+            });
             </script>
-            <p style="color: white;">✣ Click the Card to Open ✣</p>
+            <p style="color: white;">✣ Open the Card ✣</p>
               
         </section>
-        <section id="scrolly">
+        <!-- <section id="opening">
             <div class="step">
                 <p>Most of us have received or sent a greeting card, keeping some as treasured mementos. But have you ever wondered about the greeting cards collected by design museums like the Cooper Hewitt, Smithsonian?<br><br>
                 This project explores their collection of <b>577 greeting cards</b>, unfolding the design elements that make these cards memorable.
                 <br><br>
                 ▿ Scroll down ▿</p>
             </div>
+        </section> -->
+        <section id="scrolly">
             <figure></figure>
             <article>
+                <div class="step" data-step="1" data-scrollama-index="0">
+                    <p>Most of us have received or sent a greeting card, keeping some as treasured mementos. But have you ever wondered about the greeting cards collected by design museums like the Cooper Hewitt, Smithsonian?<br><br>
+                    This project explores their collection of <b>577 greeting cards</b>, unfolding the design elements that make these cards memorable.
+                    <br><br>
+                    ▿ Scroll down ▿</p>
+                </div>
                 <div class="step" data-step="2" data-scrollama-index="1">
                     <p>We usually send greeting cards for specific occasions, and some occasions are more popular than others. Most of the cards in this collection were donated to the museum by people like you. Let’s explore by <b>click on each occasions.</b></p>
                 </div>
@@ -61,8 +76,23 @@
                     <p>Design elements in the collection are less varied, often repeating similar themes that can be grouped into <b>10 categories</b>. The most popular themes include <b>Human, Nature, and Flower</b> motifs. Most cards feature straightforward, easily recognizable visuals rather than abstract designs. Additionally, many include text on the cover, enhancing the imagery rather than relying solely on it.</p>
                 </div>
                 <div class="step" data-step="5" data-scrollama-index="4">
-                    <p>The combination of colors and design elements varies subtly across occasions. Warm colors are used across all elements, even in nature-themed designs, which are often not green. Cool colors tend to appear more in geometric shapes or architectural designs. <b>Flowers with warm tones</b>, however, seem to be the perfect choice for any occasion.</p>
-                </div>                
+                    <p> The combination of colors and design elements varies subtly across occasions. Warm colors are used across all elements, even in nature-themed designs, which are often not green. Cool colors tend to appear more in geometric shapes or architectural designs. <b>Flowers with warm tones</b>, however, seem to be the perfect choice for any occasion.</p>
+                </div>
+                <script>
+                    const steps = document.querySelectorAll('.step p');
+                    window.addEventListener('scroll', () => {
+                        steps.forEach(step => {
+                            const rect = step.getBoundingClientRect();
+                            if (rect.top >= window.innerHeight * 0.25 && rect.bottom <= window.innerHeight * 0.75) {
+                                step.style.transition = 'opacity 0.5s ease-in-out';
+                                step.style.opacity = 1;
+                            } else {
+                                step.style.transition = 'opacity 0.5s ease-in-out';
+                                step.style.opacity = 0;
+                            }
+                        });
+                    });
+                </script>
             </article>
         </section>
         <section id="summary">
@@ -75,10 +105,11 @@
                 <div id="occasion-filter"></div>
                 <div id="element-filter"></div>
                 <div id="color-filter"></div>
-                <div id="reset"></div>
+                
             </div>
 
             <div id="result"></div>
+            <div id="reset"></div>
             <img id="envelope" src="assets/envelope.svg" />
         </section>
         <section id="outro">
@@ -91,6 +122,8 @@
             <script>
                 document.querySelector('button').addEventListener('click', function() {
                     document.getElementById('intro').scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('card-cover').style.visibility = 'visible';
+                    document.getElementById('card-inside').style.transform = 'scale(1)';
                 });
             </script>
         </section>
