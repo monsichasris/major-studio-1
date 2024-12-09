@@ -110,7 +110,7 @@ async function extractAndSortColors(cards) {
   const palettes = await Promise.all(colorPromises);
   const results = palettes.map((palette, index) => {
     const card = cards[index];
-    let colorGroup = 'unknown';
+    let colorGroup = 'gray';
     if (palette && (palette.Vibrant || palette.DarkVibrant || palette.LightVibrant)) {
       const vibrantColor = palette.Vibrant || palette.DarkVibrant || palette.LightVibrant;
       const color = d3.hsl(vibrantColor.getHex());
@@ -131,12 +131,12 @@ async function extractAndSortColors(cards) {
       }
       return { color, card, colorGroup };
     } else {
-      return { color: d3.hsl('#cccccc'), card, colorGroup: 'monotone' }; // Fallback color
+      return { color: d3.hsl('#cccccc'), card, colorGroup: 'gray' }; // Fallback color
     }
     });
 
   // Sort colors by color group
-  const colorOrder = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'monotone', 'unknown'];
+  const colorOrder = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'gray'];
   results.sort((a, b) => colorOrder.indexOf(a.colorGroup) - colorOrder.indexOf(b.colorGroup));
   return results;
 }
@@ -569,23 +569,29 @@ async function filterCard() {
   const elements = new Set(state.data.flatMap(card => card.elements));
 
   // Create buttons for each occasion
-  occasions.forEach((value, occasion) => {
+  const sortedOccasions = Array.from(occasions.keys()).sort((a, b) => {
+    if (a === "Other") return 1;
+    if (b === "Other") return -1;
+    return a.localeCompare(b);
+  });
+
+  sortedOccasions.forEach(occasion => {
     occasionFilterContainer.append('button')
       .attr('class', 'occasion-button')
       .text(occasion)
       .on('click', function() {
-      if (selectedOccasion === occasion) {
-        selectedOccasion = null;
-        d3.select(this).style('background-color', null);
-      } else {
-        selectedOccasion = occasion;
-        d3.selectAll('.occasion-button').style('background-color', null);
-        d3.selectAll('.occasion-button').style('color', 'rgba(35, 55, 36, 0.5)');
-        d3.selectAll('.occasion-button').style('border', '1px solid rgba(35, 55, 36, 0.25)');
-        d3.select(this).style('background-color', '#182619');
-        d3.select(this).style('color', 'white');
-      }
-      updateResults();
+        if (selectedOccasion === occasion) {
+          selectedOccasion = null;
+          d3.select(this).style('background-color', null);
+        } else {
+          selectedOccasion = occasion;
+          d3.selectAll('.occasion-button').style('background-color', null);
+          d3.selectAll('.occasion-button').style('color', 'rgba(35, 55, 36, 0.5)');
+          d3.selectAll('.occasion-button').style('border', '1px solid rgba(35, 55, 36, 0.25)');
+          d3.select(this).style('background-color', '#182619');
+          d3.select(this).style('color', 'white');
+        }
+        updateResults();
       });
   });
 
@@ -621,7 +627,7 @@ async function filterCard() {
     cyan: [],
     blue: [],
     purple: [],
-    unknown: [],
+    gray: [],
   };
 
   // Group cards by color

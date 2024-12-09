@@ -181,18 +181,22 @@ figure {
 }
 
 button{
-    padding: 8px 12px;
+    padding: 8px 10px 4px 10px;
     margin: 8px;
     background-color: transparent;
     color: #182619;
     border-color: #182619;
     cursor: pointer;
     border: none;
+    font-family: "adobe-caslon-pro", serif;
+    font-size: 14px;
+    line-height: 100%;
 }
 
 button:hover {
     background-color: rgba(35, 55, 36, 0.1);
     border-radius: 24px;
+    font-style: italic;
 }
 
 button.occasion-button, button.element-button, button.color-button {
