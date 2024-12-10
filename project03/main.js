@@ -716,21 +716,27 @@ function updateResults() {
         .attr('src', card.img_preview)
         .attr('height', 200)
         .style('box-shadow', '0 4px 8px rgba(0, 0, 0, 0.2)');
-        img.on('click', function() {
-          showCardModal(card);
-        });
-        img.on('mouseover', function() {
-          d3.select(this).attr('width', 300);
-        });
-        img.on('mouseout', function() {
-            d3.select(this).attr('width', imgWidth);
-        });
+        
+      img.on('click', function() {
+        showCardModal(card);
+      });
+
+      img.on('mouseover', function() {
+        const originalWidth = this.naturalWidth;
+        const originalHeight = this.naturalHeight;
+        const newWidth = (200 / originalHeight) * originalWidth;
+        d3.select(this).attr('width', newWidth);
+      });
+
+      img.on('mouseout', function() {
+        d3.select(this).attr('width', imgWidth);
+      });
 
       // Calculate width to fit all images in the container
       const containerWidth = d3.select('#result').node().getBoundingClientRect().width;
       const numImages = filteredCards.length;
       const imgWidth = containerWidth / numImages;
-      img.attr('width', imgWidth);
+      img.attr('width', Math.min(imgWidth, 300));
     });
   } else {
     container.append('p').text('No cards match the selected filters.');
