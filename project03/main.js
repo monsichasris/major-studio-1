@@ -457,12 +457,11 @@ function scaleUpCard() {
       .style('cursor', 'pointer')
       .style('z-index', '1000');
 
-      closeButton.on('click', function() {
+      closeButton.on('click', function(event) {
+        event.stopPropagation(); 
         d3.select(this.parentNode)
           .style('height', null)
           .style('overflow', 'hidden')
-          .style('display', 'block')
-          .style('align-items', 'flex-start');
         d3.select(this.parentNode).select('.group-title h3')
           .style('font-size', '16px');
         d3.select(this.parentNode).select('.row')
@@ -472,6 +471,7 @@ function scaleUpCard() {
 
       // Close the scaled-up card when clicking anywhere on the screen
       d3.select('body').on('click', function(event) {
+        event.stopPropagation()
         if (!event.target.closest('.occasion')) {
           d3.select(this)
           .style('height', null)
@@ -483,15 +483,15 @@ function scaleUpCard() {
         } else {
           const clickedOccasion = event.target.closest('.occasion');
           d3.selectAll('.occasion').each(function() {
-        if (this !== clickedOccasion) {
-          d3.select(this)
-          .style('height', null)
-          d3.select(this).select('.group-title h3')
-            .style('font-size', '16px');
-          d3.select(this).select('.row')
-            .style('transform', 'scale(1)');
-          d3.select(this).select('.close-button').remove();
-        }
+            if (this !== clickedOccasion) {
+              d3.select(this)
+              .style('height', null)
+              d3.select(this).select('.group-title h3')
+                .style('font-size', '16px');
+              d3.select(this).select('.row')
+                .style('transform', 'scale(1)');
+              d3.select(this).select('.close-button').remove();
+            }
           });
         }
       });
@@ -538,25 +538,23 @@ async function showCardModal(card) {
       .style('height', '24px')
       .style('display', 'inline-block')
       .attr('title', colorGroup);
-
-    // colorDiv.append('p')
-    //   .text(colorGroup)
-    //   .style('color', '#fff')
-    //   .style('text-align', 'center')
-    //   .style('margin', '0')
-    //   .style('font-size', '12px');
   });
 
   // Close the modal when the close button is clicked
   const span = document.querySelector('.close');
-  span.onclick = function() {
-    modal.style('display', 'none');
+  span.onclick = function(event) {
+    event.stopPropagation(); 
+    modal.style('display', 'none')
+    
   }
 
   // Close the modal when clicking outside of the modal content
   window.onclick = function(event) {
+    event.stopPropagation()
+    .style('height', '48px')
+    .style('overflow', 'hidden');
     if (event.target == modal.node()) {
-      modal.style('display', 'none');
+      modal.style('display', 'none')
     }
   }
 }
