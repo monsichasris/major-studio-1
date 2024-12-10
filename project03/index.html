@@ -117,18 +117,18 @@
         </section>
         <section id="outro">
             <div class="card">
-            <p>Thank you</p>
-            <h3><u>Methodology</u></h3>
-            <p style="padding: 5% 20%;">The data for this project comes from the Cooper Hewitt Smithsonian Design Museum API. The cards were categorized manually based on their titles, description texts, or the text that appears on the cards. Colors were analyzed using Vibrant.js, so some results may not be entirely accurate.</p>
-            <div>
-            <button>↑ Back to top</button>
-            <script>
-                document.querySelector('button').addEventListener('click', function() {
-                    document.getElementById('intro').scrollIntoView({ behavior: 'smooth' });
-                    document.getElementById('card-cover').style.visibility = 'visible';
-                    document.getElementById('card-inside').style.transform = 'scale(1)';
-                });
-            </script>
+                <img src="assets/logo.svg" width="200px" style="padding: 16px; transform: translateX(20px);">
+                <h3><u>Thank you</u></h3>
+                <p style="padding: 4% 15%;">The data for this project comes from the Cooper Hewitt Smithsonian Design Museum API. The cards were categorized manually based on their titles, description texts, or the text that appears on the cards. Colors were analyzed using Vibrant.js, so some results may not be entirely accurate.</p>
+                <div>
+                <button>↑ Back to top</button>
+                <script>
+                    document.querySelector('button').addEventListener('click', function() {
+                        document.getElementById('intro').scrollIntoView({ behavior: 'smooth' });
+                        document.getElementById('card-cover').style.visibility = 'visible';
+                        document.getElementById('card-inside').style.transform = 'scale(1)';
+                    });
+                </script>
         </section>
 
     </main>
@@ -136,7 +136,7 @@
     
 
     <footer>
-        <label>2024 © Monsicha Srisuantang | MS Data Visualization, Parsons School of Design</label>
+        <label>2024 © Monsicha Srisuantang ✣ MS Data Visualization, Parsons School of Design</label>
     </footer>
 </body>
 </html>
