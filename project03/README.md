@@ -1,7 +1,7 @@
 # The Greeting Card Unfolded
 This project explores the unique collection of greeting cards in in the Cooper Hewitt Design Museum, Smithsonian. By visualizing the cards, the project explores the design elements, colors, and occasions. It highlights patterns and trends within the collection, offering insights into how visual create memorable designs.
 
-[View Live]((https://monsichasris.github.io/major-studio-1/project03/))
+[View Live](https://monsichasris.github.io/major-studio-1/project03/)
 
 <img width="1497" alt="Screenshot 2024-12-09 at 3 29 55 PM" src="https://github.com/user-attachments/assets/85fcf6ed-4061-4ec7-bf26-07a7ebc2292f" />
 <img width="1511" alt="Screenshot 2024-12-09 at 10 51 48 PM" src="https://github.com/user-attachments/assets/1d443f61-a5dc-4a50-a4d2-fe0785b53b87" />
