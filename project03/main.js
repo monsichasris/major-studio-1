@@ -95,6 +95,15 @@ function setupScrollama() {
   window.addEventListener("resize", handleResize);
 }
 
+// sets up before data loads
+function initializeLayout() {
+
+  d3.select('figure')
+      .append('div')
+      .attr('id', 'chart-container');
+    
+}
+
 // extract colors from images using Vibrant.js and sort them by hue
 async function extractAndSortColors(cards) {
   const imgPaths = cards.map(card => `assets/download_cards/cardImgDownload/${card.id}.jpg`);
@@ -141,6 +150,15 @@ async function extractAndSortColors(cards) {
   return results;
 }
 
+// Sort occasions by number of cards and put "Other" at the end
+function sortOccasions(occasions) {
+  return Array.from(occasions).sort((a, b) => {
+    if (a[0] === "Other") return 1;
+    if (b[0] === "Other") return -1;
+    return b[1].length - a[1].length;
+  });
+}
+
 //ensures that the function is not called too frequently
 function debounce(func, wait) {
   let timeout;
@@ -150,14 +168,6 @@ function debounce(func, wait) {
   };
 }
 
-// sets up before data loads
-function initializeLayout() {
-
-d3.select('figure')
-    .append('div')
-    .attr('id', 'chart-container');
-  
-}
 // display all images preview grid on screen
 function previewImg() {
   const grid = d3.select('#chart-container')
@@ -196,16 +206,6 @@ function previewImg() {
     });
   });
 }
-
-// Sort occasions by number of cards and put "Other" at the end
-function sortOccasions(occasions) {
-  return Array.from(occasions).sort((a, b) => {
-    if (a[0] === "Other") return 1;
-    if (b[0] === "Other") return -1;
-    return b[1].length - a[1].length;
-  });
-}
-
 
 
 
@@ -430,7 +430,7 @@ async function groupAll() {
 
 
 
-// Function to scale cards size up when click on occasion
+// scale cards size up when click on occasion
 function scaleUpCard() {
   d3.selectAll('.occasion')
 
@@ -499,7 +499,7 @@ function scaleUpCard() {
     
 }
 
-// Function to show the cards in popup modal when clicked on the image
+// show the cards in popup modal when clicked on the image
 async function showCardModal(card) {
   // Remove any existing modal
   d3.select('.modal').remove();
@@ -743,7 +743,6 @@ function updateResults() {
   }
 
 }
-
 
 
 
