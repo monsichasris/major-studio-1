@@ -35,13 +35,15 @@
                     this.style.transition = 'transform 1s ease-in-out';
                     this.style.transform = 'scale(2)';
                     this.addEventListener('transitionend', function() {
-                        document.getElementById('scrolly').scrollIntoView({ behavior: 'smooth' });
+                        document.querySelector('#scrolly .step[data-step="1"]').scrollIntoView({ behavior: 'smooth' });
                         this.style.transition = 'transform 1s ease-in-out';
                     }, { once: true });
                 });
             window.addEventListener('scroll', function() {
+                const cardCover = document.getElementById('card-cover');
                 if (window.scrollY === 0) {
-                    document.getElementById('card-cover').style.visibility = 'visible';
+                    cardCover.style.visibility = 'visible';
+                    cardCover.style.pointerEvents = 'auto';
                     document.getElementById('card-inside').style.transform = 'scale(1)';
                 }
             });

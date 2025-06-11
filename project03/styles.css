@@ -91,6 +91,7 @@ img {
 
 #card-cover {
   z-index: 1;
+  pointer-events: auto;
 }
 
 #card-cover:hover {
@@ -101,6 +102,10 @@ img {
 
 #card-cover:hover * {
   visibility: hidden;
+}
+
+#card-cover[style*="visibility: hidden"] {
+  pointer-events: none; /* Disable interactions when hidden */
 }
 
 #scrolly {
