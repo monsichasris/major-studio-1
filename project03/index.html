@@ -45,7 +45,9 @@
                     cardCover.style.visibility = 'visible';
                     cardCover.style.pointerEvents = 'auto';
                     document.getElementById('card-inside').style.transform = 'scale(1)';
-                }
+                } else {
+        cardCover.style.pointerEvents = 'none'; // Disable pointer events when hidden
+    }
             });
             </script>
             <p style="color: white;">✣ Open the Card ✣</p>
